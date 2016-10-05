@@ -1,0 +1,161 @@
+
+[
+{
+"url": "https://api.github.com/repos/openenergymonitor/EmonESP/releases/3950072",
+"assets_url": "https://api.github.com/repos/openenergymonitor/EmonESP/releases/3950072/assets",
+"upload_url": "https://uploads.github.com/repos/openenergymonitor/EmonESP/releases/3950072/assets{?name,label}",
+"html_url": "https://github.com/openenergymonitor/EmonESP/releases/tag/2.0.0",
+"id": 3950072,
+"tag_name": "2.0.0",
+"target_commitish": "master",
+"name": "V2.0.0 substantial update",
+"draft": false,
+"author": {
+"login": "glynhudson",
+"id": 758844,
+"avatar_url": "https://avatars.githubusercontent.com/u/758844?v=3",
+"gravatar_id": "",
+"url": "https://api.github.com/users/glynhudson",
+"html_url": "https://github.com/glynhudson",
+"followers_url": "https://api.github.com/users/glynhudson/followers",
+"following_url": "https://api.github.com/users/glynhudson/following{/other_user}",
+"gists_url": "https://api.github.com/users/glynhudson/gists{/gist_id}",
+"starred_url": "https://api.github.com/users/glynhudson/starred{/owner}{/repo}",
+"subscriptions_url": "https://api.github.com/users/glynhudson/subscriptions",
+"organizations_url": "https://api.github.com/users/glynhudson/orgs",
+"repos_url": "https://api.github.com/users/glynhudson/repos",
+"events_url": "https://api.github.com/users/glynhudson/events{/privacy}",
+"received_events_url": "https://api.github.com/users/glynhudson/received_events",
+"type": "User",
+"site_admin": false
+},
+"prerelease": false,
+"created_at": "2016-08-23T12:25:53Z",
+"published_at": "2016-08-23T12:30:55Z",
+"assets": [
+{
+"url": "https://api.github.com/repos/openenergymonitor/EmonESP/releases/assets/2189730",
+"id": 2189730,
+"name": "firmware.bin",
+"label": "",
+"uploader": {
+"login": "glynhudson",
+"id": 758844,
+"avatar_url": "https://avatars.githubusercontent.com/u/758844?v=3",
+"gravatar_id": "",
+"url": "https://api.github.com/users/glynhudson",
+"html_url": "https://github.com/glynhudson",
+"followers_url": "https://api.github.com/users/glynhudson/followers",
+"following_url": "https://api.github.com/users/glynhudson/following{/other_user}",
+"gists_url": "https://api.github.com/users/glynhudson/gists{/gist_id}",
+"starred_url": "https://api.github.com/users/glynhudson/starred{/owner}{/repo}",
+"subscriptions_url": "https://api.github.com/users/glynhudson/subscriptions",
+"organizations_url": "https://api.github.com/users/glynhudson/orgs",
+"repos_url": "https://api.github.com/users/glynhudson/repos",
+"events_url": "https://api.github.com/users/glynhudson/events{/privacy}",
+"received_events_url": "https://api.github.com/users/glynhudson/received_events",
+"type": "User",
+"site_admin": false
+},
+"content_type": "application/x-mac",
+"state": "uploaded",
+"size": 370368,
+"download_count": 4,
+"created_at": "2016-08-23T12:32:29Z",
+"updated_at": "2016-08-23T12:32:29Z",
+"browser_download_url": "https://github.com/openenergymonitor/EmonESP/releases/download/2.0.0/firmware.bin"
+}
+],
+"tarball_url": "https://api.github.com/repos/openenergymonitor/EmonESP/tarball/2.0.0",
+"zipball_url": "https://api.github.com/repos/openenergymonitor/EmonESP/zipball/2.0.0",
+"body": "- MQTT support\r\n- Wifi captive portal\r\n- Interface Update\r\n - Improved mobile device support\r\n- Firmware update via web interface\r\n- Improve security, web interface password\r\n- Input API\r\n- Custom Emoncms server\r\n- SSL fingerprint \r\n\r\n### Forum Dev Threads: \r\n\r\nhttps://community.openenergymonitor.org/t/emonesp-firmware-development/1191/43\r\nhttps://community.openenergymonitor.org/tags/emonesp"
+},
+{
+"url": "https://api.github.com/repos/openenergymonitor/EmonESP/releases/3949966",
+"assets_url": "https://api.github.com/repos/openenergymonitor/EmonESP/releases/3949966/assets",
+"upload_url": "https://uploads.github.com/repos/openenergymonitor/EmonESP/releases/3949966/assets{?name,label}",
+"html_url": "https://github.com/openenergymonitor/EmonESP/releases/tag/1.0.0",
+"id": 3949966,
+"tag_name": "1.0.0",
+"target_commitish": "master",
+"name": "V1.0.0 Initial release",
+"draft": false,
+"author": {
+"login": "glynhudson",
+"id": 758844,
+"avatar_url": "https://avatars.githubusercontent.com/u/758844?v=3",
+"gravatar_id": "",
+"url": "https://api.github.com/users/glynhudson",
+"html_url": "https://github.com/glynhudson",
+"followers_url": "https://api.github.com/users/glynhudson/followers",
+"following_url": "https://api.github.com/users/glynhudson/following{/other_user}",
+"gists_url": "https://api.github.com/users/glynhudson/gists{/gist_id}",
+"starred_url": "https://api.github.com/users/glynhudson/starred{/owner}{/repo}",
+"subscriptions_url": "https://api.github.com/users/glynhudson/subscriptions",
+"organizations_url": "https://api.github.com/users/glynhudson/orgs",
+"repos_url": "https://api.github.com/users/glynhudson/repos",
+"events_url": "https://api.github.com/users/glynhudson/events{/privacy}",
+"received_events_url": "https://api.github.com/users/glynhudson/received_events",
+"type": "User",
+"site_admin": false
+},
+"prerelease": false,
+"created_at": "2016-08-16T20:08:32Z",
+"published_at": "2016-08-23T12:15:17Z",
+"assets": [
+{
+"url": "https://api.github.com/repos/openenergymonitor/EmonESP/releases/assets/2189646",
+"id": 2189646,
+"name": "firmware.bin",
+"label": "",
+"uploader": {
+"login": "glynhudson",
+"id": 758844,
+"avatar_url": "https://avatars.githubusercontent.com/u/758844?v=3",
+"gravatar_id": "",
+"url": "https://api.github.com/users/glynhudson",
+"html_url": "https://github.com/glynhudson",
+"followers_url": "https://api.github.com/users/glynhudson/followers",
+"following_url": "https://api.github.com/users/glynhudson/following{/other_user}",
+"gists_url": "https://api.github.com/users/glynhudson/gists{/gist_id}",
+"starred_url": "https://api.github.com/users/glynhudson/starred{/owner}{/repo}",
+"subscriptions_url": "https://api.github.com/users/glynhudson/subscriptions",
+"organizations_url": "https://api.github.com/users/glynhudson/orgs",
+"repos_url": "https://api.github.com/users/glynhudson/repos",
+"events_url": "https://api.github.com/users/glynhudson/events{/privacy}",
+"received_events_url": "https://api.github.com/users/glynhudson/received_events",
+"type": "User",
+"site_admin": false
+},
+"content_type": "application/x-mac",
+"state": "uploaded",
+"size": 346304,
+"download_count": 0,
+"created_at": "2016-08-23T12:16:30Z",
+"updated_at": "2016-08-23T12:16:30Z",
+"browser_download_url": "https://github.com/openenergymonitor/EmonESP/releases/download/1.0.0/firmware.bin"
+}
+],
+"tarball_url": "https://api.github.com/repos/openenergymonitor/EmonESP/tarball/1.0.0",
+"zipball_url": "https://api.github.com/repos/openenergymonitor/EmonESP/zipball/1.0.0",
+"body": "- Initial release\r\n- Proven stable on HeatPump monitor prototype with ESP12\r\n- Simple serial to Emoncms.org using hard coded SSL fingerprint "
+}
+]
+If you like Hurl.it, you'll love Runscope.
+Send, share and organize your API calls.
+
+Email Address
+ Try Runscope for Free
+ Runscope Radar
+TAKE CONTROL OF YOUR API REQUESTS
+
+Runscope provides complete logging for all of your API traffic. Track down troublesome API calls with powerful search. Debug problems by peering into the details of every request and response. Works with any public or private API.
+
+REPLAY, SHARE, COMPARE
+
+API traffic logs aren't just for reading anymore. Replay any request with one click. Share request and response data to collaborate with others. Compare requests side-by-side when you need to identify differences between successful and failed calls.
+
+
+Email Address
+ Try Runscope for Free
+© 2016 Runscope Inc. - Privacy Policy - Terms of Service - Help & Feedback
