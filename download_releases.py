@@ -6,7 +6,7 @@
 # requires python 2.7.9 +
 # use python virtual env in needed https://github.com/yyuu/pyenv
 
-import requests, urllib, os, time
+import requests, urllib, os, time, simplejson
 
 
 download_folder = 'firmware'
@@ -87,4 +87,17 @@ for repo_index in range(len(repo)):
       print '\n'
     else:
       print '  WARN: Skipping download: ' + current_repo + ' ' + release_version + 'release file extension .' + extension + ' does not match allowed extensions: ' + ', '.join(allowed_extensions)
+    
+print '\n'
+print firmware
+print '\n'
+f = open('firmware/versions.json', 'w')
+simplejson.dump(firmware, f)
+f.close()  
+
+f = open('firmware/versions.json', 'r')
+firmware_read = simplejson.load(f) 
+print firmware_read
+
+
 
