@@ -8,9 +8,18 @@
 
 import requests, urllib, os, time
 
-repo = ['openenergymonitor/emonesp','openenergymonitor/emonth2']
+
 download_folder = 'firmware'
 allowed_extensions = ['bin', 'hex']
+
+# get list of github repos from file, one repo per line. e.g 'openenergymonitor/emonpi'
+repo_file = open('repos.conf', 'r')
+repo = repo_file.readlines()
+number_repos = len(repo)
+print 'Found ' + str(number_repos) + ' github repos in repos.conf:\n'
+for repo_index in range(number_repos):
+  repo[repo_index] = repo[repo_index].rstrip('\n')
+  print str(repo_index+1) + '. ' + repo[repo_index]
 
 # Creates a number of empty lists to store repo info, each of 4 items, all set to 0
 # used to store: 'index, tag_name, release_title, release_date'
@@ -26,7 +35,7 @@ if not os.path.isdir(download_folder):
 for repo_index in range(len(repo)):
   current_repo = str(repo[repo_index].split('/')[-1])
   print '\n-----------------------------------------------------------------------------------'
-  print "\nGetting available releases for " + current_repo +'\n'
+  print "\nGetting available github releases for " + current_repo +'\n'
   r = requests.get('https://api.github.com/repos/openenergymonitor/'+current_repo+'/releases')
   resp = r.json()
   time.sleep(2)
