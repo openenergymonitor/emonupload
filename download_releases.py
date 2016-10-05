@@ -32,17 +32,18 @@ if not os.path.isdir(download_folder):
   
 
 # Itterate over repos 
-for repo_index in range(len(repo)):
+for repo_index in range(number_repos):
   current_repo = str(repo[repo_index].split('/')[-1])
   print '\n-----------------------------------------------------------------------------------'
   print "\nGetting available github releases for " + current_repo +'\n'
   r = requests.get('https://api.github.com/repos/openenergymonitor/'+current_repo+'/releases')
   resp = r.json()
   time.sleep(2)
-  print 'Found ' + str(len(resp)) + ' releases for ' + current_repo + ':' +'\n'
+  number_releases = len(resp)
+  print 'Found ' + str(number_releases) + ' releases for ' + current_repo + ':' +'\n'
   
   # Iterate over releases
-  for index in range(len(resp)):
+  for index in range(number_releases):
     assets = resp[index]['assets']                  # multi dimentional array containing current_repo release assets
     
     
