@@ -6,23 +6,42 @@
 # requires python 2.7.9 +
 # use python virtual env in needed https://github.com/yyuu/pyenv
 
+# By Glyn Hudson
+# Part of OpenEnergyMonitor.org project
+# GNU GPL V3
+
+#--------------------------------------------------------------------------------------------------
 import requests, urllib, os, time, shutil, sys, json
 
 DEBUG = 0
 
+#--------------------------------------------------------------------------------------------------
 download_folder = 'firmware'
 allowed_extensions = ['bin', 'hex']
 repo_config_file = 'repos.conf'
+#--------------------------------------------------------------------------------------------------
 
-now = time.strftime("%c")
-print '\nemonUpload ' + time.strftime("%c") + '\n'
 
 #--------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------
+# Terminal colours
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    
+now = time.strftime("%c")
+print bcolors.HEADER + '\nemonUpload: ' + time.strftime("%c") + '\n' +  bcolors.ENDC
 # get list of github repos to consider from file, one repo per line. e.g 'openenergymonitor/emonpi'
 repo_file = open(repo_config_file, 'r')
 repo = repo_file.readlines()
 number_repos = len(repo)
-print 'Considering ' + str(number_repos) + ' github repos from ' + repo_config_file + ':\n'
+print bcolors.UNDERLINE + 'Considering ' + str(number_repos) + ' github repos from ' + repo_config_file + ':\n' + bcolors.ENDC
 for repo_index in range(number_repos):
   repo[repo_index] = repo[repo_index].rstrip('\n')
   print str(repo_index+1) + '. ' + repo[repo_index]
@@ -31,11 +50,6 @@ print '\n-----------------------------------------------------------------------
 # Check download folder exists if not create
 if not os.path.isdir(download_folder):
   os.mkdir(download_folder) # make folder to store the firmware if not exist
-  
-  # Creates a number of empty lists to store repo info, each of 4 items, all set to 0
-#w, h = 4, (len(repo))
-#firmware = [[0 for x in range(w)] for y in range(h)]
-#old_firmware = [[0 for x in range(w)] for y in range(h)]
 
 # Load old cached firmware info from file
 # - list storing each release for each repo. Format:
@@ -43,37 +57,35 @@ if not os.path.isdir(download_folder):
 firmware_file = 'firmware/versions.json'
 if os.path.isfile(firmware_file) and os.path.getsize(firmware_file) > 0:
   f = open('firmware/versions.json', 'r')
-  print 'Loading cached firmware manifest ' + firmware_file
+  print bcolors.UNDERLINE + '\nDownloaded releases: \n' + bcolors.ENDC
   old_firmware = json.load(f)
   if (DEBUG): print '\nDEBUG: ' + str(old_firmware) + '\n'
-  print "Found cached firmware: \n"
   for index in range(len(old_firmware)):
     print str(index+1) + '. ' + json.dumps(old_firmware[index])
 else:
   old_firmware=''
     
+print '\n-----------------------------------------------------------------------------------'
+print bcolors.UNDERLINE + "\nGetting latest releases...\n"  + bcolors.ENDC
 # Itterate over github repos
 for repo_index in range(number_repos):
   current_repo = str(repo[repo_index])
-  print '\n-----------------------------------------------------------------------------------'
-  print "\nGetting latest releases for " + current_repo
   release_api_url = 'https://api.github.com/repos/' + current_repo + '/releases'
-  print 'from: ' + release_api_url + '\n'
+  if (DEBUG): print 'DEBUG: from: ' + release_api_url + '\n'
   try:
     r = requests.get(release_api_url)
   except requests.exceptions.RequestException as e:  # This is the correct syntax
-    print equ
-    print "\nERROR contacting GitHub API " + release_api_url
+    #print equ
+    print bcolors.FAIL + '\nERROR contacting GitHub API ' + release_api_url + '\n' + bcolors.ENDC
     sys.exit(1)
   resp = r.json()
-  time.sleep(2)
+  if (DEBUG): print '\n' + json.dumps(resp[repo_index], sort_keys=True, indent=4, separators=(',', ': ')) + '\n'
   number_releases = len(resp)
-  print 'Found ' + str(number_releases) + ' releases for ' + current_repo + ':' +'\n'
-  
+  print bcolors.OKBLUE + 'Found ' + str(number_releases) + ' releases for ' + current_repo + ':' +'\n' + bcolors.ENDC
   # Iterate over github releases
   for index in range(number_releases):
+    if (DEBUG): print '\n' + json.dumps(resp[index], sort_keys=True, indent=4, separators=(',', ': ')) + '\n'
     assets = resp[index]['assets']                  # multi dimentional list containing current_repo release assets
-      
     release_name=resp[index]['name']
     release_version = resp[index]['tag_name']
     release_date = assets[0]['created_at']   # assume the firmware fime we want is the first asset in the release e.g. assets[0]
@@ -89,7 +101,7 @@ for repo_index in range(number_repos):
           print '\nDEBUG: Cached: ' + str(old_firmware[old_index])
           print 'DEBUG: Latest: ' + str(current_release_list)
     
-    if download==0: print '  Already cached.'
+    if download==0: print bcolors.OKGREEN + '    Already cached.' + bcolors.ENDC
 
     # get the download URL of the first release asset (assume we only have one asset per release for now)
     # e.g. 'https://github.com/openenergymonitor/emonesp/releases/download/2.0.0/firmware.bin'
@@ -98,7 +110,7 @@ for repo_index in range(number_repos):
 
     # check firmware extension is a allowed firmware extension
     if extension in allowed_extensions and download==1:
-      print '  NEW RELEASE...downloading: '
+      print bcolors.WARNING + '    NEW RELEASE...downloading: ' + bcolors.ENDC
       # append new firmare to the list to be saved
       if 'firmware' in locals():
         firmware.append(current_release_list)
@@ -128,9 +140,9 @@ for repo_index in range(number_repos):
           print status,
       f.close()
       print '\n'
-    else:
+    if extension not in allowed_extensions:
       if (DEBUG): print '\nDEBUG: Skipping download, release file extension .' + extension + ' does not match allowed extensions: ' + ', '.join(allowed_extensions)
-
+  print '\n-----------------------------------------------------------------------------------'
 
 
 if 'firmware' in locals():
@@ -141,8 +153,7 @@ if 'firmware' in locals():
   
   if (DEBUG): print '\nDEBUG: ' + str(firmware) + '\n'
 
-print '\nDONE.\n'
-
+print bcolors.WARNING + '\nDONE.\n' + bcolors.ENDC
 
 
 
