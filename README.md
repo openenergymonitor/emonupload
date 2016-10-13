@@ -2,6 +2,8 @@
 
 Download, flash and manage OpenEnergyMonitor firmware
 
+*Designed primarily for internal & factory use*
+
 ***
 
 # In Development
