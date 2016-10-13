@@ -31,7 +31,7 @@
 # Test unit
 
 from download_releases import debug, get_repos, update_download_releases
-import time
+import time, urllib
 
 ## Uncomment to enable debug
 # debug()
@@ -43,6 +43,20 @@ allowed_extensions = ['bin', 'hex']
 repo_config_file = 'repos.conf'
 #--------------------------------------------------------------------------------------------------
 
+#--------------------------------------------------------------------------------------------------
+# Check interent connectivity
+#--------------------------------------------------------------------------------------------------
+def interent_connected():
+  global e
+  try:
+      stri = "https://github.com"
+      data = urllib.urlopen(stri)
+      if (DEBUG): print "Internet connected"
+      return True
+  except e:
+      if (DEBUG): print "No Interent connection: " ,e
+      return False
+#--------------------------------------------------------------------------------------------------
 
 # Terminal colours
 class bcolors:
@@ -54,12 +68,17 @@ class bcolors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
-    
+#--------------------------------------------------------------------------------------------------
+
+
+# STARTUP
 now = time.strftime("%c")
 print bcolors.HEADER + bcolors.UNDERLINE + '\nemonUpload: ' + VERSION + bcolors.ENDC
 print 'Today: ' + time.strftime("%c") + '\n'
 print '\n-------------------------------------------------------------------------------'
 
+print interent_connected()
+quit()
 
 # get repo release info from GitHub for the repos listed in repo config file
 repo = get_repos(repo_config_file)
