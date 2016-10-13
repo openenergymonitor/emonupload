@@ -52,7 +52,7 @@ def get_downloaded_releases(firmware_file):
 #--------------------------------------------------------------------------------------------------
 # Get latest GitHub release info using GitHub releases API
 #--------------------------------------------------------------------------------------------------
-def get_releases(current_repo):
+def get_releases_info(current_repo):
   release_api_url = 'https://api.github.com/repos/' + current_repo + '/releases'
   if (DEBUG): print 'DEBUG: API URL: ' + release_api_url + '\n'
   try:
@@ -97,7 +97,84 @@ def file_download(download_url, current_repo, download_folder, release_version):
   return;
   #--------------------------------------------------------------------------------------------------
  
- 
+#--------------------------------------------------------------------------------------------------
+# Download / Update releases from GitHub
+#--------------------------------------------------------------------------------------------------
+def update_download_releases(repo, number_repos, download_folder):
+  # Itterate over github repos
+  for repo_index in range(number_repos):
+    current_repo = str(repo[repo_index])
+    repo_name = str(current_repo.split('/')[-1])
+    gh_username = str(current_repo.split('/')[-2])
+    
+    print bcolors.HEADER + bcolors.UNDERLINE + '\n' + current_repo + '\n'  + bcolors.ENDC
+  
+    firmware_file = download_folder + gh_username + '-' + repo_name + '.json'
+    if (DEBUG): print 'Opening ' + firmware_file
+    
+    old_firmware = get_downloaded_releases(firmware_file)
+      
+    resp = get_releases_info(current_repo)
+    number_releases = len(resp)
+    print bcolors.OKBLUE + '\nFound ' + str(number_releases) + ' GitHub releases for ' + current_repo + ':' +'\n' + bcolors.ENDC
+    
+    # Iterate over github releases
+    for index in range(number_releases):
+      if (DEBUG): print '\n' + json.dumps(resp[index], sort_keys=True, indent=4, separators=(',', ': ')) + '\n'
+      assets = resp[index]['assets']                  # multi dimentional list containing current_repo release assets
+      release_name=resp[index]['name']
+      release_version = resp[index]['tag_name']
+      release_date = assets[0]['created_at']   # assume the firmware fime we want is the first asset in the release e.g. assets[0]
+      # Create current firmware list
+      current_release_list = [ current_repo, release_version, release_name, release_date ]
+      print str(index+1) + '. ' + json.dumps(current_release_list)
+      download =1
+      # check to see if firmware release has already been cached
+      for old_index in range(len(old_firmware)):
+        if current_release_list == old_firmware[old_index]:
+          download=0
+          if (DEBUG):
+            print '\nDEBUG: Cached: ' + str(old_firmware[old_index])
+            print 'DEBUG: Latest: ' + str(current_release_list)
+      
+      if download==0: print bcolors.OKGREEN + '    Already cached.' + bcolors.ENDC
+  
+      # get the download URL of the first release asset (assume we only have one asset per release for now)
+      # e.g. 'https://github.com/openenergymonitor/emonesp/releases/download/2.0.0/firmware.bin'
+      download_url = assets[0]['browser_download_url']
+      extension = download_url.split('.')[-1]
+  
+      # check firmware extension is a allowed firmware extension
+      if extension in allowed_extensions and download==1:
+        print bcolors.WARNING + '    NEW RELEASE...downloading: ' + bcolors.ENDC
+        # append new firmare to the list to be saved
+        if 'firmware' in locals():
+          firmware.append(current_release_list)
+        else: firmware = [current_release_list]
+        # Download firmware and save to disk in download_folder/repo-version.XX e.g. emonesp-2.0.0.bin
+        save_file_name = current_repo.split('/')[0] + '-' + current_repo.split('/')[-1] + '-' + release_version + '.' + extension
+        
+        file_download(download_url, current_repo, download_folder, release_version)
+        
+      if extension not in allowed_extensions:
+        if (DEBUG): print '\nDEBUG: Skipping download, release file extension .' + extension + ' does not match allowed extensions: ' + ', '.join(allowed_extensions)
+    # Save firmware file info .json
+    if 'firmware' in locals():
+      print 'Saving downloaded firmware version info to ' + firmware_file
+      f = open(firmware_file, 'w')
+      json.dump(firmware, f)
+      f.close()
+      if (DEBUG): print '\nDEBUG: ' + str(firmware) + '\n'
+    print '\n-------------------------------------------------------------------------------\n'
+  #--------------------------------------------------------------------------------------------------
+  
+  
+  
+  
+  
+  
+  
+  
 print '\n-------------------------------------------------------------------------------'
 #--------------------------------------------------------------------------------------------------
 VERSION = 'V0.0.2'
@@ -127,75 +204,13 @@ print 'Today: ' + time.strftime("%c") + '\n'
 
 print '\n-------------------------------------------------------------------------------'
 
+# get repo release info from GitHub for the repos listed in repo config file
 repo = get_repos(repo_config_file)
 number_repos = len(repo)
 
+# update / download releaes for each repo and save to download folder
+update_download_releases(repo, number_repos, download_folder)
 
-# Itterate over github repos
-for repo_index in range(number_repos):
-  current_repo = str(repo[repo_index])
-  repo_name = str(current_repo.split('/')[-1])
-  gh_username = str(current_repo.split('/')[-2])
-  
-  print bcolors.HEADER + bcolors.UNDERLINE + '\n' + current_repo + '\n'  + bcolors.ENDC
-
-  firmware_file = download_folder + gh_username + '-' + repo_name + '.json'
-  if (DEBUG): print 'Opening ' + firmware_file
-  
-  old_firmware = get_downloaded_releases(firmware_file)
-    
-  resp = get_releases(current_repo)
-  number_releases = len(resp)
-  print bcolors.OKBLUE + '\nFound ' + str(number_releases) + ' GitHub releases for ' + current_repo + ':' +'\n' + bcolors.ENDC
-  
-  # Iterate over github releases
-  for index in range(number_releases):
-    if (DEBUG): print '\n' + json.dumps(resp[index], sort_keys=True, indent=4, separators=(',', ': ')) + '\n'
-    assets = resp[index]['assets']                  # multi dimentional list containing current_repo release assets
-    release_name=resp[index]['name']
-    release_version = resp[index]['tag_name']
-    release_date = assets[0]['created_at']   # assume the firmware fime we want is the first asset in the release e.g. assets[0]
-    # Create current firmware list
-    current_release_list = [ current_repo, release_version, release_name, release_date ]
-    print str(index+1) + '. ' + json.dumps(current_release_list)
-    download =1
-    # check to see if firmware release has already been cached
-    for old_index in range(len(old_firmware)):
-      if current_release_list == old_firmware[old_index]:
-        download=0
-        if (DEBUG):
-          print '\nDEBUG: Cached: ' + str(old_firmware[old_index])
-          print 'DEBUG: Latest: ' + str(current_release_list)
-    
-    if download==0: print bcolors.OKGREEN + '    Already cached.' + bcolors.ENDC
-
-    # get the download URL of the first release asset (assume we only have one asset per release for now)
-    # e.g. 'https://github.com/openenergymonitor/emonesp/releases/download/2.0.0/firmware.bin'
-    download_url = assets[0]['browser_download_url']
-    extension = download_url.split('.')[-1]
-
-    # check firmware extension is a allowed firmware extension
-    if extension in allowed_extensions and download==1:
-      print bcolors.WARNING + '    NEW RELEASE...downloading: ' + bcolors.ENDC
-      # append new firmare to the list to be saved
-      if 'firmware' in locals():
-        firmware.append(current_release_list)
-      else: firmware = [current_release_list]
-      # Download firmware and save to disk in download_folder/repo-version.XX e.g. emonesp-2.0.0.bin
-      save_file_name = current_repo.split('/')[0] + '-' + current_repo.split('/')[-1] + '-' + release_version + '.' + extension
-      
-      file_download(download_url, current_repo, download_folder, release_version)
-      
-    if extension not in allowed_extensions:
-      if (DEBUG): print '\nDEBUG: Skipping download, release file extension .' + extension + ' does not match allowed extensions: ' + ', '.join(allowed_extensions)
-  # Save firmware file info .json
-  if 'firmware' in locals():
-    print 'Saving downloaded firmware version info to ' + firmware_file
-    f = open(firmware_file, 'w')
-    json.dump(firmware, f)
-    f.close()
-    if (DEBUG): print '\nDEBUG: ' + str(firmware) + '\n'
-  print '\n-------------------------------------------------------------------------------\n'
 
 print bcolors.WARNING + '\nDONE.\n' + bcolors.ENDC
 #--------------------------------------------------------------------------------------------------
