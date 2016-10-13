@@ -31,20 +31,26 @@
 # Test unit
 
 from download_releases import debug, get_repos, update_download_releases
-import time, urllib, git, os
+import time, urllib, git, os, sys
 
-DEBUG = True
-
-# Enable debug function
-if (DEBUG):
-  print '\nDEBUG ENABLED\n'
-  debug()
+#--------------------------------------------------------------------------------------------------
+DEBUG = False
+STARTUP_UPDATE = False
+#--------------------------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------------------------
 VERSION = 'V0.0.2'
 download_folder = 'firmware/'
 allowed_extensions = ['bin', 'hex']
 repo_config_file = 'repos.conf'
+#--------------------------------------------------------------------------------------------------
+
+#--------------------------------------------------------------------------------------------------
+# Enable debug function
+#--------------------------------------------------------------------------------------------------
+if (DEBUG):
+  print '\nDEBUG ENABLED\n'
+  debug()
 #--------------------------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------------------------
@@ -65,15 +71,37 @@ def interent_connected():
 #--------------------------------------------------------------------------------------------------
 # Update emonupload
 #--------------------------------------------------------------------------------------------------
-def update_emonupload():
-  dir_path=os.path.dirname(os.path.realpath('emonupload.py'))
+def update_emonupload(filename):
+  print 'Checking for emonupload updates...'
+  dir_path=os.path.dirname(os.path.realpath(filename))
   if (DEBUG): print 'git abs path' + dir_path
-  quit()
   g = git.cmd.Git(dir_path)
-  status = g.pull()
-  if (DEBUG): print status
-  return status
+  r = g.pull()
+  if (DEBUG): print g
+  if r != 'Already up-to-date.':
+    print r
+    print bcolors.WARNING + 'UPDATE FOUND for emonUpload...RESTARTING\n' + bcolors.ENDC
+    os.execv(filename, sys.argv)
+    sys.exit(0)
+  else: print bcolors.OKGREEN + 'Already up-to-date.' + bcolors.ENDC
+  return r
 #--------------------------------------------------------------------------------------------------
+
+#--------------------------------------------------------------------------------------------------
+# Shutdown RasPi
+#--------------------------------------------------------------------------------------------------
+def shutdown_pi():
+  cmd = 'sudo halt'
+  subprocess.call(cmd, shell=True)
+  sys.exit
+#--------------------------------------------------------------------------------------------------
+
+#--------------------------------------------------------------------------------------------------
+# Find latest downloaded firmware release
+#--------------------------------------------------------------------------------------------------
+def find_latest_release(repo, download_folder):
+  return
+  
 
 # Terminal colours
 class bcolors:
@@ -89,21 +117,53 @@ class bcolors:
 
 
 # STARTUP
+os.system('clear') # clear terminal screen Linux specific
+print '-------------------------------------------------------------------------------'
 now = time.strftime("%c")
 print bcolors.HEADER + bcolors.UNDERLINE + '\nemonUpload: ' + VERSION + bcolors.ENDC
-print 'Today: ' + time.strftime("%c") + '\n'
-print '\n-------------------------------------------------------------------------------'
-
-print update_emonupload()
-
-print interent_connected()
+print 'Part of the OpenEnergyMonitor.org project'
+print 'Now: ' + time.strftime("%c") + '\n'
 
 # get repo release info from GitHub for the repos listed in repo config file
 repo = get_repos(repo_config_file)
 number_repos = len(repo)
+  
+if (STARTUP_UPDATE):
+  print 'Checking network connectivity...'
+  if interent_connected():
+    print bcolors.OKGREEN + 'Internet connection detected' + bcolors.ENDC
+    update_emonupload('emonupload.py')
+    # update / download releaes for each repo and save to download folder
+    update_download_releases(repo, number_repos, download_folder, allowed_extensions)
+  else:
+    print bcolors.WARNING + 'No internet connection detected using downloaded firmware releases\n' + bcolors.ENDC
+  
 
-# update / download releaes for each repo and save to download folder
-update_download_releases(repo, number_repos, download_folder, allowed_extensions)
+print '\n-------------------------------------------------------------------------------'
+
+while(1):
+  print bcolors.UNDERLINE + '\nChoose from the following options:\n' + bcolors.ENDC
+  
+  print bcolors.OKBLUE + '\n1. Flash AVR Bootloader' + bcolors.ENDC
+  
+  print bcolors.OKBLUE + '\n2. Upload latest firmware via serial'
+  for repo_index in range(number_repos):
+      repo[repo_index] = repo[repo_index].rstrip('\n')
+      print '   ' + str(chr(ord('a') + repo_index)) + '. ' + repo[repo_index]
+  
+  print bcolors.OKBLUE + '\n3. Upload specific firmware version' + bcolors.ENDC
+  print bcolors.OKBLUE + '\n4. Perform unit test' + bcolors.ENDC
+  print bcolors.OKBLUE + '\n5. Update firmware releases' + bcolors.ENDC
+  print bcolors.OKBLUE + '\n6. Update emonUpload' + bcolors.ENDC
+  print bcolors.OKBLUE + '\n7. Enable DEBUG output' + bcolors.ENDC
+  print bcolors.OKBLUE + '\n8. Exit' + bcolors.ENDC
+  print bcolors.OKBLUE + '\n9. Exit & Shutdown Pi' + bcolors.ENDC
+  user_selection = raw_input('\n> ')
+  print user_selection
+  
+  if user_selection[:1] == '8':
+    sys.exit(0)
+  
 
 
 print '\n-------------------------------------------------------------------------------'

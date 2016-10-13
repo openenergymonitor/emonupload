@@ -44,10 +44,10 @@ def get_repos( repo_config_file ):
   repo_file = open(repo_config_file, 'r')
   repo = repo_file.readlines()
   number_repos = len(repo)
-  print bcolors.UNDERLINE + 'Considering ' + str(number_repos) + ' github repos from ' + repo_config_file + ':\n' + bcolors.ENDC
+  if (DEBUG): print bcolors.UNDERLINE + 'Considering ' + str(number_repos) + ' github repos from ' + repo_config_file + ':\n' + bcolors.ENDC
   for repo_index in range(number_repos):
     repo[repo_index] = repo[repo_index].rstrip('\n')
-    print str(repo_index+1) + '. ' + repo[repo_index]
+    if (DEBUG): print str(repo_index+1) + '. ' + repo[repo_index]
   return repo
 #--------------------------------------------------------------------------------------------------
 
