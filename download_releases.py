@@ -16,8 +16,92 @@ import requests, urllib, os, time, shutil, sys, json
 DEBUG = 0
 
 #--------------------------------------------------------------------------------------------------
+# get list of github repos to consider from file, one repo per line. e.g 'openenergymonitor/emonpi'
+#--------------------------------------------------------------------------------------------------
+def get_repos( repo_config_file ):
+  repo_file = open(repo_config_file, 'r')
+  repo = repo_file.readlines()
+  number_repos = len(repo)
+  print bcolors.UNDERLINE + 'Considering ' + str(number_repos) + ' github repos from ' + repo_config_file + ':\n' + bcolors.ENDC
+  for repo_index in range(number_repos):
+    repo[repo_index] = repo[repo_index].rstrip('\n')
+    print str(repo_index+1) + '. ' + repo[repo_index]
+  return repo
+#--------------------------------------------------------------------------------------------------
+
+#--------------------------------------------------------------------------------------------------
+# Load old cached firmware info from file
+# - list storing each release for each repo.
+# File-name: e.g 'openenergymonitor-emonth.json'
+# Format: 'username/repo', 'version_number(tag name)', 'release_title', 'release_date'
+#--------------------------------------------------------------------------------------------------
+def get_downloaded_releases(firmware_file):
+  if os.path.isfile(firmware_file) and os.path.getsize(firmware_file) > 0:
+    f = open(firmware_file, 'r')
+    print bcolors.UNDERLINE + '\nFound downloaded releases: \n' + bcolors.ENDC
+    old_firmware = json.load(f)
+    if (DEBUG): print '\nDEBUG: ' + str(old_firmware) + '\n'
+    for index in range(len(old_firmware)):
+      print str(index+1) + '. ' + json.dumps(old_firmware[index])
+  else:
+    old_firmware=''
+    if (DEBUG): 'No downloaded releases found'
+  return old_firmware
+#--------------------------------------------------------------------------------------------------
+
+#--------------------------------------------------------------------------------------------------
+# Get latest GitHub release info using GitHub releases API
+#--------------------------------------------------------------------------------------------------
+def get_releases(current_repo):
+  release_api_url = 'https://api.github.com/repos/' + current_repo + '/releases'
+  if (DEBUG): print 'DEBUG: API URL: ' + release_api_url + '\n'
+  try:
+    r = requests.get(release_api_url)
+  except requests.exceptions.RequestException as e:  # This is the correct syntax
+    #print equ
+    print bcolors.FAIL + '\nERROR contacting GitHub API ' + release_api_url + '\n' + bcolors.ENDC
+    sys.exit(1)
+  resp = r.json()
+  if (DEBUG): print '\n' + json.dumps(resp[repo_index], sort_keys=True, indent=4, separators=(',', ': ')) + '\n'
+  return resp
+#--------------------------------------------------------------------------------------------------
+    
+#--------------------------------------------------------------------------------------------------
+# DOWNLOAD FILE
+#--------------------------------------------------------------------------------------------------
+def file_download(download_url, current_repo, download_folder, release_version):
+  save_file_name = download_folder + current_repo.split('/')[-2] + '-' + current_repo.split('/')[-1] + '-' + release_version + download_url.split('.')[-1]
+  # Check download folder exists if not create
+  if not os.path.isdir(download_folder):
+    os.mkdir(download_folder)
+  u = urllib.urlopen(download_url)
+  f = open(save_file_name, 'wb')
+  meta = u.info()
+  file_size = int(meta.getheaders('Content-Length')[0])
+  print '  Downloading: %s Bytes: %s' % (download_url.split('/')[-1], file_size)
+  print '  from ' + download_url
+  print '  Saving to: ' + save_file_name
+  file_size_dl = 0
+  block_sz = 8192
+  while True:
+      buffer = u.read(block_sz)
+      if not buffer:
+          break
+      file_size_dl += len(buffer)
+      f.write(buffer)
+      status = r'%10d  [%3.2f%%]' % (file_size_dl, file_size_dl * 100. / file_size)
+      status = status + chr(8)*(len(status)+1)
+      print status,
+  f.close()
+  print '\n'
+  return;
+  #--------------------------------------------------------------------------------------------------
+ 
+ 
+print '\n-------------------------------------------------------------------------------'
+#--------------------------------------------------------------------------------------------------
 VERSION = 'V0.0.2'
-download_folder = 'firmware'
+download_folder = 'firmware/'
 allowed_extensions = ['bin', 'hex']
 repo_config_file = 'repos.conf'
 #--------------------------------------------------------------------------------------------------
@@ -41,81 +125,12 @@ print bcolors.HEADER + bcolors.UNDERLINE + '\nemonUpload: ' + VERSION + bcolors.
 print 'Today: ' + time.strftime("%c") + '\n'
 
 
-#--------------------------------------------------------------------------------------------------
-#--------------------------------------------------------------------------------------------------
-# get list of github repos to consider from file, one repo per line. e.g 'openenergymonitor/emonpi'
-#--------------------------------------------------------------------------------------------------
-def get_repos( repo_config_file ):
-  repo_file = open(repo_config_file, 'r')
-  repo = repo_file.readlines()
-  number_repos = len(repo)
-  print bcolors.UNDERLINE + 'Considering ' + str(number_repos) + ' github repos from ' + repo_config_file + ':\n' + bcolors.ENDC
-  for repo_index in range(number_repos):
-    repo[repo_index] = repo[repo_index].rstrip('\n')
-    print str(repo_index+1) + '. ' + repo[repo_index]
-  return repo
-#--------------------------------------------------------------------------------------------------
+print '\n-------------------------------------------------------------------------------'
 
-#--------------------------------------------------------------------------------------------------
-#--------------------------------------------------------------------------------------------------
-  # Load old cached firmware info from file
-  # - list storing each release for each repo.
-  # File-name: e.g 'openenergymonitor-emonth.json'
-  # Format: 'username/repo', 'version_number(tag name)', 'release_title', 'release_date'
-#--------------------------------------------------------------------------------------------------
-def get_downloaded_releases(firmware_file):
-  if os.path.isfile(firmware_file) and os.path.getsize(firmware_file) > 0:
-    f = open(firmware_file, 'r')
-    print bcolors.UNDERLINE + '\nFound downloaded releases: \n' + bcolors.ENDC
-    old_firmware = json.load(f)
-    if (DEBUG): print '\nDEBUG: ' + str(old_firmware) + '\n'
-    for index in range(len(old_firmware)):
-      print str(index+1) + '. ' + json.dumps(old_firmware[index])
-  else:
-    old_firmware=''
-    if (DEBUG): 'No downloaded releases found'
-  return old_firmware
-#--------------------------------------------------------------------------------------------------
-    
-#--------------------------------------------------------------------------------------------------
-#--------------------------------------------------------------------------------------------------
-# DOWNLOAD FILE
-#--------------------------------------------------------------------------------------------------
-def file_download(download_url, download_file_name, save_file_name, download_folder):
-  # Check download folder exists if not create
-  if not os.path.isdir(download_folder):
-    os.mkdir(download_folder)
-  u = urllib.urlopen(download_url)
-  f = open(download_folder+'/'+save_file_name, 'wb')
-  meta = u.info()
-  file_size = int(meta.getheaders('Content-Length')[0])
-  print '  Downloading: %s Bytes: %s' % (download_file_name, file_size)
-  print '  from ' + download_url
-  print '  Saving to: ' + download_folder+'/'+save_file_name
-  file_size_dl = 0
-  block_sz = 8192
-  while True:
-      buffer = u.read(block_sz)
-      if not buffer:
-          break
-      file_size_dl += len(buffer)
-      f.write(buffer)
-      status = r'%10d  [%3.2f%%]' % (file_size_dl, file_size_dl * 100. / file_size)
-      status = status + chr(8)*(len(status)+1)
-      print status,
-  f.close()
-  print '\n'
-  return;
-  #--------------------------------------------------------------------------------------------------
-  
 repo = get_repos(repo_config_file)
 number_repos = len(repo)
 
-print '\n-------------------------------------------------------------------------------'
 
-
-    
-print '\n-------------------------------------------------------------------------------'
 # Itterate over github repos
 for repo_index in range(number_repos):
   current_repo = str(repo[repo_index])
@@ -124,21 +139,12 @@ for repo_index in range(number_repos):
   
   print bcolors.HEADER + bcolors.UNDERLINE + '\n' + current_repo + '\n'  + bcolors.ENDC
 
-  firmware_file = 'firmware/'+ gh_username + '-' + repo_name + '.json'
+  firmware_file = download_folder + gh_username + '-' + repo_name + '.json'
   if (DEBUG): print 'Opening ' + firmware_file
   
   old_firmware = get_downloaded_releases(firmware_file)
     
-  release_api_url = 'https://api.github.com/repos/' + current_repo + '/releases'
-  if (DEBUG): print 'DEBUG: from: ' + release_api_url + '\n'
-  try:
-    r = requests.get(release_api_url)
-  except requests.exceptions.RequestException as e:  # This is the correct syntax
-    #print equ
-    print bcolors.FAIL + '\nERROR contacting GitHub API ' + release_api_url + '\n' + bcolors.ENDC
-    sys.exit(1)
-  resp = r.json()
-  if (DEBUG): print '\n' + json.dumps(resp[repo_index], sort_keys=True, indent=4, separators=(',', ': ')) + '\n'
+  resp = get_releases(current_repo)
   number_releases = len(resp)
   print bcolors.OKBLUE + '\nFound ' + str(number_releases) + ' GitHub releases for ' + current_repo + ':' +'\n' + bcolors.ENDC
   
@@ -177,8 +183,9 @@ for repo_index in range(number_repos):
       else: firmware = [current_release_list]
       # Download firmware and save to disk in download_folder/repo-version.XX e.g. emonesp-2.0.0.bin
       save_file_name = current_repo.split('/')[0] + '-' + current_repo.split('/')[-1] + '-' + release_version + '.' + extension
-      download_file_name = download_url.split('/')[-1]
-      file_download(download_url, download_file_name, save_file_name, download_folder)
+      
+      file_download(download_url, current_repo, download_folder, release_version)
+      
     if extension not in allowed_extensions:
       if (DEBUG): print '\nDEBUG: Skipping download, release file extension .' + extension + ' does not match allowed extensions: ' + ', '.join(allowed_extensions)
   # Save firmware file info .json
