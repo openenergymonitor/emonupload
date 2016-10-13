@@ -31,16 +31,13 @@ Python 2.7.9
 ```
 Local python version 2.79 will be used for `emonupload` this is defined by `.python-version` in root project folder
 
-For more info on pyenv: https://github.com/yyuu/pyenv
+For more info on pyenv python virtual enviroment: https://github.com/yyuu/pyenv
 
 
 ## Install modules
 
 `$ cd emonupload`
 `$ pip install -r requirements.txt`
-
-
- 
 
 ## Licence
 
