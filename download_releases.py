@@ -16,6 +16,7 @@ import requests, urllib, os, time, shutil, sys, json
 DEBUG = 0
 
 #--------------------------------------------------------------------------------------------------
+VERSION = 'V0.0.2'
 download_folder = 'firmware'
 allowed_extensions = ['bin', 'hex']
 repo_config_file = 'repos.conf'
@@ -36,7 +37,8 @@ class bcolors:
     UNDERLINE = '\033[4m'
     
 now = time.strftime("%c")
-print bcolors.HEADER + '\nemonUpload: ' + time.strftime("%c") + '\n' +  bcolors.ENDC
+print bcolors.HEADER + bcolors.UNDERLINE + '\nemonUpload: ' + VERSION + bcolors.ENDC
+print 'Today: ' + time.strftime("%c") + '\n'
 # get list of github repos to consider from file, one repo per line. e.g 'openenergymonitor/emonpi'
 repo_file = open(repo_config_file, 'r')
 repo = repo_file.readlines()
@@ -45,31 +47,37 @@ print bcolors.UNDERLINE + 'Considering ' + str(number_repos) + ' github repos fr
 for repo_index in range(number_repos):
   repo[repo_index] = repo[repo_index].rstrip('\n')
   print str(repo_index+1) + '. ' + repo[repo_index]
-print '\n-----------------------------------------------------------------------------------'
+print '\n-------------------------------------------------------------------------------'
 
 # Check download folder exists if not create
 if not os.path.isdir(download_folder):
   os.mkdir(download_folder) # make folder to store the firmware if not exist
-
-# Load old cached firmware info from file
-# - list storing each release for each repo. Format:
-# 'username/repo', 'version_number(tag name)', 'release_title', 'release_date'
-firmware_file = 'firmware/versions.json'
-if os.path.isfile(firmware_file) and os.path.getsize(firmware_file) > 0:
-  f = open('firmware/versions.json', 'r')
-  print bcolors.UNDERLINE + '\nDownloaded releases: \n' + bcolors.ENDC
-  old_firmware = json.load(f)
-  if (DEBUG): print '\nDEBUG: ' + str(old_firmware) + '\n'
-  for index in range(len(old_firmware)):
-    print str(index+1) + '. ' + json.dumps(old_firmware[index])
-else:
-  old_firmware=''
     
-print '\n-----------------------------------------------------------------------------------'
-print bcolors.UNDERLINE + "\nGetting latest releases...\n"  + bcolors.ENDC
+print '\n-------------------------------------------------------------------------------'
 # Itterate over github repos
 for repo_index in range(number_repos):
   current_repo = str(repo[repo_index])
+  repo_name = str(current_repo.split('/')[-1])
+  gh_username = str(current_repo.split('/')[-2])
+  
+  print bcolors.HEADER + bcolors.UNDERLINE + '\n' + current_repo + '\n'  + bcolors.ENDC
+  # Load old cached firmware info from file
+  # - list storing each release for each repo.
+  # File-name: e.g 'openenergymonitor-emonth.json'
+  # Format: 'username/repo', 'version_number(tag name)', 'release_title', 'release_date'
+  firmware_file = 'firmware/'+ gh_username + '-' + repo_name + '.json'
+  if (DEBUG): print 'Opening ' + firmware_file
+  if os.path.isfile(firmware_file) and os.path.getsize(firmware_file) > 0:
+    f = open(firmware_file, 'r')
+    print bcolors.UNDERLINE + '\nFound downloaded releases: \n' + bcolors.ENDC
+    old_firmware = json.load(f)
+    if (DEBUG): print '\nDEBUG: ' + str(old_firmware) + '\n'
+    for index in range(len(old_firmware)):
+      print str(index+1) + '. ' + json.dumps(old_firmware[index])
+  else:
+    old_firmware=''
+    if (DEBUG): 'No downloaded releases found'
+  
   release_api_url = 'https://api.github.com/repos/' + current_repo + '/releases'
   if (DEBUG): print 'DEBUG: from: ' + release_api_url + '\n'
   try:
@@ -81,7 +89,8 @@ for repo_index in range(number_repos):
   resp = r.json()
   if (DEBUG): print '\n' + json.dumps(resp[repo_index], sort_keys=True, indent=4, separators=(',', ': ')) + '\n'
   number_releases = len(resp)
-  print bcolors.OKBLUE + 'Found ' + str(number_releases) + ' releases for ' + current_repo + ':' +'\n' + bcolors.ENDC
+  print bcolors.OKBLUE + '\nFound ' + str(number_releases) + ' GitHub releases for ' + current_repo + ':' +'\n' + bcolors.ENDC
+  
   # Iterate over github releases
   for index in range(number_releases):
     if (DEBUG): print '\n' + json.dumps(resp[index], sort_keys=True, indent=4, separators=(',', ': ')) + '\n'
@@ -142,16 +151,14 @@ for repo_index in range(number_repos):
       print '\n'
     if extension not in allowed_extensions:
       if (DEBUG): print '\nDEBUG: Skipping download, release file extension .' + extension + ' does not match allowed extensions: ' + ', '.join(allowed_extensions)
-  print '\n-----------------------------------------------------------------------------------'
-
-
-if 'firmware' in locals():
-  print 'Saving cached firmware version info to ' + firmware_file
-  f = open(firmware_file, 'w')
-  json.dump(firmware, f)
-  f.close()
-  
-  if (DEBUG): print '\nDEBUG: ' + str(firmware) + '\n'
+  # Save firmware file info .json
+  if 'firmware' in locals():
+    print 'Saving downloaded firmware version info to ' + firmware_file
+    f = open(firmware_file, 'w')
+    json.dump(firmware, f)
+    f.close()
+    if (DEBUG): print '\nDEBUG: ' + str(firmware) + '\n'
+  print '\n-------------------------------------------------------------------------------\n'
 
 print bcolors.WARNING + '\nDONE.\n' + bcolors.ENDC
 
