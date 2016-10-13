@@ -79,12 +79,11 @@ def get_releases_info(current_repo):
   if (DEBUG): print 'DEBUG: API URL: ' + release_api_url + '\n'
   try:
     r = requests.get(release_api_url)
-  except requests.exceptions.RequestException as e:  # This is the correct syntax
-    #print equ
+  except requests.exceptions.RequestException as e:
     print bcolors.FAIL + '\nERROR contacting GitHub API ' + release_api_url + '\n' + bcolors.ENDC
     sys.exit(1)
   resp = r.json()
-  if (DEBUG): print '\n' + json.dumps(resp[repo_index], sort_keys=True, indent=4, separators=(',', ': ')) + '\n'
+  if (DEBUG): print '\n' + json.dumps(resp, sort_keys=True, indent=4, separators=(',', ': ')) + '\n'
   return resp
 #--------------------------------------------------------------------------------------------------
     
@@ -122,7 +121,7 @@ def file_download(download_url, current_repo, download_folder, release_version):
 #--------------------------------------------------------------------------------------------------
 # Download / Update releases from GitHub
 #--------------------------------------------------------------------------------------------------
-def update_download_releases(repo, number_repos, download_folder):
+def update_download_releases(repo, number_repos, download_folder, allowed_extensions):
   # Itterate over github repos
   for repo_index in range(number_repos):
     current_repo = str(repo[repo_index])

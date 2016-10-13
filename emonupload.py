@@ -31,10 +31,14 @@
 # Test unit
 
 from download_releases import debug, get_repos, update_download_releases
-import time, urllib
+import time, urllib, git, os
 
-## Uncomment to enable debug
-# debug()
+DEBUG = True
+
+# Enable debug function
+if (DEBUG):
+  print '\nDEBUG ENABLED\n'
+  debug()
 
 #--------------------------------------------------------------------------------------------------
 VERSION = 'V0.0.2'
@@ -47,15 +51,28 @@ repo_config_file = 'repos.conf'
 # Check interent connectivity
 #--------------------------------------------------------------------------------------------------
 def interent_connected():
-  global e
   try:
-      stri = "https://github.com"
+      stri = "https://api.github.com"
       data = urllib.urlopen(stri)
       if (DEBUG): print "Internet connected"
-      return True
-  except e:
-      if (DEBUG): print "No Interent connection: " ,e
-      return False
+      connected = True
+  except:
+      if (DEBUG): print "No Interent connection: "
+      connected = False
+  return connected
+#--------------------------------------------------------------------------------------------------
+
+#--------------------------------------------------------------------------------------------------
+# Update emonupload
+#--------------------------------------------------------------------------------------------------
+def update_emonupload():
+  dir_path=os.path.dirname(os.path.realpath('emonupload.py'))
+  if (DEBUG): print 'git abs path' + dir_path
+  quit()
+  g = git.cmd.Git(dir_path)
+  status = g.pull()
+  if (DEBUG): print status
+  return status
 #--------------------------------------------------------------------------------------------------
 
 # Terminal colours
@@ -77,15 +94,16 @@ print bcolors.HEADER + bcolors.UNDERLINE + '\nemonUpload: ' + VERSION + bcolors.
 print 'Today: ' + time.strftime("%c") + '\n'
 print '\n-------------------------------------------------------------------------------'
 
+print update_emonupload()
+
 print interent_connected()
-quit()
 
 # get repo release info from GitHub for the repos listed in repo config file
 repo = get_repos(repo_config_file)
 number_repos = len(repo)
 
 # update / download releaes for each repo and save to download folder
-update_download_releases(repo, number_repos, download_folder)
+update_download_releases(repo, number_repos, download_folder, allowed_extensions)
 
 
 print '\n-------------------------------------------------------------------------------'
