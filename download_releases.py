@@ -11,9 +11,31 @@
 # GNU GPL V3
 
 #--------------------------------------------------------------------------------------------------
-import requests, urllib, os, time, shutil, sys, json
+import requests, urllib, os, shutil, sys, json
 
-DEBUG = 0
+
+
+# Terminal colours
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+
+#--------------------------------------------------------------------------------------------------
+# Create global debug variable if debug() function is called
+#--------------------------------------------------------------------------------------------------
+DEBUG=0
+def debug():
+  global DEBUG
+  DEBUG=1
+  return
+#--------------------------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------------------------
 # get list of github repos to consider from file, one repo per line. e.g 'openenergymonitor/emonpi'
@@ -167,54 +189,6 @@ def update_download_releases(repo, number_repos, download_folder):
       if (DEBUG): print '\nDEBUG: ' + str(firmware) + '\n'
     print '\n-------------------------------------------------------------------------------\n'
   #--------------------------------------------------------------------------------------------------
-  
-  
-  
-  
-  
-  
-  
-  
-print '\n-------------------------------------------------------------------------------'
-#--------------------------------------------------------------------------------------------------
-VERSION = 'V0.0.2'
-download_folder = 'firmware/'
-allowed_extensions = ['bin', 'hex']
-repo_config_file = 'repos.conf'
-#--------------------------------------------------------------------------------------------------
-
-
-#--------------------------------------------------------------------------------------------------
-#--------------------------------------------------------------------------------------------------
-# Terminal colours
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-    
-now = time.strftime("%c")
-print bcolors.HEADER + bcolors.UNDERLINE + '\nemonUpload: ' + VERSION + bcolors.ENDC
-print 'Today: ' + time.strftime("%c") + '\n'
-
-
-print '\n-------------------------------------------------------------------------------'
-
-# get repo release info from GitHub for the repos listed in repo config file
-repo = get_repos(repo_config_file)
-number_repos = len(repo)
-
-# update / download releaes for each repo and save to download folder
-update_download_releases(repo, number_repos, download_folder)
-
-
-print bcolors.WARNING + '\nDONE.\n' + bcolors.ENDC
-#--------------------------------------------------------------------------------------------------
-#--------------------------------------------------------------------------------------------------
 
 
 
