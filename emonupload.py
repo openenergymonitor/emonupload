@@ -60,10 +60,10 @@ def interent_connected():
   try:
       stri = "https://api.github.com"
       data = urllib.urlopen(stri)
-      if (DEBUG): print "Internet connected"
+      print bcolors.OKGREEN + 'Internet connection detected' + bcolors.ENDC
       connected = True
   except:
-      if (DEBUG): print "No Interent connection: "
+      print bcolors.WARNING + 'CANNNOT UPDATE: No internet connection detected\n' + bcolors.ENDC
       connected = False
   return connected
 #--------------------------------------------------------------------------------------------------
@@ -139,12 +139,10 @@ number_repos = len(repo)
 if (STARTUP_UPDATE):
   print 'Checking network connectivity...'
   if interent_connected():
-    print bcolors.OKGREEN + 'Internet connection detected' + bcolors.ENDC
     update_emonupload('emonupload.py')
     # update / download releaes for each repo and save to download folder
     update_download_releases(repo, number_repos, download_folder, allowed_extensions)
-  else:
-    print bcolors.WARNING + 'No internet connection detected using downloaded firmware releases\n' + bcolors.ENDC
+    
   
 
 print '\n-------------------------------------------------------------------------------'
@@ -188,26 +186,38 @@ while(1):
   first_selection = int(first_selection)
   
   if first_selection == 1:
-    print 'tbc' + str(first_selection)
+    print bcolors.OKBLUE + '\n1. Flash AVR Bootloader' + bcolors.ENDC
      
   elif first_selection == 2:
-    print 'tbc' + str(first_selection)
+    print bcolors.OKBLUE + '\n2. Upload latest firmware via serial'
   
   elif first_selection == 3:
-    print 'tbc' + str(first_selection)
+    print bcolors.OKBLUE + '\n3. Upload specific firmware version' + bcolors.ENDC
     
   elif first_selection == 4:
-    print 'tbc' + str(first_selection)
+    print bcolors.OKBLUE + '\n4. Perform unit test' + bcolors.ENDC
   
   elif first_selection == 5:
-    print 'tbc' + str(first_selection)
+    print bcolors.OKBLUE + '\n5. Update firmware releases' + bcolors.ENDC
+    if interent_connected():
+      repo = get_repos(repo_config_file)
+      number_repos = len(repo)
+      upate_download_releases(repo, number_repos, download_folder, allowed_extensions)
+    
   elif first_selection == 6:
-    print 'tbc' + str(first_selection)
+    print bcolors.OKBLUE + '\n6. Update emonUpload' + bcolors.ENDC
+    if interent_connected():
+      update_emonupload('emonupload.py')
+
+    
   elif first_selection == 7:
-    print 'tbc' + str(first_selection)
+    print bcolors.OKBLUE + '\n7. Enable DEBUG output' + bcolors.END
+  
   elif first_selection == 8:
+    print bcolors.OKBLUE + '\n8. Exit' + bcolors.ENDC
     exit()
-  elif first_selection == 8:
+  elif first_selection == 9:
+    print bcolors.OKBLUE + '\n9. Exit & Shutdown Pi' + bcolors.ENDC
     shutdown_pi()
   else:
      invalid_selection()
