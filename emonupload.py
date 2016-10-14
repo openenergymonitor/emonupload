@@ -72,7 +72,7 @@ def interent_connected():
 # Update emonupload
 #--------------------------------------------------------------------------------------------------
 def update_emonupload(filename):
-  print 'Checking for emonupload updates...'
+  print 'Checking for emonUpload updates...'
   dir_path=os.path.dirname(os.path.realpath(filename))
   if (DEBUG): print 'git abs path' + dir_path
   g = git.cmd.Git(dir_path)
@@ -95,6 +95,14 @@ def shutdown_pi():
   subprocess.call(cmd, shell=True)
   sys.exit
 #--------------------------------------------------------------------------------------------------
+
+def invalid_selection():
+  os.system('clear') # clear terminal screen Linux specific
+  print bcolors.FAIL + '\nInvalid selection, please try again\n' + bcolors.ENDC
+  return
+
+def exit():
+  sys.exit()
 
 #--------------------------------------------------------------------------------------------------
 # Find latest downloaded firmware release
@@ -149,7 +157,7 @@ while(1):
   print bcolors.OKBLUE + '\n2. Upload latest firmware via serial'
   for repo_index in range(number_repos):
       repo[repo_index] = repo[repo_index].rstrip('\n')
-      print '   ' + str(chr(ord('a') + repo_index)) + '. ' + repo[repo_index]
+      print bcolors.WARNING + '   ' + str(chr(ord('a') + repo_index)) + '. ' + repo[repo_index] + bcolors.ENDC
   
   print bcolors.OKBLUE + '\n3. Upload specific firmware version' + bcolors.ENDC
   print bcolors.OKBLUE + '\n4. Perform unit test' + bcolors.ENDC
@@ -159,10 +167,50 @@ while(1):
   print bcolors.OKBLUE + '\n8. Exit' + bcolors.ENDC
   print bcolors.OKBLUE + '\n9. Exit & Shutdown Pi' + bcolors.ENDC
   user_selection = raw_input('\n> ')
-  print user_selection
+  if (DEBUG): print user_selection
   
-  if user_selection[:1] == '8':
-    sys.exit(0)
+  # Breakout user selection into first numberical (0-9) then second alpahumeric selection & error check
+  first_selection = user_selection[:1]
+  if len(user_selection) > 1:
+    second_selection = user_selection[-1]
+    # check to see if second selection is a character, if not error
+    if second_selection.isalpha() == False:
+      invalid_selection()
+      if (DEBUG): print '2nd selection is not an str: '+ second_selection
+  else:
+    second_selection=False
+   
+  # check if first choose is integer if not error
+  if first_selection.isdigit() == False:
+    invalid_selection()
+    if (DEBUG): print '1st selection is not an integer: '+ first_selection
+  
+  first_selection = int(first_selection)
+  
+  if first_selection == 1:
+    print 'tbc' + str(first_selection)
+     
+  elif first_selection == 2:
+    print 'tbc' + str(first_selection)
+  
+  elif first_selection == 3:
+    print 'tbc' + str(first_selection)
+    
+  elif first_selection == 4:
+    print 'tbc' + str(first_selection)
+  
+  elif first_selection == 5:
+    print 'tbc' + str(first_selection)
+  elif first_selection == 6:
+    print 'tbc' + str(first_selection)
+  elif first_selection == 7:
+    print 'tbc' + str(first_selection)
+  elif first_selection == 8:
+    exit()
+  elif first_selection == 8:
+    shutdown_pi()
+  else:
+     invalid_selection()
   
 
 
