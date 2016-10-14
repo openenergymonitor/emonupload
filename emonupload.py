@@ -126,11 +126,6 @@ class bcolors:
 
 # STARTUP
 os.system('clear') # clear terminal screen Linux specific
-print '-------------------------------------------------------------------------------'
-now = time.strftime("%c")
-print bcolors.HEADER + bcolors.UNDERLINE + '\nemonUpload: ' + VERSION + bcolors.ENDC
-print 'Part of the OpenEnergyMonitor.org project'
-print 'Now: ' + time.strftime("%c") + '\n'
 
 # get repo release info from GitHub for the repos listed in repo config file
 repo = get_repos(repo_config_file)
@@ -148,6 +143,12 @@ if (STARTUP_UPDATE):
 print '\n-------------------------------------------------------------------------------'
 
 while(1):
+  print '-------------------------------------------------------------------------------'
+  now = time.strftime("%c")
+  print bcolors.HEADER + bcolors.UNDERLINE + '\nemonUpload: ' + VERSION + bcolors.ENDC
+  print 'Part of the OpenEnergyMonitor.org project'
+  print 'Now: ' + time.strftime("%c") + '\n'
+  
   print bcolors.UNDERLINE + '\nChoose from the following options:\n' + bcolors.ENDC
   
   print bcolors.OKBLUE + '\n1. Flash AVR Bootloader' + bcolors.ENDC
@@ -182,8 +183,11 @@ while(1):
   if first_selection.isdigit() == False:
     invalid_selection()
     if (DEBUG): print '1st selection is not an integer: '+ first_selection
+  else:
+    first_selection = int(first_selection)
   
-  first_selection = int(first_selection)
+
+  os.system('clear')
   
   if first_selection == 1:
     print bcolors.OKBLUE + '\n1. Flash AVR Bootloader' + bcolors.ENDC
@@ -202,7 +206,7 @@ while(1):
     if interent_connected():
       repo = get_repos(repo_config_file)
       number_repos = len(repo)
-      upate_download_releases(repo, number_repos, download_folder, allowed_extensions)
+      update_download_releases(repo, number_repos, download_folder, allowed_extensions)
     
   elif first_selection == 6:
     print bcolors.OKBLUE + '\n6. Update emonUpload' + bcolors.ENDC
