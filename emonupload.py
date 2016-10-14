@@ -1,36 +1,16 @@
 #!/usr/bin/env python
 
-# https://developer.github.com/v3/repos/releases/
-# GET /repos/:owner/:repo/releases
-
-# requires python 2.7.9 +
-# use python virtual env in needed https://github.com/yyuu/pyenv
+# emonUpload
 
 # By Glyn Hudson
-# Part of OpenEnergyMonitor.org project
+# OpenEnergyMonitor.org
 # GNU GPL V3
 
-# Startup
-# - Check for network connectivity
-# - Update emonUpload
-# - Update releaes
-
-# Flash Bootloder
-# - Arduino Uno bootloder via platformIO AVRdude
-
-
-# Flash bootloader
-# Upload firmware via serial
-# Download latest firmware from GitHub releases
-
-# Upload firmware
-# - Find available boards, releases and latest release
-# - Select board
-# - Select version or latest
-
-# Test unit
-
 from download_releases import debug, get_repos, update_download_releases
+from firmwareupload import upload_latest
+
+# See requirements.txt
+# `$ pip install -r requirements.txt`
 import time, urllib, git, os, sys
 
 #--------------------------------------------------------------------------------------------------
@@ -80,10 +60,13 @@ def update_emonupload(filename):
   if (DEBUG): print g
   if r != 'Already up-to-date.':
     print r
-    print bcolors.WARNING + 'UPDATE FOUND for emonUpload...RESTARTING\n' + bcolors.ENDC
+    print bcolors.WARNING + 'UPDATE FOUND....emonUpload RESTART REQUIRED\n' + bcolors.ENDC
+    raw_input("\nPress Enter to continue...\n")
     os.execv(filename, sys.argv)
     sys.exit(0)
-  else: print bcolors.OKGREEN + 'Already up-to-date.' + bcolors.ENDC
+  else:
+    print bcolors.OKGREEN + 'Already up-to-date.' + bcolors.ENDC
+    raw_input("\nPress Enter to continue...\n")
   return r
 #--------------------------------------------------------------------------------------------------
 
@@ -194,6 +177,14 @@ while(1):
      
   elif first_selection == 2:
     print bcolors.OKBLUE + '\n2. Upload latest firmware via serial'
+    if second_selection != False:
+      # convert alpha numberic selection to number e.g. a=0, b=2.
+      index = ord(str(second_selection)) - 97
+      print number_repos
+      if index < number_repos:
+        upload_latest(repo[index],download_folder)
+      else: invalid_selection()
+    else: invalid_selection()
   
   elif first_selection == 3:
     print bcolors.OKBLUE + '\n3. Upload specific firmware version' + bcolors.ENDC

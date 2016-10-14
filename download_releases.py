@@ -1,15 +1,14 @@
 #!/usr/bin/env python
 
-# https://developer.github.com/v3/repos/releases/
-# GET /repos/:owner/:repo/releases
-
-# requires python 2.7.9 +
-# use python virtual env in needed https://github.com/yyuu/pyenv
+# part of emonUpload
 
 # By Glyn Hudson
-# Part of OpenEnergyMonitor.org project
+# OpenEnergyMonitor.org
 # GNU GPL V3
 
+# GitHub API:
+# https://developer.github.com/v3/repos/releases/
+# GET /repos/:owner/:repo/releases
 #--------------------------------------------------------------------------------------------------
 import requests, urllib, os, shutil, sys, json
 
