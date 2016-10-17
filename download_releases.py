@@ -40,13 +40,14 @@ def debug():
 # get list of github repos to consider from file, one repo per line. e.g 'openenergymonitor/emonpi'
 #--------------------------------------------------------------------------------------------------
 def get_repos( repo_config_file ):
-  repo_file = open(repo_config_file, 'r')
-  repo = repo_file.readlines()
-  number_repos = len(repo)
-  if (DEBUG): print bcolors.UNDERLINE + 'Considering ' + str(number_repos) + ' github repos from ' + repo_config_file + ':\n' + bcolors.ENDC
-  for repo_index in range(number_repos):
-    repo[repo_index] = repo[repo_index].rstrip('\n')
-    if (DEBUG): print str(repo_index+1) + '. ' + repo[repo_index]
+  if os.path.isfile(repo_config_file) and os.path.getsize(repo_config_file) > 0:
+    repo_file = open(repo_config_file, 'r')
+    repo = repo_file.readlines()
+    number_repos = len(repo)
+    if (DEBUG): print bcolors.UNDERLINE + 'Considering ' + str(number_repos) + ' github repos from ' + repo_config_file + ':\n' + bcolors.ENDC
+    for repo_index in range(number_repos):
+      repo[repo_index] = repo[repo_index].rstrip('\n')
+      if (DEBUG): print str(repo_index+1) + '. ' + repo[repo_index]
   return repo
 #--------------------------------------------------------------------------------------------------
 
@@ -123,6 +124,7 @@ def file_download(download_url, current_repo, download_folder, release_version):
 def update_download_releases(repo, number_repos, download_folder, allowed_extensions):
   # Itterate over github repos
   for repo_index in range(number_repos):
+    if 'firmware' in locals(): del firmware[:] #clear firmware list inbetween repo itterations
     current_repo = str(repo[repo_index])
     repo_name = str(current_repo.split('/')[-1])
     gh_username = str(current_repo.split('/')[-2])
@@ -186,9 +188,24 @@ def update_download_releases(repo, number_repos, download_folder, allowed_extens
       f.close()
       if (DEBUG): print '\nDEBUG: ' + str(firmware) + '\n'
     print '\n-------------------------------------------------------------------------------\n'
+  raw_input("\nPress Enter to continue...\n")
+  return
   #--------------------------------------------------------------------------------------------------
 
-
+#--------------------------------------------------------------------------------------------------
+# Return latest firmware release version number for a particular repo
+#--------------------------------------------------------------------------------------------------
+def find_latest_version(repo, repo_config_file, download_folder):
+  os.system('clear')
+  print repo
+  repo_name = str(repo.split('/')[-1])
+  gh_username = str(repo.split('/')[-2])
+  firmware_file = download_folder + gh_username + '-' + repo_name + '.json'
+  print firmware_file
+  print get_downloaded_releases(firmware_file)
+  
+  raw_input("\nPress Enter to continue...\n")
+  return
 
 
 

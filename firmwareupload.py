@@ -2,8 +2,8 @@
 
 import os
 
-def upload_latest(repo, download_folder):
+
+def serial_upload(repo, version, download_folder):
   os.system('clear')
-  print repo
-  raw_input("\nPress Enter to continue...\n")
+  
   return

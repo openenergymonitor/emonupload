@@ -6,8 +6,8 @@
 # OpenEnergyMonitor.org
 # GNU GPL V3
 
-from download_releases import debug, get_repos, update_download_releases
-from firmwareupload import upload_latest
+from download_releases import debug, get_repos, update_download_releases, find_latest_version
+from firmwareupload import serial_upload
 
 # See requirements.txt
 # `$ pip install -r requirements.txt`
@@ -182,7 +182,7 @@ while(1):
       index = ord(str(second_selection)) - 97
       print number_repos
       if index < number_repos:
-        upload_latest(repo[index],download_folder)
+        find_latest_version(repo[index], repo_config_file, download_folder)
       else: invalid_selection()
     else: invalid_selection()
   
@@ -206,7 +206,11 @@ while(1):
 
     
   elif first_selection == 7:
-    print bcolors.OKBLUE + '\n7. Enable DEBUG output' + bcolors.END
+    print bcolors.OKBLUE + '\n7. Enable DEBUG output' + bcolors.ENDC
+    DEBUG = True
+    debug()
+    print 'Debug output enabled.'
+    raw_input("\nPress Enter to continue...\n")
   
   elif first_selection == 8:
     print bcolors.OKBLUE + '\n8. Exit' + bcolors.ENDC
