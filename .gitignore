@@ -1,6 +1,9 @@
 firmwre/
 firmware/*
 
+latest/
+latest/*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

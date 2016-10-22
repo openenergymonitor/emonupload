@@ -43,7 +43,7 @@ def interent_connected():
       print bcolors.OKGREEN + 'Internet connection detected' + bcolors.ENDC
       connected = True
   except:
-      print bcolors.WARNING + 'CANNNOT UPDATE: No internet connection detected\n' + bcolors.ENDC
+      print bcolors.WARNING + 'CANNNOT CHECK FOR LATEST RELEASES: No internet connection detected\n' + bcolors.ENDC
       connected = False
   return connected
 #--------------------------------------------------------------------------------------------------
