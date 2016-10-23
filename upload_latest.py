@@ -9,17 +9,18 @@
 # GNU GPL V3
 
 
-import serial, sys, string, commands, time, subprocess, os, urllib2, requests, urllib
+import serial, sys, string, commands, time, subprocess, os, urllib2, requests, urllib, json, git
 from subprocess import Popen, PIPE, STDOUT
 
 download_folder = 'firmware'
 
 #--------------------------------------------------------------------------------------------------
 DEBUG = True
-UPDATE = True
+UPDATE = True      # Update firmware releases at startup
 VERSION = 'V0.0.2'
 download_folder = 'latest/'
 allowed_extensions = ['bin', 'hex']
+github_repo = ['openenergymonitor/emonth2', 'openenergymonitor/emonth2', 'openenergymonitor/emonpi', 'openenergymonitor/emonTxFirmware', 'openenergymonitor/RFM2Pi']
 #--------------------------------------------------------------------------------------------------
     
 # Terminal colours
@@ -44,25 +45,42 @@ def interent_connected(url):
   req = urllib2.Request(url)
   try:
     resp = urllib2.urlopen(req)
-    
   except urllib2.HTTPError as e:
     if e.code == 404:
       print bcolors.WARNING + 'No internet connection detected..update aborted\n' + bcolors.ENDC
-      
   except urllib2.URLError as e:
     # Not an HTTP-specific error (e.g. connection refused)
     print bcolors.WARNING + 'No internet connection detected..update aborted\n' + bcolors.ENDC
-    
   else:
     # 200
     body = resp.read()
     print bcolors.OKGREEN + 'Internet connection detected...updating' + bcolors.ENDC
     connected = True
-    
-    
   return connected
 #-------------------------------------------------------------------------------------------------
-  
+
+#--------------------------------------------------------------------------------------------------
+# Update emonupload
+#--------------------------------------------------------------------------------------------------
+def update_emonupload(filename):
+  print 'Checking for emonUpload updates...'
+  dir_path=os.path.dirname(os.path.realpath(filename))
+  if (DEBUG): print 'git abs path' + dir_path
+  g = git.cmd.Git(dir_path)
+  r = g.pull()
+  if (DEBUG): print g
+  if r != 'Already up-to-date.':
+    print r
+    print bcolors.WARNING + 'UPDATE FOUND....emonUpload RESTART REQUIRED\n' + bcolors.ENDC
+    raw_input("\nPress Enter to continue...\n")
+    os.execv(filename, sys.argv)
+    sys.exit(0)
+  else:
+    print bcolors.OKGREEN + 'Already up-to-date.' + bcolors.ENDC
+    if (DEBUG): raw_input("\nPress Enter to continue...\n")
+  return r
+#--------------------------------------------------------------------------------------------------
+
 #--------------------------------------------------------------------------------------------------
 # Get latest GitHub release info using GitHub releases API
 #--------------------------------------------------------------------------------------------------
@@ -75,7 +93,7 @@ def get_releases_info(current_repo):
     print bcolors.FAIL + '\nERROR contacting GitHub API ' + release_api_url + '\n' + bcolors.ENDC
     sys.exit(1)
   resp = r.json()
-  #if (DEBUG): print '\n' + json.dumps(resp, sort_keys=True, indent=4, separators=(',', ': ')) + '\n'
+  if (DEBUG): print '\n' + json.dumps(resp, sort_keys=True, indent=4, separators=(',', ': ')) + '\n'
   return resp
     
     
@@ -116,20 +134,22 @@ def file_download(download_url, current_repo, download_folder):
 os.system('clear') # clear terminal screen Linux specific
 
 #--------------------------------------------------------------------------------------------------
-# Update Firmware
+# Update Firmware - download latest releases
 #--------------------------------------------------------------------------------------------------
 if interent_connected('https://api.github.com'):
-  current_repo = 'openenergymonitor/emonth2'
-  resp = get_releases_info(current_repo)
-  assets = resp['assets']
-  download_url = assets[0]['browser_download_url']
-  extension = download_url.split('.')[-1]
-  if (DEBUG): print download_url
-  if extension in allowed_extensions and UPDATE==True:
-    file_download(download_url, current_repo, download_folder)
+  update_emonupload('upload_latest.py')
+  for i in range(len(github_repo)):
+    current_repo = github_repo[i]
+    resp = get_releases_info(current_repo)
+    assets = resp['assets']
+    download_url = assets[0]['browser_download_url']
+    extension = download_url.split('.')[-1]
+    if (DEBUG): print download_url
+    if extension in allowed_extensions and UPDATE==True:
+      file_download(download_url, current_repo, download_folder)
     
 
-print bcolors.OKBLUE + 'OpenEnergyMonitor Upload ' + VERSION +   bcolors.ENDC
+print bcolors.OKBLUE + 'OpenEnergyMonitor Upload ' + VERSION + bcolors.ENDC
 
 try:
   ser = serial.Serial('/dev/ttyAMA0', 38400, timeout=10)
@@ -211,7 +231,7 @@ while(1):
 
 	if nb=='2':
 		print 'emonTH V2...upload via ISP'
-		cmd = 'sudo avrdude -V -u -p atmega328p -c avrispmkII -P usb -e -Ulock:w:0x3F:m -Uefuse:w:0x05:m -Uhfuse:w:0xDE:m -Ulfuse:w:0xFF:m -U flash:w:/home/pi/emonth2/firmware/compiled/latest.hex:i'
+		cmd = 'sudo avrdude -V -u -p atmega328p -c avrispmkII -P usb -e -Ulock:w:0x3F:m -Uefuse:w:0x05:m -Uhfuse:w:0xDE:m -Ulfuse:w:0xFF:m -U flash:w:' + download_folder + '/openenergymonitor-emonth2.hex:i'
 		
 		subprocess.call(cmd, shell=True)
                 time.sleep(1)
