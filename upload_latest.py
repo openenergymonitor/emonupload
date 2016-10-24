@@ -16,8 +16,8 @@ from os.path import expanduser
 download_folder = 'firmware'
 
 #--------------------------------------------------------------------------------------------------
-DEBUG = False
-UPDATE = False      # Update firmware releases at startup
+DEBUG = 0
+UPDATE = 0      # Update firmware releases at startup
 VERSION = 'V0.0.2'
 
 download_folder = 'latest/'
@@ -28,6 +28,22 @@ uno_bootloader = 'bootloaders/optiboot_atmega328.hex'
 allowed_extensions = ['bin', 'hex']
 github_repo = ['openenergymonitor/emonth2', 'openenergymonitor/emonth', 'openenergymonitor/emonpi', 'openenergymonitor/emontxfirmware', 'openenergymonitor/rfm2pi']
 #--------------------------------------------------------------------------------------------------
+
+#--------------------------------------------------------------------------------------------------
+# RFM settings
+#--------------------------------------------------------------------------------------------------
+rfm_port = '/dev/ttyAMA0'
+rfm_baud = '38400'
+#--------------------------------------------------------------------------------------------------
+
+#--------------------------------------------------------------------------------------------------
+# Expected RF nodeID's
+#--------------------------------------------------------------------------------------------------
+emontx_nodeid = [8, 7]
+emonth_nodeid = [23, 24, 25, 26]
+emonpi_nodeid = [5]
+#--------------------------------------------------------------------------------------------------
+
 
 # Terminal colours
 class bcolors:
@@ -191,7 +207,7 @@ def burn_bootloader(bootloader_path):
   else:
     print bcolors.FAIL + 'ERROR: Missing PlatformIO avrdude.conf, check PlatformIO is installed' + bcolors.ENDC
   return;
-  
+#--------------------------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------------------------
 # Serial Upload
 #--------------------------------------------------------------------------------------------------
@@ -219,7 +235,25 @@ def serial_upload(firmware_path):
   else: print bcolors.FAIL + 'ERROR: USB serial programmer NOT found' + bcolors.ENDC
     
   return serial_port
+#--------------------------------------------------------------------------------------------------
 
+#--------------------------------------------------------------------------------------------------
+# Test receive RF
+#--------------------------------------------------------------------------------------------------
+def test_receive_rf(nodeid, rfm_port, rfm_baud):
+  ser = serial.Serial(rfm_port, rfm_baud, timeout=1)
+  linestr = ser.readline()
+  print linestr
+  if (DEBUG): print len(linestr)
+  if len(linestr)>0:
+    if int(linestr[3] + linestr[4]) == nodeid:
+      print bcolors.OKGREEN +'PASS!...RF RECEIVED' + bcolors.ENDC
+    else:
+      print bcolors.FAIL + 'FAIL...Incorrect RF received' + bcolors.ENDC
+  else:
+    print bcolors.FAIL + 'FAIL...RF NOT received' + bcolors.ENDC
+  ser.close()
+  
 
 #--------------------------------------------------------------------------------------------------
 # BEGIN
@@ -261,7 +295,7 @@ else:
 
 # Check communication with RFM69Pi
 try:
-  ser = serial.Serial('/dev/ttyAMA0', 38400, timeout=10)
+  ser = serial.Serial(rfm_port, rfm_baud, timeout=10)
   ser.write("210g")
   time.sleep(1)
   ser.write("4b")
@@ -292,20 +326,11 @@ while(1):
 		print '\nemonTx firmware upload via Serial....'
 		burn_bootloader(uno_bootloader)
 		serial_upload(download_folder + 'openenergymonitor-emontxfirmware.hex:i')
-
+		
+		# If RFM69Pi Exist
 		if (RFM):
-		  ser = serial.Serial('/dev/ttyAMA0', 38400, timeout=1)
-		  linestr = ser.readline()
-		  print linestr
-		  if (DEBUG): print len(linestr)
-		  if (len(linestr)>0):
-		    if (int(linestr[3] + linestr[4])==10) | (int(linestr[3] + linestr[4])==8):
-		      print bcolors.OKGREEN +'PASS!...RF RECEIVED' + bcolors.ENDC
-		    else:
-		      print bcolors.UNDERLINE + 'FAIL...Incorrect RF received' + bcolors.ENDC
-		  else:
-		    print bcolors.UNDERLINE + 'FAIL...RF NOT received' + bcolors.ENDC
-		  ser.close()
+		  test_receive_rf(emontx_nodeid, rfm_port)
+
 
 	if nb=='h':
 		print 'emonTH firmware upload via ISP....'
