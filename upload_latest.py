@@ -286,6 +286,7 @@ while(1):
 
 	if nb=='x':
 		print '\nemonTx firmware upload via Serial....'
+		burn_bootloader(uno_bootloader)
 		serial_upload(download_folder + 'openenergymonitor-emontxfirmware.hex:i')
 
 		if (RFM):
