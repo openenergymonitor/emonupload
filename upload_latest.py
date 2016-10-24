@@ -254,6 +254,18 @@ def test_receive_rf(nodeid, rfm_port, rfm_baud):
     print bcolors.FAIL + 'FAIL...RF NOT received' + bcolors.ENDC
   ser.close()
   
+#--------------------------------------------------------------------------------------------------
+# PlatformIO unit test
+# --------------------------------------------------------------------------------------------------
+def pio_unit_test(test_path, env):
+  print bcolors.OKGREEN + '\nUnit Test: \n' + bcolors.ENDC
+  cmd = 'pio test -d' + test_path + ' -e' + env
+  print cmd
+  subprocess.call(cmd, shell=True)
+  return
+# --------------------------------------------------------------------------------------------------
+  
+
 
 #--------------------------------------------------------------------------------------------------
 # BEGIN
@@ -290,8 +302,10 @@ if interent_connected('https://api.github.com'):
 check_package('avrdude')
 if os.path.isdir(expanduser('~/.platformio')):
   print bcolors.OKGREEN + 'PlatformIO is installed' + bcolors.ENDC
+  PIO = True
 else:
   print bcolors.FAIL + 'Error PlatformIO is NOT installed' + bcolors.ENDC
+  PIO = False
 
 # Check communication with RFM69Pi
 try:
@@ -323,6 +337,7 @@ while(1):
   #print bcolors.OKGREEN + '(r) for RFM69Pi' + bcolors.ENDC
 	print bcolors.HEADER + '(o) for old emonTH V1' + bcolors.ENDC
 	print bcolors.HEADER + '(u) to check for updates online' + bcolors.ENDC
+	print bcolors.HEADER + '(d) to enable DEBUG' + bcolors.ENDC
 	print bcolors.HEADER + '(e) to EXIT and shutdown' + bcolors.ENDC
 	nb = raw_input('> ')
 	os.system('clear') # clear terminal screen Linux specific
@@ -332,27 +347,33 @@ while(1):
 		print bcolors.OKGREEN + '\nemonTx Upload\n' + bcolors.ENDC
 		burn_bootloader(uno_bootloader)
 		serial_upload(download_folder + 'openenergymonitor-emontxfirmware.hex:i')
+		if (RFM):
+		  test_receive_rf(emontx_nodeid, rfm_port)
+		else: print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
 	
 	# emonPi
-	if nb=='i':
+	elif nb=='i':
 		print bcolors.OKGREEN + '\nemonPi Upload\n' + bcolors.ENDC
 		burn_bootloader(uno_bootloader)
 		serial_upload(download_folder + 'openenergymonitor-emonpi.hex:i')
+		if (RFM):
+		  test_receive_rf(emonpi_nodeid, rfm_port)
+		else: print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
 	
 	# emonTH V2
-	if nb=='h':
+	elif nb=='h':
 		print bcolors.OKGREEN + '\nemonTH V2 Upload\n' + bcolors.ENDC
 		burn_bootloader(uno_bootloader)
 		serial_upload(download_folder + 'openenergymonitor-emonth2.hex:i')
-	
+		if (RFM):
+		  test_receive_rf(emonth_nodeid, rfm_port)
+		else: print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
 		
-	# If RFM69Pi Exist
-	if (RFM):
-	  test_receive_rf(emontx_nodeid, rfm_port)
-	else: print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
+		# PlatformIO Unit test
+		if (PIO):
+		  pio_unit_test(repo_folder + 'openenergymonitor-emonth2/firmware', 'emonth2')
 
-
-	if nb=='u':
+	elif nb=='u':
 	  print bcolors.OKGREEN + 'Checking for updates.. ' + bcolors.ENDC
 	  # Update emonUpload (git pull)
 	  update_emonupload('upload_latest.py')
@@ -370,8 +391,13 @@ while(1):
 	      if (DEBUG): print download_url
 	      if extension in allowed_extensions and UPDATE==True:
 	        file_download(download_url, current_repo, download_folder)
-	
-	if nb=='e':
+
+	elif nb=='d':
+		print bcolors.FAIL + '\nDebug enabled' + bcolors.ENDC
+		DEBUG = True
+		raw_input("\nPress Enter to continue... or [CTRL + C] to exit\n")
+		    	
+	elif nb=='e':
 		print bcolors.FAIL + '\nSystem Shutdown....' + bcolors.ENDC
 		raw_input("\nPress Enter to continue... or [CTRL + C] to exit\n")
 		time.sleep(2)
@@ -379,11 +405,9 @@ while(1):
 		subprocess.call(cmd, shell=True)
         	sys.exit
 
+	else:
+	  print bcolors.FAIL + 'Invalid selection' + bcolors.ENDC
+	
+		
 
 
-
-
-
-
-	#if ((nb!=8) and (nb!=4)):
-	#	print 'Invalid selection, please restart script and select b or w'
