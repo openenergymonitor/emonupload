@@ -179,15 +179,42 @@ def file_download(download_url, current_repo, download_folder):
   #--------------------------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------------------------
-# ISP Upload
+# Burn Bootloader
 #--------------------------------------------------------------------------------------------------
 def burn_bootloader(bootloader_path):
-  if os.path.isdir(expanduser(('~/.platformio/packages/tool-avrdude/avrdude.conf'))):
+  if os.path.isfile(expanduser(('~/.platformio/packages/tool-avrdude/avrdude.conf'))):
     cmd = 'avrdude -C ~/.platformio/packages/tool-avrdude/avrdude.conf -v -patmega328p -cstk500v2 -Pusb -Uflash:w:' + bootloader_path +':i -Ulock:w:0xcf:m'
     subprocess.call(cmd, shell=True)
   else:
     print bcolors.FAIL + 'Missing PlatformIO avrdude.conf, check PlatformIO is installed...' + bcolors.ENDC
   return;
+  
+#--------------------------------------------------------------------------------------------------
+# Serial Upload
+#--------------------------------------------------------------------------------------------------
+def serial_upload(firmware_path):
+  print 'serial upload ' + firmware_path
+  
+  # Autodetect ttyUSB port 0 - 12 ttyUSB[x]
+  serial_port = False
+  for i in range(12):
+    try_port='/dev/ttyUSB' +str(i)
+    try:
+      ser = serial.Serial(port=try_port, timeout=1)
+      ser.read()
+      ser.close()
+      print bcolors.OKGREEN + "Found serial programmer on " + try_port + bcolors.ENDC
+      serial_port = try_port
+      break
+    except serial.serialutil.SerialException:
+      if (DEBUG): print 'ERROR: USB serial programmer NOT found on ' + try_port + bcolors.ENDC
+
+  if (serial_port!=False):
+    cmd = 'avrdude  -u -c arduino -p ATMEGA328P -P' + serial_port + ' -b 115200 -U flash:w:' + firmware_path
+    subprocess.call(cmd, shell=True)
+  else: print bcolors.FAIL + 'ERROR: USB serial programmer NOT found' + bcolors.ENDC
+    
+  return serial_port
 
 
 #--------------------------------------------------------------------------------------------------
@@ -248,40 +275,36 @@ print bcolors.OKBLUE + 'OpenEnergyMonitor Upload ' + VERSION + bcolors.ENDC
 while(1):
 	print ' '
 	print '\nEnter >'
-	print bcolors.HEADER + '(x) for emonTx' + bcolors.ENDC
-	print bcolors.HEADER + '(h) for emonTH' + bcolors.ENDC
-	print bcolors.HEADER + '(i) for emonPi' + bcolors.ENDC
-	print bcolors.HEADER + '(r) for RFM69Pi' + bcolors.ENDC
-	print bcolors.HEADER + '(2) for emonTH V2' + bcolors.ENDC
-	print bcolors.HEADER + '(e) to EXIT and shutdown' + bcolors.ENDC
+	print bcolors.OKGREEN + '(x) for emonTx' + bcolors.ENDC
+	print bcolors.OKGREEN + '(h) for emonTH' + bcolors.ENDC
+	print bcolors.OKGREEN + '(i) for emonPi' + bcolors.ENDC
+	print bcolors.OKGREEN + '(r) for RFM69Pi' + bcolors.ENDC
+	print bcolors.OKGREEN + '(2) for emonTH V2' + bcolors.ENDC
+	print bcolors.OKGREEN + '(e) to EXIT and shutdown' + bcolors.ENDC
 	nb = raw_input('> ')
         print(nb)
 
 	if nb=='x':
-		print 'emonTx V3.4 RFM69CW 433Mhz'
-		print 'Attempting RFM69CW  433Mhz emonTx firmware upload via ISP....'
-		cmd = 'sudo avrdude -V -u -p atmega328p -c avrispmkII -P usb -e -Ulock:w:0x3F:m -Uefuse:w:0x05:m -Uhfuse:w:0xDE:m -Ulfuse:w:0xFF:m -U flash:w:/home/pi/emonTxFirmware/emonTxV3/RFM/emonTxV3.4/emonTxV3_4_DiscreteSampling/compiled/emonTxV3_RFM69CW_latest_433_bootloader.hex:i  -Ulock:w:0x0F:m'
-		subprocess.call(cmd, shell=True)
-		time.sleep(1)
+		print '\nemonTx firmware upload via Serial....'
+		serial_upload(download_folder + 'openenergymonitor-emontxfirmware.hex:i')
 
 		if (RFM):
 		  ser = serial.Serial('/dev/ttyAMA0', 38400, timeout=1)
 		  linestr = ser.readline()
-  		print linestr
-  		#print len(linestr)
-  		if (len(linestr)>0):
-  			if (int(linestr[3] + linestr[4])==10) | (int(linestr[3] + linestr[4])==8):
-  				print bcolors.OKGREEN +'PASS!...RF RECEIVED' + bcolors.ENDC
-  			else:
-  				print bcolors.UNDERLINE + 'FAIL...Incorrect RF received' + bcolors.ENDC
-  		else:
-  			print bcolors.UNDERLINE + 'FAIL...RF NOT received' + bcolors.ENDC
-  		ser.close()
+		  print linestr
+		  if (DEBUG): print len(linestr)
+		  if (len(linestr)>0):
+		    if (int(linestr[3] + linestr[4])==10) | (int(linestr[3] + linestr[4])==8):
+		      print bcolors.OKGREEN +'PASS!...RF RECEIVED' + bcolors.ENDC
+		    else:
+		      print bcolors.UNDERLINE + 'FAIL...Incorrect RF received' + bcolors.ENDC
+		  else:
+		    print bcolors.UNDERLINE + 'FAIL...RF NOT received' + bcolors.ENDC
+		  ser.close()
 
 	if nb=='h':
-		print 'emonTH RFM69CW 433Mhz'
-		print 'RFM69CW 433Mhz emonTH firmware upload via ISP....'
-		cmd = 'sudo avrdude -V -u -p atmega328p -c avrispmkII -P usb -e -Ulock:w:0x3F:m -Uefuse:w:0x05:m -Uhfuse:w:0xDE:m -Ulfuse:w:0xFF:m -U flash:w:/home/pi/emonTH/emonTH_V1.5/emonTH_DHT22_DS18B20_RFM69CW_Pulse/compiled/emonTH_latest_Bootloader.hex:i  -Ulock:w:0x0F:m'
+		print 'emonTH firmware upload via ISP....'
+		cmd = 'sudo avrdude -V -u -p atmega328p -c avrispmkII -P usb -e -Ulock:w:0x3F:m -Uefuse:w:0x05:m -Uhfuse:w:0xDE:m -Ulfuse:w:0xFF:m -U flash:w:' + download_folder + '/openenergymonitor-emonth.hex:i'
 		subprocess.call(cmd, shell=True)
                 time.sleep(1)
 		if (RFM):
@@ -297,21 +320,27 @@ while(1):
   			print bcolors.UNDERLINE + 'FAIL...RF NOT received' + bcolors.ENDC
   		ser.close()
 
-	if nb=='r':
-		print 'RFM69Pi 433Mhz'
-		print 'RFM69Pi firmware upload via ISP....'
-		cmd = 'sudo avrdude -V -u -p atmega328p -c avrispmkII -P usb -e -Ulock:w:0x3F:m -Uefuse:w:0x05:m -Uhfuse:w:0xDE:m -Ulfuse:w:0xE2:m -U flash:w:/home/pi/RFM2Pi/firmware/RFM69CW_RF_Demo_ATmega328/Optiboot328_8mhz_RFM69CW_RF12_Demo_ATmega328.cpp.hex:i'
-		subprocess.call(cmd, shell=True)
-                time.sleep(1)
-		print 'Check JeeLink transmitter connected > Flashing RED LED on the RFM69Pi = SUCCESS?'
 
 	if nb=='i':
-		print 'emonPi RFM69CW 433Mhz'
-		print 'RFM69CW 433Mhz emonPi firmware upload via ISP....'
-		cmd = 'sudo avrdude -V -u -p atmega328p -c avrispmkII -P usb -e -Ulock:w:0x3F:m -Uefuse:w:0x05:m -Uhfuse:w:0xDE:m -Ulfuse:w:0xFF:m -U flash:w:/home/pi/emonpi/Atmega328/emonPi_RFM69CW_RF12Demo_DiscreteSampling/compiled/emonPi_latest_bootloader.hex:i'
+		print 'emonPi firmware upload via ISP....'
+		cmd = 'sudo avrdude -V -u -p atmega328p -c avrispmkII -P usb -e -Ulock:w:0x3F:m -Uefuse:w:0x05:m -Uhfuse:w:0xDE:m -Ulfuse:w:0xFF:m -U flash:w:' + download_folder + '/openenergymonitor-emonpi.hex:i'
+		subprocess.call(cmd, shell=True)
+                time.sleep(1)
+		if (RFM):
+		  ser = serial.Serial('/dev/ttyAMA0', 38400, timeout=1)
+  		linestr = ser.readline()
+  		print linestr
+  		if (len(linestr)>0):
+  			if (int(linestr[2] + linestr[3])==5):
+  				print bcolors.OKGREEN +'PASS!...RF RECEIVED' + bcolors.ENDC
+  			else:
+  				print bcolors.UNDERLINE + 'FAIL...Incorrect RF received' + bcolors.ENDC
+  		else:
+  			print bcolors.UNDERLINE + 'FAIL...RF NOT received' + bcolors.ENDC
+  		ser.close()
 
 	if nb=='2':
-		print 'emonTH V2...upload via ISP'
+		print 'emonTH V2 upload via ISP'
 		cmd = 'sudo avrdude -V -u -p atmega328p -c avrispmkII -P usb -e -Ulock:w:0x3F:m -Uefuse:w:0x05:m -Uhfuse:w:0xDE:m -Ulfuse:w:0xFF:m -U flash:w:' + download_folder + '/openenergymonitor-emonth2.hex:i'
 
 		subprocess.call(cmd, shell=True)
