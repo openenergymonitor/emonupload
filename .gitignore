@@ -1,6 +1,9 @@
 firmwre/
 firmware/*
 
+repos/
+repos/*
+
 latest/
 latest/*
 

@@ -15,33 +15,35 @@ from subprocess import Popen, PIPE, STDOUT
 download_folder = 'firmware'
 
 #--------------------------------------------------------------------------------------------------
-DEBUG = True
+DEBUG = False
 UPDATE = True      # Update firmware releases at startup
 VERSION = 'V0.0.2'
 download_folder = 'latest/'
+repo_folder = 'repos/'
 allowed_extensions = ['bin', 'hex']
-github_repo = ['openenergymonitor/emonth2', 'openenergymonitor/emonth2', 'openenergymonitor/emonpi', 'openenergymonitor/emonTxFirmware', 'openenergymonitor/RFM2Pi']
+github_repo = ['openenergymonitor/emonth2', 'openenergymonitor/emonth', 'openenergymonitor/emonpi', 'openenergymonitor/emontxfirmware', 'openenergymonitor/rfm2pi']
 #--------------------------------------------------------------------------------------------------
-    
+
 # Terminal colours
 class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
+  HEADER = '\033[95m'
+  OKBLUE = '\033[94m'
+  OKGREEN = '\033[92m'
+  WARNING = '\033[93m'
+  FAIL = '\033[91m'
+  ENDC = '\033[0m'
+  BOLD = '\033[1m'
+  UNDERLINE = '\033[4m'
 
 # Check download folder exists if not create
 if not os.path.isdir(download_folder):
   os.mkdir(download_folder)
-  
+
 #--------------------------------------------------------------------------------------------------
 # Check interent connectivity
 #--------------------------------------------------------------------------------------------------
 def interent_connected(url):
+  print 'Testing internet connection...'
   req = urllib2.Request(url)
   try:
     resp = urllib2.urlopen(req)
@@ -54,7 +56,7 @@ def interent_connected(url):
   else:
     # 200
     body = resp.read()
-    print bcolors.OKGREEN + 'Internet connection detected...updating' + bcolors.ENDC
+    print bcolors.OKGREEN + 'Internet connection detected' + bcolors.ENDC
     connected = True
   return connected
 #-------------------------------------------------------------------------------------------------
@@ -63,7 +65,7 @@ def interent_connected(url):
 # Update emonupload
 #--------------------------------------------------------------------------------------------------
 def update_emonupload(filename):
-  print 'Checking for emonUpload updates...'
+  if (DEBUG): print 'Checking for emonUpload updates...'
   dir_path=os.path.dirname(os.path.realpath(filename))
   if (DEBUG): print 'git abs path' + dir_path
   g = git.cmd.Git(dir_path)
@@ -72,14 +74,43 @@ def update_emonupload(filename):
   if r != 'Already up-to-date.':
     print r
     print bcolors.WARNING + 'UPDATE FOUND....emonUpload RESTART REQUIRED\n' + bcolors.ENDC
-    raw_input("\nPress Enter to continue...\n")
+    if (DEBUG): raw_input("\nPress Enter to continue...\n")
     os.execv(filename, sys.argv)
     sys.exit(0)
   else:
-    print bcolors.OKGREEN + 'Already up-to-date.' + bcolors.ENDC
+    print bcolors.OKGREEN + 'Already up-to-date: emonUpload' + bcolors.ENDC
     if (DEBUG): raw_input("\nPress Enter to continue...\n")
   return r
 #--------------------------------------------------------------------------------------------------
+
+#--------------------------------------------------------------------------------------------------
+# Clone / update github repos into repo folder
+#--------------------------------------------------------------------------------------------------
+def repo_clone_update(github_repo, repo_folder):
+  if not os.path.isdir(repo_folder):
+    os.mkdir(repo_folder)
+  for i in range(len(github_repo)):
+    repo_dir_path=repo_folder + github_repo[i].split('/')[-2] + '-' + github_repo[i].split('/')[-1]  # e.g repos/openenergymonitor-emonth2
+    if os.path.isdir(repo_dir_path):
+      if (DEBUG): print '\nDEBUG: Repo ' + repo_dir_path + ' already exists checking for updates...'
+      repo_dir_abs_path=os.path.dirname(repo_dir_path)
+      g = git.cmd.Git(repo_dir_abs_path)
+      r = g.pull()
+      if r != 'Already up-to-date.': print bcolors.WARNING + 'Updating repo: ' + repo_dir_path + bcolors.ENDC
+      else: print bcolors.OKGREEN + 'Already up-to-date: ' + repo_dir_path + bcolors.ENDC
+    else:
+      remote_url = 'https://github.com/' + github_repo[i] + '.git'
+      if (DEBUG): print '\nDEBUG: Cloning ' + github_repo[i] + '\nFrom: ' + remote_url + '\nInto: ' + repo_dir_path
+      os.mkdir(repo_dir_path)
+      repo = git.Repo.init(repo_dir_path)
+      origin = repo.create_remote('origin',remote_url)
+      origin.fetch()
+      origin.pull(origin.refs[0].remote_head)
+  if (DEBUG): raw_input("\nPress Enter to continue...\n")
+  return
+
+
+
 
 #--------------------------------------------------------------------------------------------------
 # Get latest GitHub release info using GitHub releases API
@@ -93,10 +124,14 @@ def get_releases_info(current_repo):
     print bcolors.FAIL + '\nERROR contacting GitHub API ' + release_api_url + '\n' + bcolors.ENDC
     sys.exit(1)
   resp = r.json()
+  if 'tag_name' in resp:
+    release_version = resp['tag_name']
+  else : release_version = 'N/A'
+  print bcolors.OKGREEN + 'Latest ' + current_repo + 'firmware: V' + release_version + bcolors.ENDC
   if (DEBUG): print '\n' + json.dumps(resp, sort_keys=True, indent=4, separators=(',', ': ')) + '\n'
   return resp
-    
-    
+#--------------------------------------------------------------------------------------------------
+
 #--------------------------------------------------------------------------------------------------
 # DOWNLOAD FILE
 #--------------------------------------------------------------------------------------------------
@@ -110,8 +145,8 @@ def file_download(download_url, current_repo, download_folder):
   meta = u.info()
   file_size = int(meta.getheaders('Content-Length')[0])
   print '  Downloading: %s Bytes: %s' % (download_url.split('/')[-1], file_size)
-  print '  from ' + download_url
-  print '  Saving to: ' + save_file_name
+  if (DEBUG): print 'DEBUG:  from ' + download_url
+  if (DEBUG): print 'DEBUG:  Saving to: ' + save_file_name
   file_size_dl = 0
   block_sz = 8192
   while True:
@@ -137,18 +172,28 @@ os.system('clear') # clear terminal screen Linux specific
 # Update Firmware - download latest releases
 #--------------------------------------------------------------------------------------------------
 if interent_connected('https://api.github.com'):
-  update_emonupload('upload_latest.py')
-  for i in range(len(github_repo)):
-    current_repo = github_repo[i]
-    resp = get_releases_info(current_repo)
-    assets = resp['assets']
-    download_url = assets[0]['browser_download_url']
-    extension = download_url.split('.')[-1]
-    if (DEBUG): print download_url
-    if extension in allowed_extensions and UPDATE==True:
-      file_download(download_url, current_repo, download_folder)
+  
+  if (UPDATE):  # If startup update is requested
     
+    # Update emonUpload (git pull)
+    update_emonupload('upload_latest.py')
+    print '\n'
+    # Clone or (update if already cloned) repos defined in github_repo list
+    repo_clone_update(github_repo, repo_folder)
+    
+    # Update firware releases for github releases
+    for i in range(len(github_repo)):
+      current_repo = github_repo[i]
+      resp = get_releases_info(current_repo)
+      if 'assets' in resp:
+        assets = resp['assets']
+        download_url = assets[0]['browser_download_url']
+        extension = download_url.split('.')[-1]
+        if (DEBUG): print download_url
+        if extension in allowed_extensions and UPDATE==True:
+          file_download(download_url, current_repo, download_folder)
 
+print '\n-------------------------------------------------------------------------------'
 print bcolors.OKBLUE + 'OpenEnergyMonitor Upload ' + VERSION + bcolors.ENDC
 
 try:
@@ -158,9 +203,9 @@ try:
   ser.write("4b")
   ser.close()
   RFM = True
-  
+
 except serial.serialutil.SerialException:
-  print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi (dev/ttyAMA0 not exist), upload only...no RF test' + bcolors.ENDC
+  print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi (dev/ttyAMA0 not exist), upload only...no RF testing' + bcolors.ENDC
   RFM = False
 
 
@@ -182,7 +227,7 @@ while(1):
 		cmd = 'sudo avrdude -V -u -p atmega328p -c avrispmkII -P usb -e -Ulock:w:0x3F:m -Uefuse:w:0x05:m -Uhfuse:w:0xDE:m -Ulfuse:w:0xFF:m -U flash:w:/home/pi/emonTxFirmware/emonTxV3/RFM/emonTxV3.4/emonTxV3_4_DiscreteSampling/compiled/emonTxV3_RFM69CW_latest_433_bootloader.hex:i  -Ulock:w:0x0F:m'
 		subprocess.call(cmd, shell=True)
 		time.sleep(1)
-		
+
 		if (RFM):
 		  ser = serial.Serial('/dev/ttyAMA0', 38400, timeout=1)
 		  linestr = ser.readline()
@@ -232,7 +277,7 @@ while(1):
 	if nb=='2':
 		print 'emonTH V2...upload via ISP'
 		cmd = 'sudo avrdude -V -u -p atmega328p -c avrispmkII -P usb -e -Ulock:w:0x3F:m -Uefuse:w:0x05:m -Uhfuse:w:0xDE:m -Ulfuse:w:0xFF:m -U flash:w:' + download_folder + '/openenergymonitor-emonth2.hex:i'
-		
+
 		subprocess.call(cmd, shell=True)
                 time.sleep(1)
 		if (RFM):
@@ -264,4 +309,3 @@ while(1):
 
 	#if ((nb!=8) and (nb!=4)):
 	#	print 'Invalid selection, please restart script and select b or w'
-

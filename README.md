@@ -14,7 +14,7 @@ Download, flash and manage OpenEnergyMonitor firmware
 
 `$ git clone https://github.com/openenergymonitor/emonupload`
 
-- requires pythin 2.7.9+
+- requires Python 2.7.9+
 - use python virtual env in needed (see below)
 
 ## Setup Python virtual env
@@ -36,8 +36,10 @@ For more info on pyenv python virtual enviroment: https://github.com/yyuu/pyenv
 
 ## Install modules
 
-`$ cd emonupload`
-`$ pip install -r requirements.txt`
+```
+$ cd emonupload
+$ pip install -r requirements.txt
+```
 
 ## Licence
 
