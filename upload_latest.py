@@ -296,9 +296,11 @@ else:
 # Check communication with RFM69Pi
 try:
   ser = serial.Serial(rfm_port, rfm_baud, timeout=10)
-  ser.write("210g")
+  ser.write("210g") #210 group
   time.sleep(1)
-  ser.write("4b")
+  ser.write("4b") #433Mhz
+  time.sleep(1)
+  ser.write("1q") #quite mode
   ser.close()
   RFM = True
 
@@ -314,83 +316,64 @@ while(1):
 	print ' '
 	print '\nEnter >'
 	print bcolors.OKGREEN + '(x) for emonTx' + bcolors.ENDC
-	print bcolors.OKGREEN + '(h) for emonTH' + bcolors.ENDC
 	print bcolors.OKGREEN + '(i) for emonPi' + bcolors.ENDC
-	print bcolors.OKGREEN + '(r) for RFM69Pi' + bcolors.ENDC
-	print bcolors.OKGREEN + '(2) for emonTH V2' + bcolors.ENDC
-	print bcolors.OKGREEN + '(e) to EXIT and shutdown' + bcolors.ENDC
+	print bcolors.OKGREEN + '(h) for emonTH V2' + bcolors.ENDC
+	
+	print '\n'
+  #print bcolors.OKGREEN + '(r) for RFM69Pi' + bcolors.ENDC
+	print bcolors.HEADER + '(o) for old emonTH V1' + bcolors.ENDC
+	print bcolors.HEADER + '(u) to check for updates online' + bcolors.ENDC
+	print bcolors.HEADER + '(e) to EXIT and shutdown' + bcolors.ENDC
 	nb = raw_input('> ')
-        print(nb)
-
+	os.system('clear') # clear terminal screen Linux specific
+  
+  # emonTx
 	if nb=='x':
-		print '\nemonTx firmware upload via Serial....'
+		print bcolors.OKGREEN + '\nemonTx Upload\n' + bcolors.ENDC
 		burn_bootloader(uno_bootloader)
 		serial_upload(download_folder + 'openenergymonitor-emontxfirmware.hex:i')
-		
-		# If RFM69Pi Exist
-		if (RFM):
-		  test_receive_rf(emontx_nodeid, rfm_port)
-
-
-	if nb=='h':
-		print 'emonTH firmware upload via ISP....'
-		cmd = 'sudo avrdude -V -u -p atmega328p -c avrispmkII -P usb -e -Ulock:w:0x3F:m -Uefuse:w:0x05:m -Uhfuse:w:0xDE:m -Ulfuse:w:0xFF:m -U flash:w:' + download_folder + '/openenergymonitor-emonth.hex:i'
-		subprocess.call(cmd, shell=True)
-                time.sleep(1)
-		if (RFM):
-		  ser = serial.Serial('/dev/ttyAMA0', 38400, timeout=1)
-  		linestr = ser.readline()
-  		print linestr
-  		if (len(linestr)>0):
-  			if ((int(linestr[3] + linestr[4])==19) | (int(linestr[3] + linestr[4])==23)):
-  				print bcolors.OKGREEN +'PASS!...RF RECEIVED' + bcolors.ENDC
-  			else:
-  				print bcolors.UNDERLINE + 'FAIL...Incorrect RF received' + bcolors.ENDC
-  		else:
-  			print bcolors.UNDERLINE + 'FAIL...RF NOT received' + bcolors.ENDC
-  		ser.close()
-
-
+	
+	# emonPi
 	if nb=='i':
-		print 'emonPi firmware upload via ISP....'
-		cmd = 'sudo avrdude -V -u -p atmega328p -c avrispmkII -P usb -e -Ulock:w:0x3F:m -Uefuse:w:0x05:m -Uhfuse:w:0xDE:m -Ulfuse:w:0xFF:m -U flash:w:' + download_folder + '/openenergymonitor-emonpi.hex:i'
-		subprocess.call(cmd, shell=True)
-                time.sleep(1)
-		if (RFM):
-		  ser = serial.Serial('/dev/ttyAMA0', 38400, timeout=1)
-  		linestr = ser.readline()
-  		print linestr
-  		if (len(linestr)>0):
-  			if (int(linestr[2] + linestr[3])==5):
-  				print bcolors.OKGREEN +'PASS!...RF RECEIVED' + bcolors.ENDC
-  			else:
-  				print bcolors.UNDERLINE + 'FAIL...Incorrect RF received' + bcolors.ENDC
-  		else:
-  			print bcolors.UNDERLINE + 'FAIL...RF NOT received' + bcolors.ENDC
-  		ser.close()
+		print bcolors.OKGREEN + '\nemonPi Upload\n' + bcolors.ENDC
+		burn_bootloader(uno_bootloader)
+		serial_upload(download_folder + 'openenergymonitor-emonpi.hex:i')
+	
+	# emonTH V2
+	if nb=='h':
+		print bcolors.OKGREEN + '\nemonTH V2 Upload\n' + bcolors.ENDC
+		burn_bootloader(uno_bootloader)
+		serial_upload(download_folder + 'openenergymonitor-emonth2.hex:i')
+	
+		
+	# If RFM69Pi Exist
+	if (RFM):
+	  test_receive_rf(emontx_nodeid, rfm_port)
+	else: print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
 
-	if nb=='2':
-		print 'emonTH V2 upload via ISP'
-		cmd = 'sudo avrdude -V -u -p atmega328p -c avrispmkII -P usb -e -Ulock:w:0x3F:m -Uefuse:w:0x05:m -Uhfuse:w:0xDE:m -Ulfuse:w:0xFF:m -U flash:w:' + download_folder + '/openenergymonitor-emonth2.hex:i'
 
-		subprocess.call(cmd, shell=True)
-                time.sleep(1)
-		if (RFM):
-		  ser = serial.Serial('/dev/ttyAMA0', 38400, timeout=1)
-  		linestr = ser.readline()
-  		print linestr
-  		if (len(linestr)>0):
-  			if (int(linestr[2] + linestr[3])==23):
-  				print bcolors.OKGREEN +'PASS!...RF RECEIVED' + bcolors.ENDC
-  			else:
-  				print bcolors.UNDERLINE + 'FAIL...Incorrect RF received' + bcolors.ENDC
-  		else:
-  			print bcolors.UNDERLINE + 'FAIL...RF NOT received' + bcolors.ENDC
-  		ser.close()
-
+	if nb=='u':
+	  print bcolors.OKGREEN + 'Checking for updates.. ' + bcolors.ENDC
+	  # Update emonUpload (git pull)
+	  update_emonupload('upload_latest.py')
+	  # Clone or (update if already cloned) repos defined in github_repo list
+	  repo_clone_update(github_repo, repo_folder)
+	  print '\n'
+	  # Update firware releases for github releases
+	  for i in range(len(github_repo)):
+	    current_repo = github_repo[i]
+	    resp = get_releases_info(current_repo)
+	    if 'assets' in resp:
+	      assets = resp['assets']
+	      download_url = assets[0]['browser_download_url']
+	      extension = download_url.split('.')[-1]
+	      if (DEBUG): print download_url
+	      if extension in allowed_extensions and UPDATE==True:
+	        file_download(download_url, current_repo, download_folder)
+	
 	if nb=='e':
-		print 'END'
-		print 'Raspberry Pi Shutdown NOW!....'
+		print bcolors.FAIL + '\nSystem Shutdown....' + bcolors.ENDC
+		raw_input("\nPress Enter to continue... or [CTRL + C] to exit\n")
 		time.sleep(2)
 		cmd = 'sudo halt'
 		subprocess.call(cmd, shell=True)
