@@ -17,8 +17,8 @@ download_folder = 'firmware'
 
 #--------------------------------------------------------------------------------------------------
 DEBUG = 0
-UPDATE = 1      # Update firmware releases at startup
-VERSION = 'V1.0.'
+UPDATE = 0      # Update firmware releases at startup
+VERSION = 'V1.0.0'
 
 download_folder = 'latest/'
 repo_folder = 'repos/'
@@ -26,7 +26,7 @@ avrdude_config = '~/.platformio/packages/tool-avrdude/avrdude.conf'
 uno_bootloader = 'bootloaders/optiboot_atmega328.hex'
 
 allowed_extensions = ['bin', 'hex']
-github_repo = ['openenergymonitor/emonth2', 'openenergymonitor/emonth', 'openenergymonitor/emonpi', 'openenergymonitor/emontxfirmware', 'openenergymonitor/rfm2pi']
+github_repo = ['openenergymonitor/emonth2', 'openenergymonitor/emonth', 'openenergymonitor/emonpi', 'openenergymonitor/emontxfirmware']
 #--------------------------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------------------------
@@ -206,7 +206,7 @@ def burn_bootloader(bootloader_path):
     print cmd
     subprocess.call(cmd, shell=True)
   else:
-    print bcolors.FAIL + 'ERROR: Missing PlatformIO avrdude.conf, check PlatformIO is installed' + bcolors.ENDC
+    print bcolors.FAIL + 'ERROR: Missing PlatformIO avrdude.conf, check PlatformIO upload is installed - run $ pio -t upload' + bcolors.ENDC
   return;
 #--------------------------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------------------------
@@ -247,10 +247,11 @@ def test_receive_rf(nodeid, rfm_port, rfm_baud):
   print linestr
   if (DEBUG): print len(linestr)
   if len(linestr)>0:
-    if int(linestr[3] + linestr[4]) == nodeid:
-      print bcolors.OKGREEN +'PASS!...RF RECEIVED' + bcolors.ENDC
-    else:
-      print bcolors.FAIL + 'FAIL...Incorrect RF received' + bcolors.ENDC
+    for i in range(len(nodeid)):
+      if int(linestr[3] + linestr[4]) == nodeid[i]:
+        print bcolors.OKGREEN +'PASS!...RF RECEIVED' + bcolors.ENDC
+      else:
+        print bcolors.FAIL + 'FAIL...Incorrect RF received' + bcolors.ENDC
   else:
     print bcolors.FAIL + 'FAIL...RF NOT received' + bcolors.ENDC
   ser.close()
@@ -305,7 +306,7 @@ if os.path.isdir(expanduser('~/.platformio')):
   print bcolors.OKGREEN + 'PlatformIO is installed' + bcolors.ENDC
   PIO = True
 else:
-  print bcolors.FAIL + 'Error PlatformIO is NOT installed' + bcolors.ENDC
+  print bcolors.FAIL + 'Error PlatformIO avrdude is NOT installed, try insalling pio and running pio -t upload' + bcolors.ENDC
   PIO = False
 
 # Check communication with RFM69Pi
@@ -318,7 +319,7 @@ try:
   ser.write("1q") #quite mode
   ser.close()
   RFM = True
-
+  print bcolors.OKBLUE + '\nRFM69Pi detected' + bcolors.ENDC
 except serial.serialutil.SerialException:
   print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
   RFM = False
@@ -349,7 +350,7 @@ while(1):
 		burn_bootloader(uno_bootloader)
 		serial_upload(download_folder + 'openenergymonitor-emontxfirmware.hex:i')
 		if (RFM):
-		  test_receive_rf(emontx_nodeid, rfm_port)
+		  test_receive_rf(emontx_nodeid, rfm_port, rfm_baud)
 		else: print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
 	
 	# emonPi
@@ -358,7 +359,7 @@ while(1):
 		burn_bootloader(uno_bootloader)
 		serial_upload(download_folder + 'openenergymonitor-emonpi.hex:i')
 		if (RFM):
-		  test_receive_rf(emonpi_nodeid, rfm_port)
+		  test_receive_rf(emonpi_nodeid, rfm_port, rfm_baud)
 		else: print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
 	
 	# emonTH V2
@@ -367,7 +368,7 @@ while(1):
 		burn_bootloader(uno_bootloader)
 		serial_upload(download_folder + 'openenergymonitor-emonth2.hex:i')
 		if (RFM):
-		  test_receive_rf(emonth_nodeid, rfm_port)
+		  test_receive_rf(emonth_nodeid, rfm_port, rfm_baud)
 		else: print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
 		
 		# PlatformIO Unit test
