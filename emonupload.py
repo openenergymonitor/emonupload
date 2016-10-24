@@ -6,11 +6,11 @@
 # OpenEnergyMonitor.org
 # GNU GPL V3
 
+# $ pip install -r requirements.txt
+# $ sudo apt-get install python-apt
 from download_releases import debug, get_repos, update_download_releases, find_latest_version
 from firmwareupload import serial_upload
 
-# See requirements.txt
-# `$ pip install -r requirements.txt`
 import time, urllib, git, os, sys
 
 #--------------------------------------------------------------------------------------------------
@@ -19,7 +19,7 @@ STARTUP_UPDATE = False
 #--------------------------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------------------------
-VERSION = 'V0.0.2'
+VERSION = 'V1.0.0'
 download_folder = 'firmware/'
 allowed_extensions = ['bin', 'hex']
 repo_config_file = 'repos.conf'

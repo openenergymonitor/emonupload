@@ -17,8 +17,8 @@ download_folder = 'firmware'
 
 #--------------------------------------------------------------------------------------------------
 DEBUG = 0
-UPDATE = 0      # Update firmware releases at startup
-VERSION = 'V0.0.2'
+UPDATE = 1      # Update firmware releases at startup
+VERSION = 'V1.0.'
 
 download_folder = 'latest/'
 repo_folder = 'repos/'
@@ -132,6 +132,7 @@ def repo_clone_update(github_repo, repo_folder):
       else: print bcolors.OKGREEN + 'Already up-to-date: ' + repo_dir_path + bcolors.ENDC
     else:
       remote_url = 'https://github.com/' + github_repo[i] + '.git'
+      print bcolors.OKGREEN + ' Cloning ' + remote_url + bcolors.ENDC
       if (DEBUG): print '\nDEBUG: Cloning ' + github_repo[i] + '\nFrom: ' + remote_url + '\nInto: ' + repo_dir_path
       os.mkdir(repo_dir_path)
       repo = git.Repo.init(repo_dir_path)
