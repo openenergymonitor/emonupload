@@ -22,6 +22,7 @@ VERSION = 'V0.0.2'
 
 download_folder = 'latest/'
 repo_folder = 'repos/'
+avrdude_config = '~/.platformio/packages/tool-avrdude/avrdude.conf'
 uno_bootloader = 'bootloaders/optiboot_atmega328.hex'
 
 allowed_extensions = ['bin', 'hex']
@@ -182,18 +183,20 @@ def file_download(download_url, current_repo, download_folder):
 # Burn Bootloader
 #--------------------------------------------------------------------------------------------------
 def burn_bootloader(bootloader_path):
-  if os.path.isfile(expanduser(('~/.platformio/packages/tool-avrdude/avrdude.conf'))):
-    cmd = 'avrdude -C ~/.platformio/packages/tool-avrdude/avrdude.conf -v -patmega328p -cstk500v2 -Pusb -Uflash:w:' + bootloader_path +':i -Ulock:w:0xcf:m'
+  if os.path.isfile(expanduser((avrdude_config))):
+    print bcolors.OKGREEN + '\nBurning Bootloader\n' + bcolors.ENDC
+    cmd = 'avrdude -V -C ' + avrdude_config + ' -p atmega328p -c stk500v2 -P usb -U flash:w:' + bootloader_path +':i -Ulock:w:0xcf:m'
+    print cmd
     subprocess.call(cmd, shell=True)
   else:
-    print bcolors.FAIL + 'Missing PlatformIO avrdude.conf, check PlatformIO is installed...' + bcolors.ENDC
+    print bcolors.FAIL + 'ERROR: Missing PlatformIO avrdude.conf, check PlatformIO is installed' + bcolors.ENDC
   return;
   
 #--------------------------------------------------------------------------------------------------
 # Serial Upload
 #--------------------------------------------------------------------------------------------------
 def serial_upload(firmware_path):
-  print 'serial upload ' + firmware_path
+  print bcolors.OKGREEN + '\nSerial upload ' + firmware_path + '\n' + bcolors.ENDC
   
   # Autodetect ttyUSB port 0 - 12 ttyUSB[x]
   serial_port = False
@@ -210,7 +213,8 @@ def serial_upload(firmware_path):
       if (DEBUG): print 'ERROR: USB serial programmer NOT found on ' + try_port + bcolors.ENDC
 
   if (serial_port!=False):
-    cmd = 'avrdude  -u -c arduino -p ATMEGA328P -P' + serial_port + ' -b 115200 -U flash:w:' + firmware_path
+    cmd = 'avrdude  -uV -c arduino -p ATMEGA328P -P' + serial_port + ' -b 115200 -U flash:w:' + firmware_path
+    print cmd
     subprocess.call(cmd, shell=True)
   else: print bcolors.FAIL + 'ERROR: USB serial programmer NOT found' + bcolors.ENDC
     
