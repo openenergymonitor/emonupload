@@ -8,18 +8,22 @@
 # Part of the openenergymonitor.org project
 # GNU GPL V3
 
-
-import serial, sys, string, commands, time, subprocess, os, urllib2, requests, urllib, json, git
+# $ pip install -r requirements.txt
+import serial, sys, string, commands, time, subprocess, os, urllib2, requests, urllib, json, git, apt
 from subprocess import Popen, PIPE, STDOUT
+from os.path import expanduser
 
 download_folder = 'firmware'
 
 #--------------------------------------------------------------------------------------------------
 DEBUG = False
-UPDATE = True      # Update firmware releases at startup
+UPDATE = False      # Update firmware releases at startup
 VERSION = 'V0.0.2'
+
 download_folder = 'latest/'
 repo_folder = 'repos/'
+uno_bootloader = 'bootloaders/optiboot_atmega328.hex'
+
 allowed_extensions = ['bin', 'hex']
 github_repo = ['openenergymonitor/emonth2', 'openenergymonitor/emonth', 'openenergymonitor/emonpi', 'openenergymonitor/emontxfirmware', 'openenergymonitor/rfm2pi']
 #--------------------------------------------------------------------------------------------------
@@ -83,6 +87,17 @@ def update_emonupload(filename):
   return r
 #--------------------------------------------------------------------------------------------------
 
+#--------------------------------------------------------------------------------------------------
+# Check Linux package is installed$ pip install -r requirements.txt
+#--------------------------------------------------------------------------------------------------
+def check_package(package_name):
+  cache = apt.Cache()
+  if cache[package_name].is_installed:
+    print bcolors.OKGREEN + package_name + " is installed" + bcolors.ENDC
+  else:
+    print bcolors.FAIL + 'FATAL ERROR: ' + package_name + " is NOT installed" + bcolors.ENDC
+    quit()
+    
 #--------------------------------------------------------------------------------------------------
 # Clone / update github repos into repo folder
 #--------------------------------------------------------------------------------------------------
@@ -164,6 +179,18 @@ def file_download(download_url, current_repo, download_folder):
   #--------------------------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------------------------
+# ISP Upload
+#--------------------------------------------------------------------------------------------------
+def burn_bootloader(bootloader_path):
+  if os.path.isdir(expanduser(('~/.platformio/packages/tool-avrdude/avrdude.conf'))):
+    cmd = 'avrdude -C ~/.platformio/packages/tool-avrdude/avrdude.conf -v -patmega328p -cstk500v2 -Pusb -Uflash:w:' + bootloader_path +':i -Ulock:w:0xcf:m'
+    subprocess.call(cmd, shell=True)
+  else:
+    print bcolors.FAIL + 'Missing PlatformIO avrdude.conf, check PlatformIO is installed...' + bcolors.ENDC
+  return;
+
+
+#--------------------------------------------------------------------------------------------------
 # BEGIN
 #--------------------------------------------------------------------------------------------------
 os.system('clear') # clear terminal screen Linux specific
@@ -177,9 +204,9 @@ if interent_connected('https://api.github.com'):
     
     # Update emonUpload (git pull)
     update_emonupload('upload_latest.py')
-    print '\n'
     # Clone or (update if already cloned) repos defined in github_repo list
     repo_clone_update(github_repo, repo_folder)
+    print '\n'
     
     # Update firware releases for github releases
     for i in range(len(github_repo)):
@@ -192,10 +219,16 @@ if interent_connected('https://api.github.com'):
         if (DEBUG): print download_url
         if extension in allowed_extensions and UPDATE==True:
           file_download(download_url, current_repo, download_folder)
+  else: print 'Startup update disabled'
 
-print '\n-------------------------------------------------------------------------------'
-print bcolors.OKBLUE + 'OpenEnergyMonitor Upload ' + VERSION + bcolors.ENDC
+# Check required packages are installed
+check_package('avrdude')
+if os.path.isdir(expanduser('~/.platformio')):
+  print bcolors.OKGREEN + 'PlatformIO is installed' + bcolors.ENDC
+else:
+  print bcolors.FAIL + 'Error PlatformIO is NOT installed' + bcolors.ENDC
 
+# Check communication with RFM69Pi
 try:
   ser = serial.Serial('/dev/ttyAMA0', 38400, timeout=10)
   ser.write("210g")
@@ -205,9 +238,12 @@ try:
   RFM = True
 
 except serial.serialutil.SerialException:
-  print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi (dev/ttyAMA0 not exist), upload only...no RF testing' + bcolors.ENDC
+  print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
   RFM = False
 
+
+print '\n-------------------------------------------------------------------------------'
+print bcolors.OKBLUE + 'OpenEnergyMonitor Upload ' + VERSION + bcolors.ENDC
 
 while(1):
 	print ' '
