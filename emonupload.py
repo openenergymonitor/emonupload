@@ -390,8 +390,7 @@ print bcolors.OKBLUE + 'OpenEnergyMonitor Upload ' + VERSION + bcolors.ENDC
 
 while(1):
 	print ' '
-	print '\nEnter >\n
-	'
+	print '\nEnter >\n'
 	print bcolors.OKGREEN + '(x) for emonTx\n' + bcolors.ENDC
 	print bcolors.OKGREEN + '(i) for emonPi\n' + bcolors.ENDC
 	print bcolors.OKGREEN + '(h) for emonTH V2' + bcolors.ENDC
