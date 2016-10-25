@@ -202,7 +202,7 @@ def file_download(download_url, current_repo, download_folder):
 def burn_bootloader(bootloader_path):
   if os.path.isfile(expanduser((avrdude_config))):
     print bcolors.OKGREEN + '\nBurning Bootloader\n' + bcolors.ENDC
-    cmd = 'avrdude -V -C ' + avrdude_config + ' -p atmega328p -c stk500v2 -P usb -U flash:w:' + bootloader_path +':i -Ulock:w:0xcf:m'
+    cmd = 'sudo avrdude -V -C ' + avrdude_config + ' -p atmega328p -c stk500v2 -P usb -U flash:w:' + bootloader_path +':i -Ulock:w:0x0f:m'
     print cmd
     subprocess.call(cmd, shell=True)
   else:
@@ -247,14 +247,16 @@ def test_receive_rf(nodeid, rfm_port, rfm_baud):
   print linestr
   if (DEBUG): print len(linestr)
   if len(linestr)>0:
+    rf_receive = False
     for i in range(len(nodeid)):
       if int(linestr[3] + linestr[4]) == nodeid[i]:
-        print bcolors.OKGREEN +'PASS!...RF RECEIVED' + bcolors.ENDC
-      else:
-        print bcolors.FAIL + 'FAIL...Incorrect RF received' + bcolors.ENDC
-  else:
-    print bcolors.FAIL + 'FAIL...RF NOT received' + bcolors.ENDC
+        rf_receive = True
   ser.close()
+  if (rf_receive): print bcolors.OKGREEN + bcolors.UNDERLINE +'PASS!...RF RECEIVED' + bcolors.ENDC
+  else: print bcolors.FAIL + bcolors.UNDERLINE + 'FAIL...RF NOT received' + bcolors.ENDC
+  raw_input("\nDone. Press Enter to return to menu >\n")
+  os.system('clear') # clear terminal screen Linux specific
+  return rf_receive;
   
 #--------------------------------------------------------------------------------------------------
 # PlatformIO unit test
