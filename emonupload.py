@@ -137,7 +137,13 @@ def repo_clone_update(github_repo, repo_folder):
     repo_dir_path=repo_folder + github_repo[i].split('/')[-2] + '-' + github_repo[i].split('/')[-1]  # e.g repos/openenergymonitor-emonth2
     if os.path.isdir(repo_dir_path):
       if (DEBUG): print '\nDEBUG: Repo ' + repo_dir_path + ' already exists checking for updates...'
-      repo_dir_abs_path=os.path.dirname(repo_dir_path)
+      if os.path.isfile(repo_dir_path + '/README.md'):
+        repo_dir_abs_path=os.path.dirname(os.path.realpath(repo_dir_path + '/README.md'))
+      if os.path.isfile(repo_dir_path + '/Readme.md'):
+        repo_dir_abs_path=os.path.dirname(os.path.realpath(repo_dir_path + '/Readme.md'))
+      if os.path.isfile(repo_dir_path + '/readme.md'):
+        repo_dir_abs_path=os.path.dirname(os.path.realpath(repo_dir_path + '/readme.md'))
+      if (DEBUG): print repo_dir_abs_path
       g = git.cmd.Git(repo_dir_abs_path)
       r = g.pull()
       if r != 'Already up-to-date.': print bcolors.WARNING + 'Updating repo: ' + repo_dir_path + bcolors.ENDC
