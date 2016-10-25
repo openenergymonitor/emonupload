@@ -43,7 +43,7 @@ rfm_baud =  '38400'
 # Expected RF nodeID's
 #--------------------------------------------------------------------------------------------------
 emontx_nodeid      = [8, 7]
-emontx_baud        = 9600
+emontx_baud        = 115200
 emontx_seriallines = 15
 
 emonth_nodeid      = [23, 24, 25, 26]
