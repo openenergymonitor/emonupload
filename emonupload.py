@@ -17,7 +17,7 @@ download_folder = 'firmware'
 
 #--------------------------------------------------------------------------------------------------
 DEBUG       = 0
-UPDATE      = 0      # Update firmware releases at startup
+UPDATE      = 1      # Update firmware releases at startup
 SERIAL_VIEW = 0      # View serial output after upload
 VERSION = 'V1.0.0'
 
@@ -352,11 +352,12 @@ if interent_connected('https://api.github.com'):
       resp = get_releases_info(current_repo)
       if 'assets' in resp:
         assets = resp['assets']
-        download_url = assets[0]['browser_download_url']
-        extension = download_url.split('.')[-1]
-        if (DEBUG): print download_url
-        if extension in allowed_extensions and UPDATE==True:
-          file_download(download_url, current_repo, download_folder)
+        if len(assets) > 0:
+          download_url = assets[0]['browser_download_url']
+          extension = download_url.split('.')[-1]
+          if (DEBUG): print download_url
+          if extension in allowed_extensions and UPDATE==True:
+            file_download(download_url, current_repo, download_folder)
   else: print 'Startup update disabled'
 
 # Check required packages are installed
@@ -396,7 +397,7 @@ while(1):
 	if nb=='x':
 		print bcolors.OKGREEN + '\nemonTx Upload\n' + bcolors.ENDC
 		burn_bootloader(uno_bootloader)
-		serial_port = serial_upload(download_folder + 'openenergymonitor-emonth2.hex:i')
+		serial_port = serial_upload(download_folder + 'openenergymonitor-emontxfirmware.hex:i')
 		if (RFM):
 		  if test_receive_rf(emonth_nodeid, rfm_port, rfm_baud) == False:
 		    rfm(rfm_port, rfm_baud , rfm_group, rfm_freq) # 'poke RFM'
@@ -414,7 +415,7 @@ while(1):
 	elif nb=='i':
 		print bcolors.OKGREEN + '\nemonPi Upload\n' + bcolors.ENDC
 		burn_bootloader(uno_bootloader)
-		serial_port = serial_upload(download_folder + 'openenergymonitor-emonth2.hex:i')
+		serial_port = serial_upload(download_folder + 'openenergymonitor-emonpi.hex:i')
 		if (RFM):
 		  if test_receive_rf(emonth_nodeid, rfm_port, rfm_baud) == False:
 		    rfm(rfm_port, rfm_baud , rfm_group, rfm_freq) # 'poke RFM'
