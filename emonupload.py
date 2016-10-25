@@ -42,9 +42,17 @@ rfm_baud =  '38400'
 #--------------------------------------------------------------------------------------------------
 # Expected RF nodeID's
 #--------------------------------------------------------------------------------------------------
-emontx_nodeid = [8, 7]
-emonth_nodeid = [23, 24, 25, 26]
-emonpi_nodeid = [5]
+emontx_nodeid      = [8, 7]
+emontx_baud        = 9600
+emontx_seriallines = 15
+
+emonth_nodeid      = [23, 24, 25, 26]
+emonth_baud        = 115200
+emonth_seriallines = 15
+
+emonpi_nodeid      = [5]
+emonpi_baud        = 38400
+emonpi_seriallines = 15
 #--------------------------------------------------------------------------------------------------
 
 
@@ -280,9 +288,14 @@ def test_receive_rf(nodeid, rfm_port, rfm_baud):
     if len(linestr) > 0: print linestr
     if linestr[:2] == 'OK':
       for i in range(len(nodeid)):
-        if int(linestr[3:5]) == nodeid[i]:
-          rf_receive = True
-          break
+        if nodeid < 10: # if nodeID is single digits
+          if int(linestr[4]) == nodeid[i]:
+            rf_receive = True
+            break
+        else:
+          if int(linestr[3:5]) == nodeid[i]:
+            rf_receive = True
+            break
       break
   ser.close()
   if (rf_receive): print bcolors.OKGREEN + bcolors.UNDERLINE +'PASS!...RF RECEIVED' + bcolors.ENDC
@@ -377,7 +390,8 @@ print bcolors.OKBLUE + 'OpenEnergyMonitor Upload ' + VERSION + bcolors.ENDC
 
 while(1):
 	print ' '
-	print '\nEnter >'
+	print '\nEnter >\n
+	'
 	print bcolors.OKGREEN + '(x) for emonTx\n' + bcolors.ENDC
 	print bcolors.OKGREEN + '(i) for emonPi\n' + bcolors.ENDC
 	print bcolors.OKGREEN + '(h) for emonTH V2' + bcolors.ENDC
@@ -399,15 +413,15 @@ while(1):
 		burn_bootloader(uno_bootloader)
 		serial_port = serial_upload(download_folder + 'openenergymonitor-emontxfirmware.hex:i')
 		if (RFM):
-		  if test_receive_rf(emonth_nodeid, rfm_port, rfm_baud) == False:
+		  if test_receive_rf(emontx_nodeid, rfm_port, rfm_baud) == False:
 		    rfm(rfm_port, rfm_baud , rfm_group, rfm_freq) # 'poke RFM'
 		    reset(serial_port) # reset and try again if serial is not detected
-		    test_receive_rf(emonth_nodeid, rfm_port, rfm_baud)
+		    test_receive_rf(emontx_nodeid, rfm_port, rfm_baud)
 		else: print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
 		
 		if (SERIAL_VIEW): # view serial output
 		  raw_input("\nDone. Press Enter to return to serial output >\n")
-		  serial_output(serial_port, 115200, 15)
+		  serial_output(serial_port, emontx_baud, emontx_seriallines)
 		raw_input("\nDone. Press Enter to return to menu >\n")
 		os.system('clear') # clear terminal screen Linux specific
 	
@@ -417,15 +431,15 @@ while(1):
 		burn_bootloader(uno_bootloader)
 		serial_port = serial_upload(download_folder + 'openenergymonitor-emonpi.hex:i')
 		if (RFM):
-		  if test_receive_rf(emonth_nodeid, rfm_port, rfm_baud) == False:
+		  if test_receive_rf(emonpi_nodeid, rfm_port, rfm_baud) == False:
 		    rfm(rfm_port, rfm_baud , rfm_group, rfm_freq) # 'poke RFM'
 		    reset(serial_port) # reset and try again if serial is not detected
-		    test_receive_rf(emonth_nodeid, rfm_port, rfm_baud)
+		    test_receive_rf(emonpi_nodeid, rfm_port, rfm_baud)
 		else: print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
 		
 		if (SERIAL_VIEW): # view serial output
 		  raw_input("\nDone. Press Enter to return to serial output >\n")
-		  serial_output(serial_port, 38400, 15)
+		  serial_output(serial_port, emonpi_baud, emonpi_seriallines)
 		raw_input("\nDone. Press Enter to return to menu >\n")
 		os.system('clear') # clear terminal screen Linux specific
 	
@@ -443,7 +457,7 @@ while(1):
 		
 		if (SERIAL_VIEW): # view serial output
 		  raw_input("\nDone. Press Enter to return to serial output >\n")
-		  serial_output(serial_port, 115200, 15)
+		  serial_output(serial_port, emonth_baud, emonth_seriallines)
 		raw_input("\nDone. Press Enter to return to menu >\n")
 		os.system('clear') # clear terminal screen Linux specific
     
@@ -478,13 +492,13 @@ while(1):
 	        file_download(download_url, current_repo, download_folder)
 
 	elif nb=='d':
-		print bcolors.FAIL + '\nDebug enabled' + bcolors.ENDC
+		print bcolors.OKGREEN + '\nDebug enabled' + bcolors.ENDC
 		DEBUG = True
 		raw_input("\nPress Enter to continue... or [CTRL + C] to exit\n")
 		
 	# Enable Serial
 	elif nb=='s':
-	  print bcolors.FAIL + '\nSerial view enabled' + bcolors.ENDC
+	  print bcolors.OKGREEN + '\nSerial view enabled' + bcolors.ENDC
 	  SERIAL_VIEW = True
 	  raw_input("\nPress Enter to continue... or [CTRL + C] to exit\n")
 		    	
