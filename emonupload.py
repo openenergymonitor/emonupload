@@ -65,6 +65,7 @@ if not os.path.isdir(download_folder):
 #--------------------------------------------------------------------------------------------------
 def interent_connected(url):
   print 'Testing internet connection...'
+  connected = False
   req = urllib2.Request(url)
   try:
     resp = urllib2.urlopen(req)
