@@ -16,8 +16,9 @@ from os.path import expanduser
 download_folder = 'firmware'
 
 #--------------------------------------------------------------------------------------------------
-DEBUG = 0
-UPDATE = 1      # Update firmware releases at startup
+DEBUG       = 0
+UPDATE      = 1      # Update firmware releases at startup
+SERIAL_VIEW = 0      # View serial output after upload
 VERSION = 'V1.1.0'
 
 download_folder = 'latest/'
@@ -32,16 +33,26 @@ github_repo = ['openenergymonitor/emonth2', 'openenergymonitor/emonth', 'openene
 #--------------------------------------------------------------------------------------------------
 # RFM settings
 #--------------------------------------------------------------------------------------------------
-rfm_port = '/dev/ttyAMA0'
-rfm_baud = '38400'
+rfm_group = '210g'
+rfm_freq =  '4b'
+rfm_port =  '/dev/ttyAMA0'
+rfm_baud =  '38400'
 #--------------------------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------------------------
 # Expected RF nodeID's
 #--------------------------------------------------------------------------------------------------
-emontx_nodeid = [8, 7]
-emonth_nodeid = [23, 24, 25, 26]
-emonpi_nodeid = [5]
+emontx_nodeid      = [8, 7]
+emontx_baud        = 115200
+emontx_seriallines = 15
+
+emonth_nodeid      = [23, 24, 25, 26]
+emonth_baud        = 115200
+emonth_seriallines = 15
+
+emonpi_nodeid      = [5]
+emonpi_baud        = 38400
+emonpi_seriallines = 15
 #--------------------------------------------------------------------------------------------------
 
 
@@ -65,6 +76,7 @@ if not os.path.isdir(download_folder):
 #--------------------------------------------------------------------------------------------------
 def interent_connected(url):
   print 'Testing internet connection...'
+  connected = False
   req = urllib2.Request(url)
   try:
     resp = urllib2.urlopen(req)
@@ -125,7 +137,13 @@ def repo_clone_update(github_repo, repo_folder):
     repo_dir_path=repo_folder + github_repo[i].split('/')[-2] + '-' + github_repo[i].split('/')[-1]  # e.g repos/openenergymonitor-emonth2
     if os.path.isdir(repo_dir_path):
       if (DEBUG): print '\nDEBUG: Repo ' + repo_dir_path + ' already exists checking for updates...'
-      repo_dir_abs_path=os.path.dirname(repo_dir_path)
+      if os.path.isfile(repo_dir_path + '/README.md'):
+        repo_dir_abs_path=os.path.dirname(os.path.realpath(repo_dir_path + '/README.md'))
+      if os.path.isfile(repo_dir_path + '/Readme.md'):
+        repo_dir_abs_path=os.path.dirname(os.path.realpath(repo_dir_path + '/Readme.md'))
+      if os.path.isfile(repo_dir_path + '/readme.md'):
+        repo_dir_abs_path=os.path.dirname(os.path.realpath(repo_dir_path + '/readme.md'))
+      if (DEBUG): print repo_dir_abs_path
       g = git.cmd.Git(repo_dir_abs_path)
       r = g.pull()
       if r != 'Already up-to-date.': print bcolors.WARNING + 'Updating repo: ' + repo_dir_path + bcolors.ENDC
@@ -197,6 +215,31 @@ def file_download(download_url, current_repo, download_folder):
   #--------------------------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------------------------
+# RFM
+# Check communication with RFM69Pi and set settings
+#--------------------------------------------------------------------------------------------------
+def rfm(rfm_port, rfm_baud, rfm_group, rfm_freq):
+  RFM = False
+  try:
+    ser = serial.Serial(rfm_port, rfm_baud, timeout=2)
+    time.sleep(0.2)
+    ser.write('0g') #keep RF awake by changing it's group
+    time.sleep(0.5)
+    ser.write(rfm_group)
+    time.sleep(0.5)
+    ser.write(rfm_freq)
+    time.sleep(0.5)
+    ser.write("1q") #quite mode
+    time.sleep(0.5)
+    ser.close()
+    RFM = True
+    print bcolors.OKBLUE + '\nRFM69Pi detected' + bcolors.ENDC
+  except serial.serialutil.SerialException:
+    print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
+    RFM = False
+  return RFM
+
+#--------------------------------------------------------------------------------------------------
 # Burn Bootloader
 #--------------------------------------------------------------------------------------------------
 def burn_bootloader(bootloader_path):
@@ -242,21 +285,52 @@ def serial_upload(firmware_path):
 # Test receive RF
 #--------------------------------------------------------------------------------------------------
 def test_receive_rf(nodeid, rfm_port, rfm_baud):
-  ser = serial.Serial(rfm_port, rfm_baud, timeout=1)
-  linestr = ser.readline()
-  print linestr
-  if (DEBUG): print len(linestr)
+  print  bcolors.HEADER + 'Checking for received RF...' + bcolors.ENDC
+  ser = serial.Serial(rfm_port, rfm_baud, timeout=5)
+  # read x number of lines of serial from RFM
   rf_receive = False
-  if len(linestr)>0:
-    for i in range(len(nodeid)):
-      if int(linestr[3] + linestr[4]) == nodeid[i]:
-        rf_receive = True
+  for l in range(3):
+    linestr = ser.readline()
+    if len(linestr) > 0: print linestr
+    if linestr[:2] == 'OK':
+      for i in range(len(nodeid)):
+        if nodeid < 10: # if nodeID is single digits
+          if int(linestr[4]) == nodeid[i]:
+            rf_receive = True
+            break
+        else:
+          if int(linestr[3:5]) == nodeid[i]:
+            rf_receive = True
+            break
+      break
   ser.close()
   if (rf_receive): print bcolors.OKGREEN + bcolors.UNDERLINE +'PASS!...RF RECEIVED' + bcolors.ENDC
   else: print bcolors.FAIL + bcolors.UNDERLINE + 'FAIL...RF NOT received' + bcolors.ENDC
-  raw_input("\nDone. Press Enter to return to menu >\n")
-  os.system('clear') # clear terminal screen Linux specific
   return rf_receive;
+  
+#--------------------------------------------------------------------------------------------------
+# View serial output from unit
+#--------------------------------------------------------------------------------------------------
+def serial_output(serial_port, serial_baud, num_lines):
+  os.system('clear') # clear terminal screen Linux specific
+  ser = serial.Serial(serial_port, serial_baud, timeout=5)
+  linestr = ''
+  for i in range(num_lines):
+    linestr = ser.readline()
+    print linestr
+  ser.close()
+  return;
+#--------------------------------------------------------------------------------------------------
+  
+# --------------------------------------------------------------------------------------------------
+# Reset unit
+#--------------------------------------------------------------------------------------------------
+def reset(serial_port):
+  print 'Reset ' + serial_port
+  cmd = 'avrdude  -uV -c arduino -p ATMEGA328P -P' + serial_port
+  subprocess.call(cmd, shell=True)
+  return
+#--------------------------------------------------------------------------------------------------
   
 #--------------------------------------------------------------------------------------------------
 # PlatformIO unit test
@@ -270,17 +344,20 @@ def pio_unit_test(test_path, env):
     subprocess.call(cmd, shell=True)
     raw_input("\nDone. Press Enter to return to menu >\n")
     os.system('clear') # clear terminal screen Linux specific
+    return True
   else:
     print bcolors.FAIL + 'Error PlatformIO avrdude is NOT installed, try insalling pio and running pio -t upload' + bcolors.ENDC
-  return
+    return False
 # --------------------------------------------------------------------------------------------------
   
-
 
 #--------------------------------------------------------------------------------------------------
 # BEGIN
 #--------------------------------------------------------------------------------------------------
 os.system('clear') # clear terminal screen Linux specific
+
+# Setup RFM
+RFM = rfm(rfm_port, rfm_baud, rfm_group, rfm_freq)
 
 #--------------------------------------------------------------------------------------------------
 # Update Firmware - download latest releases
@@ -301,31 +378,19 @@ if interent_connected('https://api.github.com'):
       resp = get_releases_info(current_repo)
       if 'assets' in resp:
         assets = resp['assets']
-        download_url = assets[0]['browser_download_url']
-        extension = download_url.split('.')[-1]
-        if (DEBUG): print download_url
-        if extension in allowed_extensions and UPDATE==True:
-          file_download(download_url, current_repo, download_folder)
+        if len(assets) > 0:
+          download_url = assets[0]['browser_download_url']
+          extension = download_url.split('.')[-1]
+          if (DEBUG): print download_url
+          if extension in allowed_extensions and UPDATE==True:
+            file_download(download_url, current_repo, download_folder)
   else: print 'Startup update disabled'
 
 # Check required packages are installed
 check_package('avrdude')
 
 
-# Check communication with RFM69Pi
-try:
-  ser = serial.Serial(rfm_port, rfm_baud, timeout=10)
-  ser.write("210g") #210 group
-  time.sleep(1)
-  ser.write("4b") #433Mhz
-  time.sleep(1)
-  ser.write("1q") #quite mode
-  ser.close()
-  RFM = True
-  print bcolors.OKBLUE + '\nRFM69Pi detected' + bcolors.ENDC
-except serial.serialutil.SerialException:
-  print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
-  RFM = False
+
 
 
 print '\n-------------------------------------------------------------------------------'
@@ -333,17 +398,18 @@ print bcolors.OKBLUE + 'OpenEnergyMonitor Upload ' + VERSION + bcolors.ENDC
 
 while(1):
 	print ' '
-	print '\nEnter >'
+	print '\nEnter >\n'
 	print bcolors.OKGREEN + '(x) for emonTx\n' + bcolors.ENDC
 	print bcolors.OKGREEN + '(i) for emonPi\n' + bcolors.ENDC
 	print bcolors.OKGREEN + '(h) for emonTH V2' + bcolors.ENDC
-	print bcolors.OKGREEN + '(s) for emonTH V2 sensor test' + bcolors.ENDC
+	print bcolors.OKGREEN + '(t) for emonTH V2 sensor test' + bcolors.ENDC
 	
 	print '\n'
   #print bcolors.OKGREEN + '(r) for RFM69Pi' + bcolors.ENDC
 	print bcolors.HEADER + '(o) for old emonTH V1' + bcolors.ENDC
-	print bcolors.HEADER + '(u) to check for updates online' + bcolors.ENDC
+	print bcolors.HEADER + '(u) to check for updates' + bcolors.ENDC
 	print bcolors.HEADER + '(d) to enable DEBUG' + bcolors.ENDC
+	print bcolors.HEADER + '(s) to enable Serial view' + bcolors.ENDC
 	print bcolors.HEADER + '(e) to EXIT and shutdown' + bcolors.ENDC
 	nb = raw_input('> ')
 	os.system('clear') # clear terminal screen Linux specific
@@ -352,34 +418,64 @@ while(1):
 	if nb=='x':
 		print bcolors.OKGREEN + '\nemonTx Upload\n' + bcolors.ENDC
 		burn_bootloader(uno_bootloader)
-		serial_upload(download_folder + 'openenergymonitor-emontxfirmware.hex:i')
+		serial_port = serial_upload(download_folder + 'openenergymonitor-emontxfirmware.hex:i')
 		if (RFM):
-		  test_receive_rf(emontx_nodeid, rfm_port, rfm_baud)
+		  if test_receive_rf(emontx_nodeid, rfm_port, rfm_baud) == False:
+		    rfm(rfm_port, rfm_baud , rfm_group, rfm_freq) # 'poke RFM'
+		    reset(serial_port) # reset and try again if serial is not detected
+		    test_receive_rf(emontx_nodeid, rfm_port, rfm_baud)
 		else: print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
+		
+		if (SERIAL_VIEW): # view serial output
+		  raw_input("\nDone. Press Enter to return to serial output >\n")
+		  serial_output(serial_port, emontx_baud, emontx_seriallines)
+		raw_input("\nDone. Press Enter to return to menu >\n")
+		os.system('clear') # clear terminal screen Linux specific
 	
 	# emonPi
 	elif nb=='i':
 		print bcolors.OKGREEN + '\nemonPi Upload\n' + bcolors.ENDC
 		burn_bootloader(uno_bootloader)
-		serial_upload(download_folder + 'openenergymonitor-emonpi.hex:i')
+		serial_port = serial_upload(download_folder + 'openenergymonitor-emonpi.hex:i')
 		if (RFM):
-		  test_receive_rf(emonpi_nodeid, rfm_port, rfm_baud)
+		  if test_receive_rf(emonpi_nodeid, rfm_port, rfm_baud) == False:
+		    rfm(rfm_port, rfm_baud , rfm_group, rfm_freq) # 'poke RFM'
+		    reset(serial_port) # reset and try again if serial is not detected
+		    test_receive_rf(emonpi_nodeid, rfm_port, rfm_baud)
 		else: print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
+		
+		if (SERIAL_VIEW): # view serial output
+		  raw_input("\nDone. Press Enter to return to serial output >\n")
+		  serial_output(serial_port, emonpi_baud, emonpi_seriallines)
+		raw_input("\nDone. Press Enter to return to menu >\n")
+		os.system('clear') # clear terminal screen Linux specific
 	
 	# emonTH V2
 	elif nb=='h':
 		print bcolors.OKGREEN + '\nemonTH V2 Upload\n' + bcolors.ENDC
 		burn_bootloader(uno_bootloader)
-		serial_upload(download_folder + 'openenergymonitor-emonth2.hex:i')
+		serial_port = serial_upload(download_folder + 'openenergymonitor-emonth2.hex:i')
 		if (RFM):
-		  test_receive_rf(emonth_nodeid, rfm_port, rfm_baud)
+		  if test_receive_rf(emonth_nodeid, rfm_port, rfm_baud) == False:
+		    rfm(rfm_port, rfm_baud , rfm_group, rfm_freq) # 'poke RFM'
+		    reset(serial_port) # reset and try again if serial is not detected
+		    test_receive_rf(emonth_nodeid, rfm_port, rfm_baud)
 		else: print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
+		
+		if (SERIAL_VIEW): # view serial output
+		  raw_input("\nDone. Press Enter to return to serial output >\n")
+		  serial_output(serial_port, emonth_baud, emonth_seriallines)
+		raw_input("\nDone. Press Enter to return to menu >\n")
+		os.system('clear') # clear terminal screen Linux specific
+    
+
 
 	# emonTH V2 Unit Sensor test
-	elif nb=='s':
-		# PlatformIO Unit test
+	elif nb=='t':
 		pio_unit_test(repo_folder + 'openenergymonitor-emonth2/firmware', 'emonth2')
-
+		raw_input("\nDone. Press Enter to return to menu >\n")
+		os.system('clear') # clear terminal screen Linux specific
+		
 	elif nb=='u':
 	  print bcolors.OKGREEN + 'Checking for updates.. ' + bcolors.ENDC
 	  # Update emonUpload (git pull)
@@ -400,9 +496,15 @@ while(1):
 	        file_download(download_url, current_repo, download_folder)
 
 	elif nb=='d':
-		print bcolors.FAIL + '\nDebug enabled' + bcolors.ENDC
+		print bcolors.OKGREEN + '\nDebug enabled' + bcolors.ENDC
 		DEBUG = True
 		raw_input("\nPress Enter to continue... or [CTRL + C] to exit\n")
+		
+	# Enable Serial
+	elif nb=='s':
+	  print bcolors.OKGREEN + '\nSerial view enabled' + bcolors.ENDC
+	  SERIAL_VIEW = True
+	  raw_input("\nPress Enter to continue... or [CTRL + C] to exit\n")
 		    	
 	elif nb=='e':
 		print bcolors.FAIL + '\nSystem Shutdown....' + bcolors.ENDC
@@ -414,6 +516,9 @@ while(1):
 
 	else:
 	  print bcolors.FAIL + 'Invalid selection' + bcolors.ENDC
+	
+	# If RFM69Pi is present 'poke' it by re-settings its settings to keep t alive :-/
+	if (RFM): rfm(rfm_port, rfm_baud , rfm_group, rfm_freq)
 	
 		
 
