@@ -18,11 +18,11 @@ download_folder = 'firmware'
 #--------------------------------------------------------------------------------------------------
 DEBUG = 0
 UPDATE = 1      # Update firmware releases at startup
-VERSION = 'V1.0.0'
+VERSION = 'V1.1.0'
 
 download_folder = 'latest/'
 repo_folder = 'repos/'
-avrdude_config = '~/.platformio/packages/tool-avrdude/avrdude.conf'
+avrdude_config = 'avrdude.conf'
 uno_bootloader = 'bootloaders/optiboot_atmega328.hex'
 
 allowed_extensions = ['bin', 'hex']
@@ -262,12 +262,16 @@ def test_receive_rf(nodeid, rfm_port, rfm_baud):
 # PlatformIO unit test
 # --------------------------------------------------------------------------------------------------
 def pio_unit_test(test_path, env):
-  print bcolors.OKGREEN + '\nUnit Test: \n' + bcolors.ENDC
-  cmd = 'pio test -d' + test_path + ' -e' + env
-  print cmd
-  subprocess.call(cmd, shell=True)
-  raw_input("\nDone. Press Enter to return to menu >\n")
-  os.system('clear') # clear terminal screen Linux specific
+  if os.path.isdir(expanduser('~/.platformio')):
+    if DEBUG: print bcolors.OKGREEN + 'PlatformIO is installed' + bcolors.ENDC
+    print bcolors.OKGREEN + '\nUnit Test: \n' + bcolors.ENDC
+    cmd = 'pio test -d' + test_path + ' -e' + env
+    print cmd
+    subprocess.call(cmd, shell=True)
+    raw_input("\nDone. Press Enter to return to menu >\n")
+    os.system('clear') # clear terminal screen Linux specific
+  else:
+    print bcolors.FAIL + 'Error PlatformIO avrdude is NOT installed, try insalling pio and running pio -t upload' + bcolors.ENDC
   return
 # --------------------------------------------------------------------------------------------------
   
@@ -306,12 +310,7 @@ if interent_connected('https://api.github.com'):
 
 # Check required packages are installed
 check_package('avrdude')
-if os.path.isdir(expanduser('~/.platformio')):
-  print bcolors.OKGREEN + 'PlatformIO is installed' + bcolors.ENDC
-  PIO = True
-else:
-  print bcolors.FAIL + 'Error PlatformIO avrdude is NOT installed, try insalling pio and running pio -t upload' + bcolors.ENDC
-  PIO = False
+
 
 # Check communication with RFM69Pi
 try:
@@ -379,9 +378,7 @@ while(1):
 	# emonTH V2 Unit Sensor test
 	elif nb=='s':
 		# PlatformIO Unit test
-		if (PIO):
-		  pio_unit_test(repo_folder + 'openenergymonitor-emonth2/firmware', 'emonth2')
-		else: print bcolors.FAIL + 'Error PlatformIO avrdude is NOT installed, try insalling pio and running pio -t upload' + bcolors.ENDC
+		pio_unit_test(repo_folder + 'openenergymonitor-emonth2/firmware', 'emonth2')
 
 	elif nb=='u':
 	  print bcolors.OKGREEN + 'Checking for updates.. ' + bcolors.ENDC

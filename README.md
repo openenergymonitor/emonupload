@@ -34,11 +34,31 @@ Local python version 2.79 will be used for `emonupload` this is defined by `.pyt
 For more info on pyenv python virtual enviroment: https://github.com/yyuu/pyenv
 
 
-## Install modules
+## Install Python Modules
 
 ```
 $ cd emonupload
 $ pip install -r requirements.txt
+```
+
+## Install Dependencys
+
+`$ sudo apt get install avrdude python-apt`
+
+## Install PlatformIO
+
+*Required for unit testing*
+
+`$ sudo python -c "$(curl -fsSL https://raw.githubusercontent.com/platformio/platformio/master/scripts/get-platformio.py)"`
+
+
+## Run at startup
+
+To run at startup add to `/etc/rc.local`
+
+```
+cd /home/pi/emonpi
+su pi -c '.emonupload.py
 ```
 
 ## Licence
