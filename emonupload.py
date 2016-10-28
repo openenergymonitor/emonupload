@@ -13,10 +13,8 @@ import serial, sys, string, commands, time, subprocess, os, urllib2, requests, u
 from subprocess import Popen, PIPE, STDOUT
 from os.path import expanduser
 
-download_folder = 'firmware'
-
 #--------------------------------------------------------------------------------------------------
-DEBUG       = 1
+DEBUG       = 0
 UPDATE      = 1      # Update firmware releases at startup
 SERIAL_VIEW = 0      # View serial output after upload
 VERSION = 'V1.1.0'
