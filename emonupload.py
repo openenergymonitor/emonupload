@@ -9,14 +9,14 @@
 # GNU GPL V3
 
 # $ pip install -r requirements.txt
-import serial, sys, string, commands, time, subprocess, os, urllib2, requests, urllib, json, git, apt
+import serial, sys, string, commands, time, subprocess, os, urllib2, requests, urllib, json, git
 from subprocess import Popen, PIPE, STDOUT
 from os.path import expanduser
 
 download_folder = 'firmware'
 
 #--------------------------------------------------------------------------------------------------
-DEBUG       = 0
+DEBUG       = 1
 UPDATE      = 1      # Update firmware releases at startup
 SERIAL_VIEW = 0      # View serial output after upload
 VERSION = 'V1.1.0'
@@ -117,15 +117,16 @@ def update_emonupload(filename):
 #--------------------------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------------------------
-# Check Linux package is installed$ pip install -r requirements.txt
+# Check Linux package is installed$ pip install -r requirements.txt -
+# not used requires python-apt
 #--------------------------------------------------------------------------------------------------
-def check_package(package_name):
-  cache = apt.Cache()
-  if cache[package_name].is_installed:
-    print bcolors.OKGREEN + package_name + " is installed" + bcolors.ENDC
-  else:
-    print bcolors.FAIL + 'FATAL ERROR: ' + package_name + " is NOT installed" + bcolors.ENDC
-    quit()
+# def check_package(package_name):
+#   cache = apt.Cache()
+#   if cache[package_name].is_installed:
+#     print bcolors.OKGREEN + package_name + " is installed" + bcolors.ENDC
+#   else:
+#     print bcolors.FAIL + 'FATAL ERROR: ' + package_name + " is NOT installed" + bcolors.ENDC
+#     quit()
     
 #--------------------------------------------------------------------------------------------------
 # Clone / update github repos into repo folder
@@ -134,22 +135,30 @@ def repo_clone_update(github_repo, repo_folder):
   if not os.path.isdir(repo_folder):
     os.mkdir(repo_folder)
   for i in range(len(github_repo)):
+    remote_url = 'https://github.com/' + github_repo[i] + '.git'
     repo_dir_path=repo_folder + github_repo[i].split('/')[-2] + '-' + github_repo[i].split('/')[-1]  # e.g repos/openenergymonitor-emonth2
     if os.path.isdir(repo_dir_path):
       if (DEBUG): print '\nDEBUG: Repo ' + repo_dir_path + ' already exists checking for updates...'
       if os.path.isfile(repo_dir_path + '/README.md'):
         repo_dir_abs_path=os.path.dirname(os.path.realpath(repo_dir_path + '/README.md'))
+        if (DEBUG): print repo_dir_abs_path
       if os.path.isfile(repo_dir_path + '/Readme.md'):
         repo_dir_abs_path=os.path.dirname(os.path.realpath(repo_dir_path + '/Readme.md'))
+        if (DEBUG): print repo_dir_abs_path
       if os.path.isfile(repo_dir_path + '/readme.md'):
         repo_dir_abs_path=os.path.dirname(os.path.realpath(repo_dir_path + '/readme.md'))
-      if (DEBUG): print repo_dir_abs_path
-      g = git.cmd.Git(repo_dir_abs_path)
-      r = g.pull()
-      if r != 'Already up-to-date.': print bcolors.WARNING + 'Updating repo: ' + repo_dir_path + bcolors.ENDC
-      else: print bcolors.OKGREEN + 'Already up-to-date: ' + repo_dir_path + bcolors.ENDC
+        if (DEBUG): print repo_dir_abs_path
+      
+      # git pull origin master
+      repo = git.Repo(repo_dir_abs_path)
+      repo.git.checkout('master')
+      r = repo.git.pull(remote_url)
+      if r != 'Already up-to-date.':
+        print bcolors.WARNING + 'Updating repo: ' + repo_dir_path + bcolors.ENDC
+        print r
+      else: print bcolors.OKGREEN + r + ' ' + repo_dir_path + bcolors.ENDC
+    # If local repo does not exist then clone it
     else:
-      remote_url = 'https://github.com/' + github_repo[i] + '.git'
       print bcolors.OKGREEN + ' Cloning ' + remote_url + bcolors.ENDC
       if (DEBUG): print '\nDEBUG: Cloning ' + github_repo[i] + '\nFrom: ' + remote_url + '\nInto: ' + repo_dir_path
       os.mkdir(repo_dir_path)
@@ -249,7 +258,7 @@ def burn_bootloader(bootloader_path):
     print cmd
     subprocess.call(cmd, shell=True)
   else:
-    print bcolors.FAIL + 'ERROR: Missing PlatformIO avrdude.conf, check PlatformIO upload is installed - run $ pio -t upload' + bcolors.ENDC
+    print bcolors.FAIL + 'ERROR: cannot find avrdude.conf' + bcolors.ENDC
   return;
 #--------------------------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------------------------
@@ -336,7 +345,7 @@ def reset(serial_port):
 # PlatformIO unit test
 # --------------------------------------------------------------------------------------------------
 def pio_unit_test(test_path, env):
-  if os.path.isdir(expanduser('~/.platformio')):
+  if os.path.isdir(expanduser('~/.platformio')) and os.path.isdir(test_path):
     if DEBUG: print bcolors.OKGREEN + 'PlatformIO is installed' + bcolors.ENDC
     print bcolors.OKGREEN + '\nUnit Test: \n' + bcolors.ENDC
     cmd = 'pio test -d' + test_path + ' -e' + env
@@ -346,9 +355,61 @@ def pio_unit_test(test_path, env):
     os.system('clear') # clear terminal screen Linux specific
     return True
   else:
-    print bcolors.FAIL + 'Error PlatformIO avrdude is NOT installed, try insalling pio and running pio -t upload' + bcolors.ENDC
+    print bcolors.FAIL + 'Error PlatformIO NOT installed' + bcolors.ENDC
+    print 'Or test path cannot be found: ' + test_path
     return False
 # --------------------------------------------------------------------------------------------------
+  
+  
+#--------------------------------------------------------------------------------------------------
+# PlatformIO Serial Monitor
+# --------------------------------------------------------------------------------------------------
+def serial_monitor(baud):
+  os.system('clear') # clear terminal screen Linux specific
+  if os.path.isdir(expanduser('~/.platformio')):
+    if DEBUG: print bcolors.OKGREEN + 'PlatformIO is installed' + bcolors.ENDC
+    cmd = 'sudo pio device monitor -b' + str(baud)
+    subprocess.call(cmd, shell=True)
+    return True
+  else:
+    print bcolors.FAIL + 'Error PlatformIO avrdude is NOT installed' + bcolors.ENDC
+    return False
+# --------------------------------------------------------------------------------------------------
+
+def serial_menu():
+  while(1):
+    print bcolors.OKBLUE + 'View Serial Output: ' + VERSION + bcolors.ENDC
+    print '\nEnter >\n'
+    print bcolors.OKGREEN + '\n(e) To enable serial view after upload ' + bcolors.ENDC
+    print bcolors.OKGREEN + '\n\n(x) for emonTx V3 Serial @ ' + str(emontx_baud) + bcolors.ENDC
+    print bcolors.OKGREEN + '\n(i) for emonPi Serial @ ' + str(emonpi_baud) + bcolors.ENDC
+    print bcolors.OKGREEN + '\n(h) for emonTH V2 Serial @ ' + str(emonth_baud) + bcolors.ENDC
+    print bcolors.OKGREEN + '\n(0) for older units serial @9600 ' + bcolors.ENDC
+    nb = raw_input('> ')
+    if nb == 'e':
+      os.system('clear') # clear terminal screen Linux specific
+      print bcolors.OKGREEN + '\nSerial view enabled' + bcolors.ENDC
+      SERIAL_VIEW = True
+      raw_input("\nPress Enter to return to main menu..\n")
+      break
+    
+    elif nb == 'x':
+      serial_monitor(emontx_baud)
+      break
+    elif nb == 'i':
+      serial_monitor(emonpi_baud)
+      break
+    elif nb == 'h':
+      serial_monitor(emonth_baud)
+      break
+    elif nb == 'o':
+      serial_monitor(9600)
+      break
+    else:
+      print bcolors.FAIL + 'Invalid selection' + bcolors.ENDC
+    return
+
+
   
 
 #--------------------------------------------------------------------------------------------------
@@ -387,7 +448,7 @@ if interent_connected('https://api.github.com'):
   else: print 'Startup update disabled'
 
 # Check required packages are installed
-check_package('avrdude')
+# check_package('avrdude')
 
 
 
@@ -406,11 +467,12 @@ while(1):
 	
 	print '\n'
   #print bcolors.OKGREEN + '(r) for RFM69Pi' + bcolors.ENDC
-	print bcolors.HEADER + '(o) for old emonTH V1' + bcolors.ENDC
+	print bcolors.OKBLUE + '(o) for old emonTH V1' + bcolors.ENDC
+	print bcolors.HEADER + '(s) to view Serial' + bcolors.ENDC
 	print bcolors.HEADER + '(u) to check for updates' + bcolors.ENDC
 	print bcolors.HEADER + '(d) to enable DEBUG' + bcolors.ENDC
-	print bcolors.HEADER + '(s) to enable Serial view' + bcolors.ENDC
-	print bcolors.HEADER + '(e) to EXIT and shutdown' + bcolors.ENDC
+	print bcolors.HEADER + '(e) to EXIT' + bcolors.ENDC
+	if (SERIAL_VIEW): print bcolors.OKBLUE + bcolors.UNDERLINE + '\n\n Serial output view after each upload enabled' + VERSION + bcolors.ENDC
 	nb = raw_input('> ')
 	os.system('clear') # clear terminal screen Linux specific
   
@@ -500,23 +562,25 @@ while(1):
 		DEBUG = True
 		raw_input("\nPress Enter to continue... or [CTRL + C] to exit\n")
 		
-	# Enable Serial
-	elif nb=='s':
-	  print bcolors.OKGREEN + '\nSerial view enabled' + bcolors.ENDC
-	  SERIAL_VIEW = True
-	  raw_input("\nPress Enter to continue... or [CTRL + C] to exit\n")
-		    	
 	elif nb=='e':
-		print bcolors.FAIL + '\nSystem Shutdown....' + bcolors.ENDC
-		raw_input("\nPress Enter to continue... or [CTRL + C] to exit\n")
-		time.sleep(2)
-		cmd = 'sudo halt'
-		subprocess.call(cmd, shell=True)
-        	sys.exit
-
-	else:
-	  print bcolors.FAIL + 'Invalid selection' + bcolors.ENDC
-	
+		shutdown_choice = raw_input("\nShutdown system after exit? Enter (y) or (n)\n")
+		if shutdown_choice == 'y':
+		  print bcolors.FAIL + '\nSystem Shutdown....in 10s. [CTRL + C] to cancel' + bcolors.ENDC
+		  time.sleep(10)
+		  cmd = 'sudo halt'
+		  subprocess.call(cmd, shell=True)
+		  sys.exit
+		if shutdown_choice == 'n':
+		  sys.exit
+      
+	# Serial Optons
+	elif nb=='s':
+	  serial_menu()
+	  
+  # else:
+    # print bcolors.FAIL + 'Invalid selection' + bcolors.ENDC
+  
+    	
 	# If RFM69Pi is present 'poke' it by re-settings its settings to keep t alive :-/
 	if (RFM): rfm(rfm_port, rfm_baud , rfm_group, rfm_freq)
 	
