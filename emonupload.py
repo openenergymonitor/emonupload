@@ -15,7 +15,7 @@ from os.path import expanduser
 
 #--------------------------------------------------------------------------------------------------
 DEBUG       = 0
-UPDATE      = 1      # Update firmware releases at startup
+UPDATE      = 0      # Update firmware releases at startup
 SERIAL_VIEW = 0      # View serial output after upload
 VERSION = 'V1.1.0'
 
@@ -130,10 +130,8 @@ def update_emonupload(filename):
 # Clone / update github repos into repo folder
 #--------------------------------------------------------------------------------------------------
 def repo_clone_update(github_repo, repo_folder):
-  if not os.path.isdir(repo_folder):
-    os.mkdir(repo_folder)
   for i in range(len(github_repo)):
-    remote_url = 'https://github.com/' + github_repo[i] + '.git'
+    remote_url = 'l' + github_repo[i] + '.git'
     repo_dir_path=repo_folder + github_repo[i].split('/')[-2] + '-' + github_repo[i].split('/')[-1]  # e.g repos/openenergymonitor-emonth2
     if os.path.isdir(repo_dir_path):
       if (DEBUG): print '\nDEBUG: Repo ' + repo_dir_path + ' already exists checking for updates...'
@@ -159,11 +157,8 @@ def repo_clone_update(github_repo, repo_folder):
     else:
       print bcolors.OKGREEN + ' Cloning ' + remote_url + bcolors.ENDC
       if (DEBUG): print '\nDEBUG: Cloning ' + github_repo[i] + '\nFrom: ' + remote_url + '\nInto: ' + repo_dir_path
-      os.mkdir(repo_dir_path)
-      repo = git.Repo.init(repo_dir_path)
-      origin = repo.create_remote('origin',remote_url)
-      origin.fetch()
-      origin.pull(origin.refs[0].remote_head)
+      cmd = 'git clone ' + remote_url + ' ' + repo_dir_path
+      subprocess.call(cmd, shell=True)
   if (DEBUG): raw_input("\nPress Enter to continue...\n")
   return
 
