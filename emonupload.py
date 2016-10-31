@@ -106,8 +106,7 @@ def update_emonupload(filename):
     print r
     print bcolors.WARNING + 'UPDATE FOUND....emonUpload RESTART REQUIRED\n' + bcolors.ENDC
     if (DEBUG): raw_input("\nPress Enter to continue...\n")
-    #os.execv(filename, sys.argv)
-    sys.exit(0)
+    quit()
   else:
     print bcolors.OKGREEN + 'Already up-to-date: emonUpload' + bcolors.ENDC
     if (DEBUG): raw_input("\nPress Enter to continue...\n")
