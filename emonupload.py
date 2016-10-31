@@ -17,7 +17,7 @@ from os.path import expanduser
 DEBUG       = 0
 UPDATE      = 1      # Update firmware releases at startup
 SERIAL_VIEW = 0      # View serial output after upload
-VERSION = 'V1.2.0'
+VERSION = 'V1.2.1'
 
 download_folder = 'latest/'
 repo_folder = 'repos/'
