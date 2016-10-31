@@ -569,7 +569,7 @@ while(1):
 		  subprocess.call(cmd, shell=True)
 		  sys.exit
 		if shutdown_choice == 'n':
-		  sys.exit
+		  quit()
       
 	# Serial Optons
 	elif nb=='s':
