@@ -52,7 +52,7 @@ For more info on pyenv python virtual enviroment: https://github.com/yyuu/pyenv
 
 ```
 $ cd emonupload
-$ pip install -r requirements.txt
+$ sudo pip install -r requirements.txt
 ```
 
 ## Install Dependencys
