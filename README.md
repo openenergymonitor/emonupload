@@ -2,24 +2,40 @@
 
 Download, flash and manage OpenEnergyMonitor firmware
 
-*Designed primarily for internal & factory use*
+# Features
 
-***
-
-# In Development
+- Auto downloads latest firmware via GitHub Releases
+- Upload attemps to upload bootloder via ISP (AVR MkII programmer) then uploads firmware via serial UART
+- Auto detection of programmer serial port
+- Serial output display upon upload (option)
+- Dedicated serial monitor
+- If emonPi / RFM69Pi is detected RF test will be performed (check RF received)
+- Unit testing via PlatfromIO
+- Expandable to include any other git repositories
 
 ***
 
 # Install
 
-`$ git clone https://github.com/openenergymonitor/emonupload`
+- requires Python 2.7.9+ (use python virtual env in needed (see below)
+ 
+```
+$ git clone https://github.com/openenergymonitor/emonupload
+$ sudo apt get install python avrdude git-core -y
+$ cd emonupload
+$ sudo pip install -r requirements.txt
+```
 
-- requires Python 2.7.9+
-- use python virtual env in needed (see below)
+# Run
 
-## Setup Python virtual env
+`./emonupload.py`
 
-Only needed if your system only has support for python =< 2.6 e.g. Ubuntu 14.04 :-(
+*`emon` can be installed in `/user/bin` to enable launching via `emon` command*
+
+
+### Setup Python virtual env
+
+*Only needed if your system only has support for python =< 2.6 e.g. Ubuntu 14.04 :-(*
 
 ```
 sudo apt-get install git python-pip make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev
@@ -48,32 +64,15 @@ Local python version 2.79 will be used for `emonupload` this is defined by `.pyt
 For more info on pyenv python virtual enviroment: https://github.com/yyuu/pyenv
 
 
-## Install Python Modules
-
-```
-$ cd emonupload
-$ sudo pip install -r requirements.txt
-```
-
-## Install Dependencys
-
-`$ sudo apt get install avrdude`
 
 ## Install PlatformIO
 
-*Required for unit testing and serial montor view*
+*Not essentail for upload: Required for unit testing and serial montor view*
 
 `$ sudo python -c "$(curl -fsSL https://raw.githubusercontent.com/platformio/platformio/master/scripts/get-platformio.py)"`
 
 
-## Run at startup
 
-To run at startup add to `/etc/rc.local`
-
-```
-cd /home/pi/emonpi
-su pi -c '.emonupload.py
-```
 
 ## Licence
 

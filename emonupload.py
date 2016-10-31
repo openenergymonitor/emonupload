@@ -15,9 +15,9 @@ from os.path import expanduser
 
 #--------------------------------------------------------------------------------------------------
 DEBUG       = 0
-UPDATE      = 0      # Update firmware releases at startup
+UPDATE      = 1      # Update firmware releases at startup
 SERIAL_VIEW = 0      # View serial output after upload
-VERSION = 'V1.1.0'
+VERSION = 'V1.2.0'
 
 download_folder = 'latest/'
 repo_folder = 'repos/'
@@ -131,7 +131,7 @@ def update_emonupload(filename):
 #--------------------------------------------------------------------------------------------------
 def repo_clone_update(github_repo, repo_folder):
   for i in range(len(github_repo)):
-    remote_url = 'l' + github_repo[i] + '.git'
+    remote_url = 'https://github.com/' + github_repo[i] + '.git'
     repo_dir_path=repo_folder + github_repo[i].split('/')[-2] + '-' + github_repo[i].split('/')[-1]  # e.g repos/openenergymonitor-emonth2
     if os.path.isdir(repo_dir_path):
       if (DEBUG): print '\nDEBUG: Repo ' + repo_dir_path + ' already exists checking for updates...'
