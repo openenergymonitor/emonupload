@@ -17,7 +17,7 @@ from os.path import expanduser
 DEBUG       = 0
 UPDATE      = 1      # Update firmware releases at startup
 SERIAL_VIEW = 0      # View serial output after upload
-VERSION = 'V1.2.1'
+VERSION = 'V1.2.2'
 
 download_folder = 'latest/'
 repo_folder = 'repos/'
@@ -104,7 +104,7 @@ def update_emonupload(filename):
   if (DEBUG): print g
   if r != 'Already up-to-date.':
     print r
-    print bcolors.WARNING + 'UPDATE FOUND....emonUpload RESTART REQUIRED\n' + bcolors.ENDC
+    print bcolors.WARNING + 'UPDATE FOUND....emonUpload RESTART REQUIRED\nEXITING...' + bcolors.ENDC
     if (DEBUG): raw_input("\nPress Enter to continue...\n")
     quit()
   else:
