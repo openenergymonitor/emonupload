@@ -23,7 +23,7 @@ Download, flash and manage OpenEnergyMonitor firmware
 $ git clone https://github.com/openenergymonitor/emonupload
 $ sudo apt get install python avrdude git-core -y
 $ cd emonupload
-$ sudo pip install -r requirements.txt
+$ pip install -r requirements.txt
 ```
 
 # Run
