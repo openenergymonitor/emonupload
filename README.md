@@ -1,13 +1,6 @@
 # emonUpload
 
-Download, uploa and test OpenEnergyMonitor firmware. 
-
-Configured by default for:
-
-* emonTx 
-* emonTH V1
-* emonTH V2
-* emonTx V3
+Download latest via GitHub releases, upload and test OpenEnergyMonitor firmware.firmware  
 
 # Features
 
@@ -19,6 +12,14 @@ Configured by default for:
 - If RFM69Pi / emonPi receiver is detected RF test will be performed (check RF received)
 - [Unit testing via PlatformIO](http://docs.platformio.org/en/stable/plus/unit-testing.html)
 - Expandable to include any other git repositories
+
+
+Configured by default to work with:
+
+* emonTx 
+* emonTH V1
+* emonTH V2
+* emonTx V3
 
 ***
 
