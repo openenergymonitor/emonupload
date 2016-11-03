@@ -1,6 +1,6 @@
 # emonUpload
 
-Download latest via GitHub releases, upload and test OpenEnergyMonitor firmware.firmware  
+Download latest OpenEnergyMonitor firmware via GitHub releases; upload and test. 
 
 # Features
 
