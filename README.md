@@ -1,16 +1,23 @@
 # emonUpload
 
-Download, flash and manage OpenEnergyMonitor firmware
+Download, uploa and test OpenEnergyMonitor firmware. 
+
+Configured by default for:
+
+* emonTx 
+* emonTH V1
+* emonTH V2
+* emonTx V3
 
 # Features
 
 - Auto downloads latest firmware via GitHub Releases
-- Upload attemps to upload bootloder via ISP (AVR MkII programmer) then uploads firmware via serial UART
-- Auto detection of programmer serial port
-- Serial output display upon upload (option)
-- Dedicated serial monitor
-- If emonPi / RFM69Pi is detected RF test will be performed (check RF received)
-- Unit testing via PlatfromIO
+- Upload attemps to upload bootloader via ISP (AVR MkII programmer) then uploads latest firmware sketch via serial UART
+- Auto detection of [USB to UART programmer](https://shop.openenergymonitor.com/programmer-usb-to-serial-uart/) serial port
+- Serial output display upon upload
+- Dedicated serial monitor (auto baudrate) 
+- If RFM69Pi / emonPi receiver is detected RF test will be performed (check RF received)
+- [Unit testing via PlatformIO](http://docs.platformio.org/en/stable/plus/unit-testing.html)
 - Expandable to include any other git repositories
 
 ***
@@ -122,7 +129,7 @@ For more info on pyenv python virtual enviroment: https://github.com/yyuu/pyenv
 
 ## Install PlatformIO
 
-*Not essentail for upload: Required for unit testing and serial montor view*
+*Not essential for upload: Required for unit testing and serial monitor view*
 
 `$ sudo python -c "$(curl -fsSL https://raw.githubusercontent.com/platformio/platformio/master/scripts/get-platformio.py)"`
 
