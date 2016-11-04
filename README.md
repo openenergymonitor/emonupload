@@ -29,10 +29,12 @@ Configured by default to work with:
 
 ```
 $ git clone https://github.com/openenergymonitor/emonupload
+$ sudo apt-get update
 $ sudo apt get install python avrdude git-core -y
 $ cd emonupload
 $ pip install -r requirements.txt
 ```
+- Tested with pip 8.1.2
 
 # Run
 
@@ -101,6 +103,7 @@ Enter >
 *Only needed if your system only has support for python =< 2.6 e.g. Ubuntu 14.04 :-(*
 
 ```
+sudo apt-get update
 sudo apt-get install git python-pip make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev
 sudo pip install virtualenvwrapper
 
