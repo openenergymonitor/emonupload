@@ -135,7 +135,15 @@ For more info on pyenv python virtual enviroment: https://github.com/yyuu/pyenv
 
 *Not essential for upload: Required for unit testing and serial monitor view*
 
+### Install PlatformIO using Linux / Mac install script:
+
 `$ sudo python -c "$(curl -fsSL https://raw.githubusercontent.com/platformio/platformio/master/scripts/get-platformio.py)"`
+
+See [PlatformIO website](http://docs.platformio.org/en/stable/installation.html) for Windows install guide.
+
+#### Install required platformIO packages
+
+`$ pio platform install atmelavr --with-package tool-avrdude`
 
 
 
