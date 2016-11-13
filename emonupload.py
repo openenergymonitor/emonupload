@@ -15,8 +15,8 @@ from os.path import expanduser
 
 #--------------------------------------------------------------------------------------------------
 DEBUG       = 0
-UPDATE      = 1      # Update firmware releases at startup
-VERSION = 'V1.2.3'
+UPDATE      = 0      # Update firmware releases at startup
+VERSION = 'V1.3.0'
 
 download_folder = 'latest/'
 repo_folder = 'repos/'
@@ -41,15 +41,15 @@ rfm_baud =  '38400'
 #--------------------------------------------------------------------------------------------------
 emontx_nodeid      = [8, 7]
 emontx_baud        = 115200
-emontx_seriallines = 15
+
+emontx_3phase_nodeid      = [11]
+emontx_3phase_baud        = 115200
 
 emonth_nodeid      = [23, 24, 25, 26]
 emonth_baud        = 115200
-emonth_seriallines = 15
 
 emonpi_nodeid      = [5]
 emonpi_baud        = 38400
-emonpi_seriallines = 15
 #--------------------------------------------------------------------------------------------------
 
 
@@ -446,6 +446,7 @@ while(1):
 	print bcolors.OKBLUE + 'OpenEnergyMonitor Upload ' + VERSION + bcolors.ENDC
 	print '\nEnter >\n'
 	print bcolors.OKGREEN + '(x) for emonTx upload\n' + bcolors.ENDC
+	print bcolors.OKGREEN + '(3) for emonTx-3phase upload\n' + bcolors.ENDC
 	print bcolors.OKGREEN + '(i) for emonPi upload\n' + bcolors.ENDC
 	print bcolors.OKGREEN + '(h) for emonTH V2 upload' + bcolors.ENDC
 
@@ -472,11 +473,26 @@ while(1):
 		    test_receive_rf(emontx_nodeid, rfm_port, rfm_baud)
 		else: print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
 
-		if raw_input("\nDone. Press Enter to return to menu or (s) to view serial output>\n"):
+		if raw_input("\nDone emonTx upload. Press Enter to return to menu or (s) to view serial output>\n"):
 		  serial_monitor(emontx_baud)
-		  # serial_output(serial_port, emontx_baud, emontx_seriallines)
 		os.system('clear') # clear terminal screen Linux specific
 
+  # emonTx 3-phase
+	if nb=='3':
+		print bcolors.OKGREEN + '\nemonTx 3-phase Upload\n' + bcolors.ENDC
+		burn_bootloader(uno_bootloader)
+		serial_port = serial_upload(download_folder + 'openenergymonitor-emontx-3phase.hex:i')
+		if (RFM):
+		  if test_receive_rf(emontx_3phase_nodeid, rfm_port, rfm_baud) == False:
+		    rfm(rfm_port, rfm_baud , rfm_group, rfm_freq) # 'poke RFM'
+		    reset(serial_port) # reset and try again if serial is not detected
+		    test_receive_rf(emontx_3phase_nodeid, rfm_port, rfm_baud)
+		else: print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
+
+		if raw_input("\nDone emonTx 3-phase upload. Press Enter to return to menu or (s) to view serial output>\n"):
+		  serial_monitor(emontx_3phase_baud)
+		os.system('clear') # clear terminal screen Linux specific
+		
 	# emonPi
 	elif nb=='i':
 		print bcolors.OKGREEN + '\nemonPi Upload\n' + bcolors.ENDC
@@ -489,8 +505,7 @@ while(1):
 		    test_receive_rf(emonpi_nodeid, rfm_port, rfm_baud)
 		else: print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
 
-		if raw_input("\nDone. Press Enter to return to menu or (s) to view serial output>\n"):
-		  # serial_output(serial_port, emontx_baud, emontx_seriallines)
+		if raw_input("\nDone emonPi Upload. Press Enter to return to menu or (s) to view serial output>\n"):
 		  serial_monitor(emonpi_baud)
 		os.system('clear') # clear terminal screen Linux specific
 
@@ -507,9 +522,8 @@ while(1):
 		    test_receive_rf(emonth_nodeid, rfm_port, rfm_baud)
 		else: print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
 
-		if raw_input("\nDone. Press Enter to return to menu or (s) to view serial output>\n"):
+		if raw_input("\nDone emonTH V2 upload. Press Enter to return to menu or (s) to view serial output>\n"):
 		  serial_monitor(emonth_baud)
-		  serial_output(serial_port, emontx_baud, emontx_seriallines)
 		os.system('clear') # clear terminal screen Linux specific
 	
 		# emonTH V1
@@ -524,9 +538,8 @@ while(1):
 		    test_receive_rf(emonth_nodeid, rfm_port, rfm_baud)
 		else: print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
 
-		if raw_input("\nDone. Press Enter to return to menu or (s) to view serial output>\n"):
+		if raw_input("\nDone emonTH V1 upload. Press Enter to return to menu or (s) to view serial output>\n"):
 		  serial_monitor(9600)
-		  # serial_output(serial_port, emontx_baud, emontx_seriallines)
 		os.system('clear') # clear terminal screen Linux specific
 
 
