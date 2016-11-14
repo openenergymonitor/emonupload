@@ -24,7 +24,7 @@ avrdude_config = 'avrdude.conf'
 uno_bootloader = 'bootloaders/optiboot_atmega328.hex'
 
 allowed_extensions = ['bin', 'hex']
-github_repo = ['openenergymonitor/emonth2', 'openenergymonitor/emonth', 'openenergymonitor/emonpi', 'openenergymonitor/emontxfirmware']
+github_repo = ['openenergymonitor/emonth2', 'openenergymonitor/emonth', 'openenergymonitor/emonpi', 'openenergymonitor/emontxfirmware', 'openenergymonitor/emontx-3phase' ]
 #--------------------------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------------------------
@@ -42,8 +42,8 @@ rfm_baud =  '38400'
 emontx_nodeid      = [8, 7]
 emontx_baud        = 115200
 
-emontx_3phase_nodeid      = [11]
-emontx_3phase_baud        = 115200
+emontx_3phase_nodeid  = [11]
+emontx_3phase_baud    = 115200
 
 emonth_nodeid      = [23, 24, 25, 26]
 emonth_baud        = 115200
