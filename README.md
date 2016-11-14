@@ -147,7 +147,6 @@ See [PlatformIO website](http://docs.platformio.org/en/stable/installation.html)
 
 
 
-
 ## Licence
 
 This software is available under the GNU GPL V3 license
