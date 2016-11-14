@@ -16,7 +16,7 @@ from os.path import expanduser
 #--------------------------------------------------------------------------------------------------
 DEBUG       = 0
 UPDATE      = 1      # Update firmware releases at startup
-VERSION = 'V1.3.0'
+VERSION = 'V1.3.1'
 
 download_folder = 'latest/'
 repo_folder = 'repos/'
@@ -103,7 +103,9 @@ def update_emonupload(filename):
   if (DEBUG): print g
   if r != 'Already up-to-date.':
     print r
-    print bcolors.WARNING + 'UPDATE FOUND....emonUpload RESTART REQUIRED\nEXITING...' + bcolors.ENDC
+    print bcolors.WARNING + 'UPDATE FOUND....emonUpload restart required\nEXITING...' + bcolors.ENDC
+    os.system("rm -rf " + download_folder)
+    os.system("rm -rf " + repo_folder)
     if (DEBUG): raw_input("\nPress Enter to continue...\n")
     quit()
   else:
