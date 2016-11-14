@@ -25,7 +25,8 @@ Configured by default to work with:
 
 # Install
 
-- requires Python 2.7.9+ (use python virtual env in needed (see below)
+- requires Python 2.7.9+ 
+  -*use python virtual env if this version is not avaialble via your systems package maange*
 
 ```
 $ git clone https://github.com/openenergymonitor/emonupload
