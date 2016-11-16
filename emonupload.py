@@ -16,11 +16,10 @@ from os.path import expanduser
 #--------------------------------------------------------------------------------------------------
 DEBUG       = 0
 UPDATE      = 1      # Update firmware releases at startup
-VERSION = 'V1.3.1'
+VERSION = 'V1.4.0'
 
 download_folder = 'latest/'
 repo_folder = 'repos/'
-avrdude_config = 'avrdude.conf'
 uno_bootloader = 'bootloaders/optiboot_atmega328.hex'
 
 allowed_extensions = ['bin', 'hex']
@@ -245,13 +244,10 @@ def rfm(rfm_port, rfm_baud, rfm_group, rfm_freq):
 # Burn Bootloader
 #--------------------------------------------------------------------------------------------------
 def burn_bootloader(bootloader_path):
-  if os.path.isfile(expanduser((avrdude_config))):
-    print bcolors.OKGREEN + '\nBurning Bootloader\n' + bcolors.ENDC
-    cmd = 'sudo avrdude -V -C ' + avrdude_config + ' -p atmega328p -c stk500v2 -P usb -U flash:w:' + bootloader_path +':i -Ulock:w:0x0f:m'
-    print cmd
-    subprocess.call(cmd, shell=True)
-  else:
-    print bcolors.FAIL + 'ERROR: cannot find avrdude.conf' + bcolors.ENDC
+  print bcolors.OKGREEN + '\nBurning Bootloader\n' + bcolors.ENDC
+  cmd = 'sudo avrdude -p atmega328p -c avrispmkII -P usb -e -U efuse:w:0x05:m -U hfuse:w:0xD6:m -U lfuse:w:0xFF:m -U flash:w:' + bootloader_path + ':i -Ulock:w:0x0f:m'
+  print cmd
+  subprocess.call(cmd, shell=True)
   return;
 #--------------------------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------------------------
