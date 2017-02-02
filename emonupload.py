@@ -463,7 +463,7 @@ while(1):
 	if nb=='x':
 		print bcolors.OKGREEN + '\nemonTx Upload\n' + bcolors.ENDC
 		burn_bootloader(uno_bootloader)
-		serial_port = serial_upload(download_folder + 'openenergymonitor-emontxfirmware.hex:i')
+		serial_port = serial_upload(download_folder + 'openenergymonitor-emontx3.hex:i')
 		if (RFM):
 		  if test_receive_rf(emontx_nodeid, rfm_port, rfm_baud) == False:
 		    rfm(rfm_port, rfm_baud , rfm_group, rfm_freq) # 'poke RFM'
