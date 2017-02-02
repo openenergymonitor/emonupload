@@ -23,7 +23,7 @@ repo_folder = 'repos/'
 uno_bootloader = 'bootloaders/optiboot_atmega328.hex'
 
 allowed_extensions = ['bin', 'hex']
-github_repo = ['openenergymonitor/emonth2', 'openenergymonitor/emonth', 'openenergymonitor/emonpi', 'openenergymonitor/emontxfirmware', 'openenergymonitor/emontx-3phase' ]
+github_repo = ['openenergymonitor/emonth2', 'openenergymonitor/emonth', 'openenergymonitor/emonpi', 'openenergymonitor/emontx3', 'openenergymonitor/emontx-3phase' ]
 #--------------------------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------------------------
@@ -376,7 +376,7 @@ def serial_menu():
     print bcolors.OKGREEN + '\n(0) for older units serial @9600 ' + bcolors.ENDC
     print bcolors.OKBLUE + '\n\n(m) To Return to main menu > ' + bcolors.ENDC
     nb = raw_input('> ')
-    
+
     if nb == 'x':
       serial_monitor(emontx_baud)
       break
@@ -443,8 +443,8 @@ while(1):
 	print ' '
 	print bcolors.OKBLUE + 'OpenEnergyMonitor Upload ' + VERSION + bcolors.ENDC
 	print '\nEnter >\n'
-	print bcolors.OKGREEN + '(x) for emonTx upload\n' + bcolors.ENDC
-	print bcolors.OKGREEN + '(3) for emonTx-3phase upload\n' + bcolors.ENDC
+	print bcolors.OKGREEN + '(x) for emonTx V3 upload\n' + bcolors.ENDC
+	print bcolors.OKGREEN + '(3) for emonTx 3-phase upload\n' + bcolors.ENDC
 	print bcolors.OKGREEN + '(i) for emonPi upload\n' + bcolors.ENDC
 	print bcolors.OKGREEN + '(h) for emonTH V2 upload' + bcolors.ENDC
 
@@ -490,7 +490,7 @@ while(1):
 		if raw_input("\nDone emonTx 3-phase upload. Press Enter to return to menu or (s) to view serial output>\n"):
 		  serial_monitor(emontx_3phase_baud)
 		os.system('clear') # clear terminal screen Linux specific
-		
+
 	# emonPi
 	elif nb=='i':
 		print bcolors.OKGREEN + '\nemonPi Upload\n' + bcolors.ENDC
@@ -523,7 +523,7 @@ while(1):
 		if raw_input("\nDone emonTH V2 upload. Press Enter to return to menu or (s) to view serial output>\n"):
 		  serial_monitor(emonth_baud)
 		os.system('clear') # clear terminal screen Linux specific
-	
+
 		# emonTH V1
 	elif nb=='o':
 		print bcolors.OKGREEN + '\nemonTH V1 Upload\n' + bcolors.ENDC
