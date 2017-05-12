@@ -324,9 +324,10 @@ def serial_output(serial_port, serial_baud, num_lines):
 # Reset unit
 #--------------------------------------------------------------------------------------------------
 def reset(serial_port):
-  print 'Reset ' + serial_port
-  cmd = 'avrdude  -uV -c arduino -p ATMEGA328P -P' + serial_port
-  subprocess.call(cmd, shell=True)
+  print 'Reset ' + str(serial_port)
+  if (serial_port!=False):
+    cmd = 'avrdude  -uV -c arduino -p ATMEGA328P -P' + serial_port
+    subprocess.call(cmd, shell=True)
   return
 #--------------------------------------------------------------------------------------------------
 
