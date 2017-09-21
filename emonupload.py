@@ -15,15 +15,15 @@ from os.path import expanduser
 
 #--------------------------------------------------------------------------------------------------
 DEBUG       = 0
-UPDATE      = 1      # Update firmware releases at startup
-VERSION = 'V1.4.0'
+UPDATE      = 0      # Update firmware releases at startup
+VERSION = 'V1.5.0'
 
 download_folder = 'latest/'
 repo_folder = 'repos/'
 uno_bootloader = 'bootloaders/optiboot_atmega328.hex'
 
 allowed_extensions = ['bin', 'hex']
-github_repo = ['openenergymonitor/emonth2', 'openenergymonitor/emonth', 'openenergymonitor/emonpi', 'openenergymonitor/emontx3', 'openenergymonitor/emontx-3phase' ]
+github_repo = ['openenergymonitor/emonth2', 'openenergymonitor/emonth', 'openenergymonitor/emonpi', 'openenergymonitor/emontx3', 'openenergymonitor/emontx-3phase', 'openenergymonitor/emonesp' ]
 #--------------------------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------------------------
@@ -49,6 +49,8 @@ emonth_baud        = 115200
 
 emonpi_nodeid      = [5]
 emonpi_baud        = 38400
+
+emonesp_baud       = 115200
 #--------------------------------------------------------------------------------------------------
 
 
@@ -432,6 +434,19 @@ if interent_connected('https://api.github.com'):
           if (DEBUG): print download_url
           if extension in allowed_extensions and UPDATE==True:
             file_download(download_url, current_repo, download_folder)
+        if len(assets) > 1:
+            # If more than one release asset check to see if it's ESP spiffs filesyste, if so then download it with name
+            if assets[1]['name'] == 'spiffs.bin':
+                if (DEBUG): print "Downloading spiffs....."
+                extension = download_url.split('.')[-1]
+                download_url = assets[1]['browser_download_url']
+                if (DEBUG): print download_url
+                if (DEBUG): print current_repo
+                if extension in allowed_extensions and UPDATE==True:
+                  file_download(download_url, current_repo + '-spiffs', download_folder)
+
+    time.sleep(5)
+
   else: print 'Startup update disabled'
 
 # Check required packages are installed
@@ -439,159 +454,177 @@ if interent_connected('https://api.github.com'):
 
 
 while(1):
-	print '\n-------------------------------------------------------------------------------'
-	os.system('clear') # clear terminal screen Linux specific
-	print ' '
-	print bcolors.OKBLUE + 'OpenEnergyMonitor Upload ' + VERSION + bcolors.ENDC
-	print '\nEnter >\n'
-	print bcolors.OKGREEN + '(x) for emonTx V3 upload\n' + bcolors.ENDC
-	print bcolors.OKGREEN + '(3) for emonTx 3-phase upload\n' + bcolors.ENDC
-	print bcolors.OKGREEN + '(i) for emonPi upload\n' + bcolors.ENDC
-	print bcolors.OKGREEN + '(h) for emonTH V2 upload' + bcolors.ENDC
+  print '\n-------------------------------------------------------------------------------'
+  os.system('clear') # clear terminal screen Linux specific
+  print ' '
+  print bcolors.OKBLUE + 'OpenEnergyMonitor Upload ' + VERSION + bcolors.ENDC
+  print '\nEnter >\n'
+  print bcolors.OKGREEN + '(x) for emonTx V3 upload\n' + bcolors.ENDC
+  print bcolors.OKGREEN + '(3) for emonTx 3-phase upload\n' + bcolors.ENDC
+  print bcolors.OKGREEN + '(i) for emonPi upload\n' + bcolors.ENDC
+  print bcolors.OKGREEN + '(h) for emonTH V2 upload\n' + bcolors.ENDC
+  print bcolors.OKGREEN + '(e) for emonESP upload' + bcolors.ENDC
 
-	print '\n'
+  print '\n'
   #print bcolors.OKGREEN + '(r) for RFM69Pi' + bcolors.ENDC
-	print bcolors.OKBLUE + '(o) for old emonTH V1 upload' + bcolors.ENDC
-	print bcolors.OKBLUE + '(t) for emonTH V2 sensor test' + bcolors.ENDC
-	print bcolors.HEADER + '(s) to view Serial' + bcolors.ENDC
-	print bcolors.HEADER + '(u) to check for updates' + bcolors.ENDC
-	print bcolors.HEADER + '(d) to enable DEBUG' + bcolors.ENDC
-	print bcolors.HEADER + '(e) to EXIT' + bcolors.ENDC
-	nb = raw_input('> ')
-	os.system('clear') # clear terminal screen Linux specific
+  print bcolors.OKBLUE + '(o) for old emonTH V1 upload' + bcolors.ENDC
+  print bcolors.OKBLUE + '(t) for emonTH V2 sensor test' + bcolors.ENDC
+  print bcolors.HEADER + '(s) to view Serial' + bcolors.ENDC
+  print bcolors.HEADER + '(u) to check for updates' + bcolors.ENDC
+  print bcolors.HEADER + '(d) to enable DEBUG' + bcolors.ENDC
+  print bcolors.HEADER + '(e) to EXIT' + bcolors.ENDC
+  nb = raw_input('> ')
+  os.system('clear') # clear terminal screen Linux specific
 
   # emonTx
-	if nb=='x':
-		print bcolors.OKGREEN + '\nemonTx Upload\n' + bcolors.ENDC
-		burn_bootloader(uno_bootloader)
-		serial_port = serial_upload(download_folder + 'openenergymonitor-emontx3.hex:i')
-		if (RFM):
-		  if test_receive_rf(emontx_nodeid, rfm_port, rfm_baud) == False:
-		    rfm(rfm_port, rfm_baud , rfm_group, rfm_freq) # 'poke RFM'
-		    reset(serial_port) # reset and try again if serial is not detected
-		    test_receive_rf(emontx_nodeid, rfm_port, rfm_baud)
-		else: print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
+  if nb=='x':
+    print bcolors.OKGREEN + '\nemonTx Upload\n' + bcolors.ENDC
+    burn_bootloader(uno_bootloader)
+    serial_port = serial_upload(download_folder + 'openenergymonitor-emontx3.hex:i')
+    if (RFM):
+      if test_receive_rf(emontx_nodeid, rfm_port, rfm_baud) == False:
+        rfm(rfm_port, rfm_baud , rfm_group, rfm_freq) # 'poke RFM'
+        reset(serial_port) # reset and try again if serial is not detected
+        test_receive_rf(emontx_nodeid, rfm_port, rfm_baud)
+    else: print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
 
-		if raw_input("\nDone emonTx upload. Press Enter to return to menu or (s) to view serial output>\n"):
-		  serial_monitor(emontx_baud)
-		os.system('clear') # clear terminal screen Linux specific
+    if raw_input("\nDone emonTx upload. Press Enter to return to menu or (s) to view serial output>\n"):
+      serial_monitor(emontx_baud)
+    os.system('clear') # clear terminal screen Linux specific
 
   # emonTx 3-phase
-	if nb=='3':
-		print bcolors.OKGREEN + '\nemonTx 3-phase Upload\n' + bcolors.ENDC
-		burn_bootloader(uno_bootloader)
-		serial_port = serial_upload(download_folder + 'openenergymonitor-emontx-3phase.hex:i')
-		if (RFM):
-		  if test_receive_rf(emontx_3phase_nodeid, rfm_port, rfm_baud) == False:
-		    rfm(rfm_port, rfm_baud , rfm_group, rfm_freq) # 'poke RFM'
-		    reset(serial_port) # reset and try again if serial is not detected
-		    test_receive_rf(emontx_3phase_nodeid, rfm_port, rfm_baud)
-		else: print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
+  if nb=='3':
+    print bcolors.OKGREEN + '\nemonTx 3-phase Upload\n' + bcolors.ENDC
+    burn_bootloader(uno_bootloader)
+    serial_port = serial_upload(download_folder + 'openenergymonitor-emontx-3phase.hex:i')
+    if (RFM):
+      if test_receive_rf(emontx_3phase_nodeid, rfm_port, rfm_baud) == False:
+        rfm(rfm_port, rfm_baud , rfm_group, rfm_freq) # 'poke RFM'
+        reset(serial_port) # reset and try again if serial is not detected
+        test_receive_rf(emontx_3phase_nodeid, rfm_port, rfm_baud)
+    else: print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
 
-		if raw_input("\nDone emonTx 3-phase upload. Press Enter to return to menu or (s) to view serial output>\n"):
-		  serial_monitor(emontx_3phase_baud)
-		os.system('clear') # clear terminal screen Linux specific
+    if raw_input("\nDone emonTx 3-phase upload. Press Enter to return to menu or (s) to view serial output>\n"):
+      serial_monitor(emontx_3phase_baud)
+    os.system('clear') # clear terminal screen Linux specific
 
-	# emonPi
-	elif nb=='i':
-		print bcolors.OKGREEN + '\nemonPi Upload\n' + bcolors.ENDC
-		burn_bootloader(uno_bootloader)
-		serial_port = serial_upload(download_folder + 'openenergymonitor-emonpi.hex:i')
-		if (RFM):
-		  if test_receive_rf(emonpi_nodeid, rfm_port, rfm_baud) == False:
-		    rfm(rfm_port, rfm_baud , rfm_group, rfm_freq) # 'poke RFM'
-		    reset(serial_port) # reset and try again if serial is not detected
-		    test_receive_rf(emonpi_nodeid, rfm_port, rfm_baud)
-		else: print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
+  # emonPi
+  elif nb=='i':
+    print bcolors.OKGREEN + '\nemonPi Upload\n' + bcolors.ENDC
+    burn_bootloader(uno_bootloader)
+    serial_port = serial_upload(download_folder + 'openenergymonitor-emonpi.hex:i')
+    if (RFM):
+      if test_receive_rf(emonpi_nodeid, rfm_port, rfm_baud) == False:
+        rfm(rfm_port, rfm_baud , rfm_group, rfm_freq) # 'poke RFM'
+        reset(serial_port) # reset and try again if serial is not detected
+        test_receive_rf(emonpi_nodeid, rfm_port, rfm_baud)
+    else: print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
 
-		if raw_input("\nDone emonPi Upload. Press Enter to return to menu or (s) to view serial output>\n"):
-		  serial_monitor(emonpi_baud)
-		os.system('clear') # clear terminal screen Linux specific
-
-
-	# emonTH V2
-	elif nb=='h':
-		print bcolors.OKGREEN + '\nemonTH V2 Upload\n' + bcolors.ENDC
-		burn_bootloader(uno_bootloader)
-		serial_port = serial_upload(download_folder + 'openenergymonitor-emonth2.hex:i')
-		if (RFM):
-		  if test_receive_rf(emonth_nodeid, rfm_port, rfm_baud) == False:
-		    rfm(rfm_port, rfm_baud , rfm_group, rfm_freq) # 'poke RFM'
-		    reset(serial_port) # reset and try again if serial is not detected
-		    test_receive_rf(emonth_nodeid, rfm_port, rfm_baud)
-		else: print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
-
-		if raw_input("\nDone emonTH V2 upload. Press Enter to return to menu or (s) to view serial output>\n"):
-		  serial_monitor(emonth_baud)
-		os.system('clear') # clear terminal screen Linux specific
-
-		# emonTH V1
-	elif nb=='o':
-		print bcolors.OKGREEN + '\nemonTH V1 Upload\n' + bcolors.ENDC
-		burn_bootloader(uno_bootloader)
-		serial_port = serial_upload(download_folder + 'openenergymonitor-emonth.hex:i')
-		if (RFM):
-		  if test_receive_rf(emonth_nodeid, rfm_port, rfm_baud) == False:
-		    rfm(rfm_port, rfm_baud , rfm_group, rfm_freq) # 'poke RFM'
-		    reset(serial_port) # reset and try again if serial is not detected
-		    test_receive_rf(emonth_nodeid, rfm_port, rfm_baud)
-		else: print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
-
-		if raw_input("\nDone emonTH V1 upload. Press Enter to return to menu or (s) to view serial output>\n"):
-		  serial_monitor(9600)
-		os.system('clear') # clear terminal screen Linux specific
+    if raw_input("\nDone emonPi Upload. Press Enter to return to menu or (s) to view serial output>\n"):
+      serial_monitor(emonpi_baud)
+    os.system('clear') # clear terminal screen Linux specific
 
 
+  # emonTH V2
+  elif nb=='h':
+    print bcolors.OKGREEN + '\nemonTH V2 Upload\n' + bcolors.ENDC
+    burn_bootloader(uno_bootloader)
+    serial_port = serial_upload(download_folder + 'openenergymonitor-emonth2.hex:i')
+    if (RFM):
+      if test_receive_rf(emonth_nodeid, rfm_port, rfm_baud) == False:
+        rfm(rfm_port, rfm_baud , rfm_group, rfm_freq) # 'poke RFM'
+        reset(serial_port) # reset and try again if serial is not detected
+        test_receive_rf(emonth_nodeid, rfm_port, rfm_baud)
+    else: print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
+
+    if raw_input("\nDone emonTH V2 upload. Press Enter to return to menu or (s) to view serial output>\n"):
+      serial_monitor(emonth_baud)
+    os.system('clear') # clear terminal screen Linux specific
+
+  # emonESP
+  elif nb=='e':
+    print bcolors.OKGREEN + '\nemonESP Upload\n' + bcolors.ENDC
+    cmd = 'pip freeze --disable-pip-version-check | grep esptool'
+    if subprocess.call(cmd, shell=True) != ' ':
+      # If esptool is installed
+      cmd = 'esptool.py write_flash 0x000000 ' + download_folder + 'openenergymonitor-emonesp.bin' + ' 0x300000 ' +  download_folder + 'openenergymonitor-emonesp-spiffs.bin'
+      print cmd
+      subprocess.call(cmd, shell=True)
+      if raw_input("\nDone emonESP upload. Press Enter to return to menu or (s) to view serial output (reset required)>\n"):
+              serial_monitor(emonesp_baud)
+    else:
+      if raw_input("\nERROR: esptool not installed. Press Enter to return to menu>\n"):
+        serial_monitor(emonesp_baud)
+        
+    os.system('clear') # clear terminal screen Linux specific
+
+    # emonTH V1
+  elif nb=='o':
+    print bcolors.OKGREEN + '\nemonTH V1 Upload\n' + bcolors.ENDC
+    burn_bootloader(uno_bootloader)
+    serial_port = serial_upload(download_folder + 'openenergymonitor-emonth.hex:i')
+    if (RFM):
+      if test_receive_rf(emonth_nodeid, rfm_port, rfm_baud) == False:
+        rfm(rfm_port, rfm_baud , rfm_group, rfm_freq) # 'poke RFM'
+        reset(serial_port) # reset and try again if serial is not detected
+        test_receive_rf(emonth_nodeid, rfm_port, rfm_baud)
+    else: print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
+
+    if raw_input("\nDone emonTH V1 upload. Press Enter to return to menu or (s) to view serial output>\n"):
+      serial_monitor(9600)
+    os.system('clear') # clear terminal screen Linux specific
 
 
-	# emonTH V2 Unit Sensor test
-	elif nb=='t':
-		pio_unit_test(repo_folder + 'openenergymonitor-emonth2/firmware', 'emonth2')
-		raw_input("\nDone. Press Enter to return to menu >\n")
-		os.system('clear') # clear terminal screen Linux specific
 
-	elif nb=='u':
-	  print bcolors.OKGREEN + 'Checking for updates.. ' + bcolors.ENDC
-	  # Update emonUpload (git pull)
-	  update_emonupload('emonupload.py')
-	  # Clone or (update if already cloned) repos defined in github_repo list
-	  repo_clone_update(github_repo, repo_folder)
-	  print '\n'
-	  # Update firware releases for github releases
-	  for i in range(len(github_repo)):
-	    current_repo = github_repo[i]
-	    resp = get_releases_info(current_repo)
-	    if 'assets' in resp:
-	      assets = resp['assets']
-	      download_url = assets[0]['browser_download_url']
-	      extension = download_url.split('.')[-1]
-	      if (DEBUG): print download_url
-	      if extension in allowed_extensions and UPDATE==True:
-	        file_download(download_url, current_repo, download_folder)
 
-	elif nb=='d':
-		print bcolors.OKGREEN + '\nDebug enabled' + bcolors.ENDC
-		DEBUG = True
-		raw_input("\nPress Enter to continue... or [CTRL + C] to exit\n")
+  # emonTH V2 Unit Sensor test
+  elif nb=='t':
+    pio_unit_test(repo_folder + 'openenergymonitor-emonth2/firmware', 'emonth2')
+    raw_input("\nDone. Press Enter to return to menu >\n")
+    os.system('clear') # clear terminal screen Linux specific
 
-	elif nb=='e':
-		shutdown_choice = raw_input("\nShutdown system after exit? Enter (y) or (n)\n")
-		if shutdown_choice == 'y':
-		  print bcolors.FAIL + '\nSystem Shutdown....in 10s. [CTRL + C] to cancel' + bcolors.ENDC
-		  time.sleep(10)
-		  cmd = 'sudo halt'
-		  subprocess.call(cmd, shell=True)
-		  sys.exit
-		if shutdown_choice == 'n':
-		  quit()
+  elif nb=='u':
+    print bcolors.OKGREEN + 'Checking for updates.. ' + bcolors.ENDC
+    # Update emonUpload (git pull)
+    update_emonupload('emonupload.py')
+    # Clone or (update if already cloned) repos defined in github_repo list
+    repo_clone_update(github_repo, repo_folder)
+    print '\n'
+    # Update firware releases for github releases
+    for i in range(len(github_repo)):
+      current_repo = github_repo[i]
+      resp = get_releases_info(current_repo)
+      if 'assets' in resp:
+        assets = resp['assets']
+        download_url = assets[0]['browser_download_url']
+        extension = download_url.split('.')[-1]
+        if (DEBUG): print download_url
+        if extension in allowed_extensions and UPDATE==True:
+          file_download(download_url, current_repo, download_folder)
 
-	# Serial Optons
-	elif nb=='s':
-	  serial_menu()
+  elif nb=='d':
+    print bcolors.OKGREEN + '\nDebug enabled' + bcolors.ENDC
+    DEBUG = True
+    raw_input("\nPress Enter to continue... or [CTRL + C] to exit\n")
+
+  elif nb=='e':
+    shutdown_choice = raw_input("\nShutdown system after exit? Enter (y) or (n)\n")
+    if shutdown_choice == 'y':
+      print bcolors.FAIL + '\nSystem Shutdown....in 10s. [CTRL + C] to cancel' + bcolors.ENDC
+      time.sleep(10)
+      cmd = 'sudo halt'
+      subprocess.call(cmd, shell=True)
+      sys.exit
+    if shutdown_choice == 'n':
+      quit()
+
+  # Serial Optons
+  elif nb=='s':
+    serial_menu()
 
   # else:
     # print bcolors.FAIL + 'Invalid selection' + bcolors.ENDC
 
 
-	# If RFM69Pi is present 'poke' it by re-settings its settings to keep t alive :-/
-	if (RFM): rfm(rfm_port, rfm_baud , rfm_group, rfm_freq)
+  # If RFM69Pi is present 'poke' it by re-settings its settings to keep t alive :-/
+  if (RFM): rfm(rfm_port, rfm_baud , rfm_group, rfm_freq)
