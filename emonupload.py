@@ -16,14 +16,14 @@ from os.path import expanduser
 #--------------------------------------------------------------------------------------------------
 DEBUG       = 0
 UPDATE      = 1      # Update firmware releases at startup
-VERSION = 'V1.5.0'
+VERSION = 'V1.6.0'
 
 download_folder = 'latest/'
 repo_folder = 'repos/'
 uno_bootloader = 'bootloaders/optiboot_atmega328.hex'
 
 allowed_extensions = ['bin', 'hex']
-github_repo = ['openenergymonitor/emonth2', 'openenergymonitor/emonth', 'openenergymonitor/emonpi', 'openenergymonitor/emontx3', 'openenergymonitor/emontx-3phase', 'openenergymonitor/emonesp' ]
+github_repo = ['openenergymonitor/emonth2', 'openenergymonitor/emonth', 'openenergymonitor/emonpi', 'openenergymonitor/emontx3', 'openenergymonitor/emontx-3phase', 'openenergymonitor/emonesp', 'boblemaire/IoTaWatt', 'OpenEVSE/ESP8266_WiFi_v2.x' ]
 #--------------------------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------------------------
@@ -51,6 +51,8 @@ emonpi_nodeid      = [5]
 emonpi_baud        = 38400
 
 emonesp_baud       = 115200
+iotawatt_baud      = 115200
+openevse_baud      = 115200
 #--------------------------------------------------------------------------------------------------
 
 
@@ -457,13 +459,17 @@ while(1):
   print '\n-------------------------------------------------------------------------------'
   os.system('clear') # clear terminal screen Linux specific
   print ' '
-  print bcolors.OKBLUE + 'OpenEnergyMonitor Upload ' + VERSION + bcolors.ENDC
+  print bcolors.OKBLUE + 'OpenEnergyMonitor Firmware Upload ' + VERSION + bcolors.ENDC
   print '\nEnter >\n'
-  print bcolors.OKGREEN + '(x) for emonTx V3 upload\n' + bcolors.ENDC
-  print bcolors.OKGREEN + '(3) for emonTx 3-phase upload\n' + bcolors.ENDC
-  print bcolors.OKGREEN + '(i) for emonPi upload\n' + bcolors.ENDC
-  print bcolors.OKGREEN + '(h) for emonTH V2 upload\n' + bcolors.ENDC
-  print bcolors.OKGREEN + '(e) for emonESP upload' + bcolors.ENDC
+  print bcolors.OKGREEN + '(x) for emonTx V3\n' + bcolors.ENDC
+  print bcolors.OKGREEN + '(i) for emonPi\n' + bcolors.ENDC
+  print bcolors.OKGREEN + '(h) for emonTH V2\n' + bcolors.ENDC
+
+  print '\n'
+  print bcolors.OKGREEN + '(3) for 3-phase emonTx' + bcolors.ENDC
+  print bcolors.OKGREEN + '(e) for emonESP' + bcolors.ENDC
+  print bcolors.OKGREEN + '(w) for IoTaWatt' + bcolors.ENDC
+  print bcolors.OKGREEN + '(v) for OpenEVSE' + bcolors.ENDC
 
   print '\n'
   #print bcolors.OKGREEN + '(r) for RFM69Pi' + bcolors.ENDC
@@ -556,6 +562,36 @@ while(1):
       if raw_input("\nERROR: esptool not installed. Press Enter to return to menu>\n"):
         serial_monitor(emonesp_baud)
         
+        
+  # IoTaWatt
+  elif nb=='w':
+    print bcolors.OKGREEN + '\nemonESP Upload\n' + bcolors.ENDC
+    cmd = 'pip freeze --disable-pip-version-check | grep esptool'
+    if subprocess.call(cmd, shell=True) != ' ':
+      # If esptool is installed
+      cmd = 'esptool.py write_flash 0x000000 ' + download_folder + 'boblemaire-IoTaWatt.bin'
+      print cmd
+      subprocess.call(cmd, shell=True)
+      if raw_input("\nDone IoTaWatt upload. Press Enter to return to menu or (s) to view serial output (reset required)>\n"):
+              serial_monitor(emonesp_baud)
+    else:
+      if raw_input("\nERROR: esptool not installed. Press Enter to return to menu>\n"):
+        serial_monitor(emonesp_baud)
+  
+    # OpenEVSE
+  elif nb=='v':
+    print bcolors.OKGREEN + '\nemonESP Upload\n' + bcolors.ENDC
+    cmd = 'pip freeze --disable-pip-version-check | grep esptool'
+    if subprocess.call(cmd, shell=True) != ' ':
+      # If esptool is installed
+      cmd = 'esptool.py write_flash 0x000000 ' + download_folder + 'OpenEVSE-ESP8266_WiFi_v2.x.bin'
+      print cmd
+      subprocess.call(cmd, shell=True)
+      if raw_input("\nDone OpenEVSE upload. Press Enter to return to menu or (s) to view serial output (reset required)>\n"):
+              serial_monitor(emonesp_baud)
+    else:
+      if raw_input("\nERROR: esptool not installed. Press Enter to return to menu>\n"):
+        serial_monitor(emonesp_baud)
     os.system('clear') # clear terminal screen Linux specific
 
     # emonTH V1
