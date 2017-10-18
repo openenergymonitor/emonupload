@@ -565,7 +565,7 @@ while(1):
         
   # IoTaWatt
   elif nb=='w':
-    print bcolors.OKGREEN + '\nemonESP Upload\n' + bcolors.ENDC
+    print bcolors.OKGREEN + '\nIoTaWatt Upload\n' + bcolors.ENDC
     cmd = 'pip freeze --disable-pip-version-check | grep esptool'
     if subprocess.call(cmd, shell=True) != ' ':
       # If esptool is installed
@@ -580,7 +580,7 @@ while(1):
   
     # OpenEVSE
   elif nb=='v':
-    print bcolors.OKGREEN + '\nemonESP Upload\n' + bcolors.ENDC
+    print bcolors.OKGREEN + '\nOpenEVSE Upload\n' + bcolors.ENDC
     cmd = 'pip freeze --disable-pip-version-check | grep esptool'
     if subprocess.call(cmd, shell=True) != ' ':
       # If esptool is installed
