@@ -15,8 +15,8 @@ from os.path import expanduser
 
 #--------------------------------------------------------------------------------------------------
 DEBUG       = 0
-UPDATE      = 1      # Update firmware releases at startup
-VERSION = 'V1.6.0'
+UPDATE      = 0      # Update firmware releases at startup
+VERSION = 'V1.6.1'
 
 download_folder = 'latest/'
 repo_folder = 'repos/'
@@ -460,26 +460,30 @@ while(1):
   os.system('clear') # clear terminal screen Linux specific
   print ' '
   print bcolors.OKBLUE + 'OpenEnergyMonitor Firmware Upload ' + VERSION + bcolors.ENDC
-  print '\nEnter >\n'
-  print bcolors.OKGREEN + '(x) for emonTx V3\n' + bcolors.ENDC
-  print bcolors.OKGREEN + '(i) for emonPi\n' + bcolors.ENDC
-  print bcolors.OKGREEN + '(h) for emonTH V2\n' + bcolors.ENDC
+  print '\nUpload >\n'
+  print bcolors.OKGREEN + '(x) emonTx V3\n' + bcolors.ENDC
+  print bcolors.OKGREEN + '(i) emonPi\n' + bcolors.ENDC
+  print bcolors.OKGREEN + '(h) emonTH V2\n' + bcolors.ENDC
 
-  print '\n'
-  print bcolors.OKGREEN + '(3) for 3-phase emonTx' + bcolors.ENDC
-  print bcolors.OKGREEN + '(e) for emonESP' + bcolors.ENDC
-  print bcolors.OKGREEN + '(w) for IoTaWatt' + bcolors.ENDC
-  print bcolors.OKGREEN + '(v) for OpenEVSE' + bcolors.ENDC
+  # print '\n'
+  print bcolors.OKGREEN + '(3) 3-phase emonTx' + bcolors.ENDC
+  print bcolors.OKGREEN + '(e) emonESP' + bcolors.ENDC
+  print bcolors.OKGREEN + '(w) IoTaWatt' + bcolors.ENDC
+  print bcolors.OKGREEN + '(v) OpenEVSE' + bcolors.ENDC
 
   print '\n'
   #print bcolors.OKGREEN + '(r) for RFM69Pi' + bcolors.ENDC
-  print bcolors.OKBLUE + '(o) for old emonTH V1 upload' + bcolors.ENDC
-  print bcolors.OKBLUE + '(t) for emonTH V2 sensor test' + bcolors.ENDC
-  print bcolors.HEADER + '(s) to view Serial' + bcolors.ENDC
-  print bcolors.HEADER + '(u) to check for updates' + bcolors.ENDC
-  print bcolors.HEADER + '(d) to enable DEBUG' + bcolors.ENDC
-  print bcolors.HEADER + '(e) to EXIT' + bcolors.ENDC
-  nb = raw_input('> ')
+  print bcolors.OKBLUE + '(o) old emonTH V1 upload' + bcolors.ENDC
+  print bcolors.OKBLUE + '(t) emonTH V2 sensor test' + bcolors.ENDC
+  print bcolors.HEADER + '(s) view Serial Debug' + bcolors.ENDC
+  print bcolors.HEADER + '(u) update firmware (web connection required)' + bcolors.ENDC
+  # print bcolors.HEADER + '(d) to enable DEBUG' + bcolors.ENDC
+  # print bcolors.HEADER + '(e) to EXIT' + bcolors.ENDC
+  # print '\n'
+  # print bcolors.HEADER + '[CTRL + c] to exit' + bcolors.ENDC
+  print '\n'
+
+  nb = raw_input('Enter lettercode for required function > ')
   os.system('clear') # clear terminal screen Linux specific
 
   # emonTx
@@ -561,8 +565,8 @@ while(1):
     else:
       if raw_input("\nERROR: esptool not installed. Press Enter to return to menu>\n"):
         serial_monitor(emonesp_baud)
-        
-        
+
+
   # IoTaWatt
   elif nb=='w':
     print bcolors.OKGREEN + '\nIoTaWatt Upload\n' + bcolors.ENDC
@@ -577,7 +581,7 @@ while(1):
     else:
       if raw_input("\nERROR: esptool not installed. Press Enter to return to menu>\n"):
         serial_monitor(emonesp_baud)
-  
+
     # OpenEVSE
   elif nb=='v':
     print bcolors.OKGREEN + '\nOpenEVSE Upload\n' + bcolors.ENDC
@@ -638,21 +642,21 @@ while(1):
         if extension in allowed_extensions and UPDATE==True:
           file_download(download_url, current_repo, download_folder)
 
-  elif nb=='d':
-    print bcolors.OKGREEN + '\nDebug enabled' + bcolors.ENDC
-    DEBUG = True
-    raw_input("\nPress Enter to continue... or [CTRL + C] to exit\n")
+  # elif nb=='d':
+  #   print bcolors.OKGREEN + '\nDebug enabled' + bcolors.ENDC
+  #   DEBUG = True
+  #   raw_input("\nPress Enter to continue... or [CTRL + C] to exit\n")
 
-  elif nb=='e':
-    shutdown_choice = raw_input("\nShutdown system after exit? Enter (y) or (n)\n")
-    if shutdown_choice == 'y':
-      print bcolors.FAIL + '\nSystem Shutdown....in 10s. [CTRL + C] to cancel' + bcolors.ENDC
-      time.sleep(10)
-      cmd = 'sudo halt'
-      subprocess.call(cmd, shell=True)
-      sys.exit
-    if shutdown_choice == 'n':
-      quit()
+  # elif nb=='e':
+  #   shutdown_choice = raw_input("\nShutdown system after exit? Enter (y) or (n)\n")
+  #   if shutdown_choice == 'y':
+  #     print bcolors.FAIL + '\nSystem Shutdown....in 10s. [CTRL + C] to cancel' + bcolors.ENDC
+  #     time.sleep(10)
+  #     cmd = 'sudo halt'
+  #     subprocess.call(cmd, shell=True)
+  #     sys.exit
+  #   if shutdown_choice == 'n':
+  #     quit()
 
   # Serial Optons
   elif nb=='s':
