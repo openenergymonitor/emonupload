@@ -16,14 +16,14 @@ from os.path import expanduser
 #--------------------------------------------------------------------------------------------------
 DEBUG       = 0
 UPDATE      = 1      # Update firmware releases at startup
-VERSION = 'V1.6.1'
+VERSION = 'V1.7.0'
 
 download_folder = 'latest/'
 repo_folder = 'repos/'
 uno_bootloader = 'bootloaders/optiboot_atmega328.hex'
 
 allowed_extensions = ['bin', 'hex']
-github_repo = ['openenergymonitor/emonth2', 'openenergymonitor/emonth', 'openenergymonitor/emonpi', 'openenergymonitor/emontx3', 'openenergymonitor/emontx-3phase', 'openenergymonitor/emonesp', 'boblemaire/IoTaWatt', 'OpenEVSE/ESP8266_WiFi_v2.x' ]
+github_repo = ['openenergymonitor/emonth2', 'openenergymonitor/emonth', 'openenergymonitor/emonpi', 'openenergymonitor/emontx3', 'openenergymonitor/emontx-3phase', 'openenergymonitor/emonesp', 'boblemaire/IoTaWatt', 'OpenEVSE/ESP8266_WiFi_v2.x', 'openenergymonitor/mqtt-wifi-mqtt-single-channel-relay' ]
 #--------------------------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------------------------
@@ -53,6 +53,7 @@ emonpi_baud        = 38400
 emonesp_baud       = 115200
 iotawatt_baud      = 115200
 openevse_baud      = 115200
+wifi_relay_baud    = 115200
 #--------------------------------------------------------------------------------------------------
 
 
@@ -470,6 +471,7 @@ while(1):
   print bcolors.OKGREEN + '(e) emonESP' + bcolors.ENDC
   print bcolors.OKGREEN + '(w) IoTaWatt' + bcolors.ENDC
   print bcolors.OKGREEN + '(v) OpenEVSE' + bcolors.ENDC
+  print bcolors.OKGREEN + '(r) MQTT WiFi Relay' + bcolors.ENDC
 
   print '\n'
   #print bcolors.OKGREEN + '(r) for RFM69Pi' + bcolors.ENDC
@@ -580,7 +582,7 @@ while(1):
               serial_monitor(emonesp_baud)
     else:
       if raw_input("\nERROR: esptool not installed. Press Enter to return to menu>\n"):
-        serial_monitor(emonesp_baud)
+        serial_monitor(iotawatt_baud)
 
     # OpenEVSE
   elif nb=='v':
@@ -595,7 +597,23 @@ while(1):
               serial_monitor(emonesp_baud)
     else:
       if raw_input("\nERROR: esptool not installed. Press Enter to return to menu>\n"):
-        serial_monitor(emonesp_baud)
+        serial_monitor(openevse_baud)
+    os.system('clear') # clear terminal screen Linux specific
+
+    # WIFI mqtt relay
+  elif nb=='r':
+    print bcolors.OKGREEN + '\nWiFi MQTT relay Upload\n' + bcolors.ENDC
+    cmd = 'pip freeze --disable-pip-version-check | grep esptool'
+    if subprocess.call(cmd, shell=True) != ' ':
+      # If esptool is installed
+      cmd = 'esptool.py --baud 460800 write_flash --flash_freq 80m --flash_mode qio --flash_size 16m-c1 0x1000 ' + download_folder + 'mqtt-wifi-mqtt-single-channel-relay.bin'
+      print cmd
+      subprocess.call(cmd, shell=True)
+      if raw_input("\nDone MQTT relay upload. Press Enter to return to menu or (s) to view serial output (reset required)>\n"):
+              serial_monitor(emonesp_baud)
+    else:
+      if raw_input("\nERROR: esptool not installed. Press Enter to return to menu>\n"):
+        serial_monitor(wifi_relay_baud)
     os.system('clear') # clear terminal screen Linux specific
 
     # emonTH V1
