@@ -1,14 +1,14 @@
 # emonUpload
 
-Download latest OpenEnergyMonitor firmware via GitHub releases; upload and test. 
+Download latest OpenEnergyMonitor firmware via GitHub releases; upload and test.
 
 # Features
 
 - Auto downloads latest firmware via GitHub Releases
-- Upload attemps to upload bootloader via ISP (AVR MkII programmer) then uploads latest firmware sketch via serial UART
+- Upload attempts to upload bootloader via ISP (AVR MkII programmer) then uploads latest firmware sketch via serial UART
 - Auto detection of [USB to UART programmer](https://shop.openenergymonitor.com/programmer-usb-to-serial-uart/) serial port
 - Serial output display upon upload
-- Dedicated serial monitor (auto baudrate) 
+- Dedicated serial monitor (auto baudrate)
 - If RFM69Pi / emonPi receiver is detected RF test will be performed (check RF received)
 - [Unit testing via PlatformIO](http://docs.platformio.org/en/stable/plus/unit-testing.html)
 - Expandable to include any other git repositories
@@ -16,7 +16,7 @@ Download latest OpenEnergyMonitor firmware via GitHub releases; upload and test.
 
 Configured by default to work with:
 
-* emonTx 
+* emonTx
 * emonTH V1
 * emonTH V2
 * emonTx V3
@@ -25,7 +25,7 @@ Configured by default to work with:
 
 # Install
 
-- requires Python 2.7.9+ 
+- requires Python 2.7.9+
   -*use python virtual env if this version is not avaialble via your systems package maange*
 
 ```
@@ -78,24 +78,30 @@ Latest openenergymonitor/emontxfirmwarefirmware: V2.5.0
 
 
 -------------------------------------------------------------------------------
-OpenEnergyMonitor Upload V1.2.2
+OpenEnergyMonitor Firmware Upload V1.7.0
+
+Upload >
+
+(x) emonTx V3
+
+(i) emonPi
+
+(h) emonTH V2
+
+(3) 3-phase emonTx
+(e) emonESP
+(w) IoTaWatt
+(v) OpenEVSE
+(r) WiFi MQTT Relay
 
 
-Enter >
-
-(x) for emonTx
-
-(i) for emonPi
-
-(h) for emonTH V2
-(t) for emonTH V2 sensor test
+(o) old emonTH V1 upload
+(t) emonTH V2 sensor test
+(s) view Serial Debug
+(u) update firmware (web connection required)
 
 
-(o) for old emonTH V1
-(s) to view Serial
-(u) to check for updates
-(d) to enable DEBUG
-(e) to EXIT
+Enter lettercode for required function >
 ```
 
 
