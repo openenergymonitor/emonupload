@@ -16,14 +16,14 @@ from os.path import expanduser
 #--------------------------------------------------------------------------------------------------
 DEBUG       = 0
 UPDATE      = 1      # Update firmware releases at startup
-VERSION = 'V1.7.0'
+VERSION = 'V1.7.1'
 
 download_folder = 'latest/'
 repo_folder = 'repos/'
 uno_bootloader = 'bootloaders/optiboot_atmega328.hex'
 
 allowed_extensions = ['bin', 'hex']
-github_repo = ['openenergymonitor/emonth2', 'openenergymonitor/emonth', 'openenergymonitor/emonpi', 'openenergymonitor/emontx3', 'openenergymonitor/emontx-3phase', 'openenergymonitor/emonesp', 'boblemaire/IoTaWatt', 'OpenEVSE/ESP8266_WiFi_v2.x', 'openenergymonitor/mqtt-wifi-mqtt-single-channel-relay' ]
+github_repo = ['openenergymonitor/emonth2', 'openenergymonitor/emonth', 'openenergymonitor/emonpi', 'openenergymonitor/emontx3', 'openenergymonitor/emontx-3phase', 'openenergymonitor/emonesp', 'boblemaire/IoTaWatt', 'OpenEVSE/ESP8266_WiFi_v2.xw', 'openenergymonitor/mqtt-wifi-mqtt-single-channel-relay' ]
 #--------------------------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------------------------
@@ -422,7 +422,7 @@ if interent_connected('https://api.github.com'):
     # Update emonUpload (git pull)
     update_emonupload('upload_latest.py')
     # Clone or (update if already cloned) repos defined in github_repo list
-    repo_clone_update(github_repo, repo_folder)
+    # repo_clone_update(github_repo, repo_folder)
     print '\n'
 
     # Update firware releases for github releases
@@ -606,7 +606,7 @@ while(1):
     cmd = 'pip freeze --disable-pip-version-check | grep esptool'
     if subprocess.call(cmd, shell=True) != ' ':
       # If esptool is installed
-      cmd = 'esptool.py --baud 460800 write_flash --flash_freq 80m --flash_mode qio --flash_size 16m-c1 0x1000 ' + download_folder + 'mqtt-wifi-mqtt-single-channel-relay.bin'
+      cmd = 'esptool.py --baud 460800 write_flash --flash_freq 80m --flash_mode qio --flash_size 16m-c1 0x1000 ' + download_folder + 'openenergymonitor-mqtt-wifi-mqtt-single-channel-relay.bin'
       print cmd
       subprocess.call(cmd, shell=True)
       if raw_input("\nDone MQTT relay upload. Press Enter to return to menu or (s) to view serial output (reset required)>\n"):
