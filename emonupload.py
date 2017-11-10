@@ -15,8 +15,8 @@ from os.path import expanduser
 
 #--------------------------------------------------------------------------------------------------
 DEBUG       = 0
-UPDATE      = 1      # Update firmware releases at startup
-VERSION = 'V1.7.1'
+UPDATE      = 0      # Update firmware releases at startup
+VERSION = 'V1.8.0'
 
 download_folder = 'latest/'
 repo_folder = 'repos/'
@@ -475,6 +475,7 @@ while(1):
 
   print '\n'
   #print bcolors.OKGREEN + '(r) for RFM69Pi' + bcolors.ENDC
+  print bcolors.OKBLUE + '(c) to clear (erase) ESP8266 flash' + bcolors.ENDC
   print bcolors.OKBLUE + '(o) old emonTH V1 upload' + bcolors.ENDC
   print bcolors.OKBLUE + '(t) emonTH V2 sensor test' + bcolors.ENDC
   print bcolors.HEADER + '(s) view Serial Debug' + bcolors.ENDC
@@ -610,6 +611,22 @@ while(1):
       print cmd
       subprocess.call(cmd, shell=True)
       if raw_input("\nDone MQTT relay upload. Press Enter to return to menu or (s) to view serial output (reset required)>\n"):
+              serial_monitor(emonesp_baud)
+    else:
+      if raw_input("\nERROR: esptool not installed. Press Enter to return to menu>\n"):
+        serial_monitor(wifi_relay_baud)
+    os.system('clear') # clear terminal screen Linux specific
+
+    # erase ESP8266 flash
+  elif nb=='c':
+    print bcolors.OKGREEN + '\nErase ESP8266 flash\n' + bcolors.ENDC
+    cmd = 'pip freeze --disable-pip-version-check | grep esptool'
+    if subprocess.call(cmd, shell=True) != ' ':
+      # If esptool is installed
+      cmd = 'esptool.py erase_flash'
+      print cmd
+      subprocess.call(cmd, shell=True)
+      if raw_input("\nDone erase ESP8266 flash, press enter to return to menu\n"):
               serial_monitor(emonesp_baud)
     else:
       if raw_input("\nERROR: esptool not installed. Press Enter to return to menu>\n"):
