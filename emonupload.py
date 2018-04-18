@@ -430,23 +430,27 @@ if interent_connected('https://api.github.com'):
             current_repo = github_repo[i]
             resp = get_releases_info(current_repo)
             if 'assets' in resp:
+                
                 assets = resp['assets']
-                if len(assets) > 0:
+                    
+                if len(assets) == 1:
                     download_url = assets[0]['browser_download_url']
                     extension = download_url.split('.')[-1]
                     if (DEBUG): print download_url
                     if extension in allowed_extensions and UPDATE==True:
                         file_download(download_url, current_repo, download_folder)
+                
+                # if multiple rekease files then download them with their file name appended e.g. openenergymonitor-emonesp-firmware.bin and openenergymonitor-emonesp-spiffs.bin
                 if len(assets) > 1:
-                        # If more than one release asset check to see if it's ESP spiffs filesyste, if so then download it with name
-                        if assets[1]['name'] == 'spiffs.bin':
-                                if (DEBUG): print "Downloading spiffs....."
-                                extension = download_url.split('.')[-1]
-                                download_url = assets[1]['browser_download_url']
-                                if (DEBUG): print download_url
-                                if (DEBUG): print current_repo
-                                if extension in allowed_extensions and UPDATE==True:
-                                    file_download(download_url, current_repo + '-spiffs', download_folder)
+                        for i in range(len(assets)):
+                            if (DEBUG): print "Downloading multiple release" + str(i) + " with name "+ assets[i]['name']
+                            extension = download_url.split('.')[-1]
+                            download_url = assets[i]['browser_download_url']
+                            if (DEBUG): print download_url
+                            if (DEBUG): print current_repo
+                            if extension in allowed_extensions and UPDATE==True:
+                                file_download(download_url, current_repo + "-" + assets[i]['name'].split('.')[-0], download_folder)
+
 
         time.sleep(5)
 
