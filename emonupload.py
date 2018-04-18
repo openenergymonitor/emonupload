@@ -470,11 +470,13 @@ while(1):
     print bcolors.OKGREEN + '(i) emonPi\n' + bcolors.ENDC
     print bcolors.OKGREEN + '(h) emonTH V2\n' + bcolors.ENDC
 
-    # print '\n'
+    print '\n'
     print bcolors.OKGREEN + '(3) 3-phase emonTx' + bcolors.ENDC
     print bcolors.OKGREEN + '(e) emonESP' + bcolors.ENDC
     print bcolors.OKGREEN + '(w) IoTaWatt' + bcolors.ENDC
-    print bcolors.OKGREEN + '(v) OpenEVSE' + bcolors.ENDC
+    # print '\n'
+    print bcolors.OKGREEN + '(v) WiFi OpenEVSE/EmonEVSE' + bcolors.ENDC
+    print bcolors.OKGREEN + '(1) Controller EmonEVSE' + bcolors.ENDC
     print bcolors.OKGREEN + '(r) MQTT WiFi Relay' + bcolors.ENDC
 
     print '\n'
@@ -589,9 +591,9 @@ while(1):
             if raw_input("\nERROR: esptool not installed. Press Enter to return to menu>\n"):
                 serial_monitor(iotawatt_baud)
 
-        # OpenEVSE
+        # OpenEVSE Wifi
     elif nb=='v':
-        print bcolors.OKGREEN + '\nOpenEVSE Upload\n' + bcolors.ENDC
+        print bcolors.OKGREEN + '\nOpenEVSE WiFi Upload\n' + bcolors.ENDC
         cmd = 'pip freeze --disable-pip-version-check | grep esptool'
         if subprocess.call(cmd, shell=True) != ' ':
             # If esptool is installed
@@ -604,6 +606,21 @@ while(1):
             if raw_input("\nERROR: esptool not installed. Press Enter to return to menu>\n"):
                 serial_monitor(openevse_baud)
         os.system('clear') # clear terminal screen Linux specific
+        
+
+    # EmonESP controller
+    elif nb=='v':
+        print bcolors.OKGREEN + '\nOpenEVSE WiFi Upload\n' + bcolors.ENDC
+        cmd = 'pip freeze --disable-pip-version-check | grep esptool'
+        if subprocess.call(cmd, shell=True) != ' ':
+            # If esptool is installed
+            cmd = 'avrdude -p atmega328p -c usbasp -P usb -e -U flash:w:' + download_folder + 'openenergymonitor-open_evse-emonevse.bin'
+            print cmd
+            subprocess.call(cmd, shell=True)
+            if raw_input("\nDone EmonEVSE controller upload. Press Enter to return to menu\n"):
+
+        os.system('clear') # clear terminal screen Linux specific
+        
 
         # WIFI mqtt relay
     elif nb=='r':
