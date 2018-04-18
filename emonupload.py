@@ -99,23 +99,24 @@ def interent_connected(url):
 # Update emonupload
 #--------------------------------------------------------------------------------------------------
 def update_emonupload(filename):
-    if (DEBUG): print 'Checking for emonUpload updates...'
-    dir_path=os.path.dirname(os.path.realpath(filename))
-    if (DEBUG): print 'git abs path' + dir_path
-    g = git.cmd.Git(dir_path)
-    r = g.pull()
-    if (DEBUG): print g
-    if r != 'Already up-to-date.':
-        print r
-        print bcolors.WARNING + 'UPDATE FOUND....emonUpload restart required\nEXITING...' + bcolors.ENDC
-        os.system("rm -rf " + download_folder)
-        os.system("rm -rf " + repo_folder)
-        if (DEBUG): raw_input("\nPress Enter to continue...\n")
-        quit()
-    else:
-        print bcolors.OKGREEN + 'Already up-to-date: emonUpload' + bcolors.ENDC
-        if (DEBUG): raw_input("\nPress Enter to continue...\n")
-    return r
+    # if (DEBUG): print 'Checking for emonUpload updates...'
+    # dir_path=os.path.dirname(os.path.realpath(filename))
+    # if (DEBUG): print 'git abs path' + dir_path
+    # g = git.cmd.Git(dir_path)
+    # r = g.pull()
+    # if (DEBUG): print g
+    # if r != 'Already up-to-date.':
+    #     print r
+    #     print bcolors.WARNING + 'UPDATE FOUND....emonUpload restart required\nEXITING...' + bcolors.ENDC
+    #     os.system("rm -rf " + download_folder)
+    #     os.system("rm -rf " + repo_folder)
+    #     if (DEBUG): raw_input("\nPress Enter to continue...\n")
+    #     quit()
+    # else:
+    #     print bcolors.OKGREEN + 'Already up-to-date: emonUpload' + bcolors.ENDC
+    #     if (DEBUG): raw_input("\nPress Enter to continue...\n")
+    # return r
+    return
 #--------------------------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------------------------
@@ -476,7 +477,7 @@ while(1):
     print bcolors.OKGREEN + '(w) IoTaWatt' + bcolors.ENDC
     # print '\n'
     print bcolors.OKGREEN + '(v) WiFi OpenEVSE/EmonEVSE' + bcolors.ENDC
-    print bcolors.OKGREEN + '(1) Controller EmonEVSE' + bcolors.ENDC
+    print bcolors.OKGREEN + '(z) Controller EmonEVSE' + bcolors.ENDC
     print bcolors.OKGREEN + '(r) MQTT WiFi Relay' + bcolors.ENDC
 
     print '\n'
@@ -609,16 +610,15 @@ while(1):
         
 
     # EmonESP controller
-    elif nb=='v':
+    elif nb=='z':
         print bcolors.OKGREEN + '\nOpenEVSE WiFi Upload\n' + bcolors.ENDC
         cmd = 'pip freeze --disable-pip-version-check | grep esptool'
         if subprocess.call(cmd, shell=True) != ' ':
             # If esptool is installed
-            cmd = 'avrdude -p atmega328p -c usbasp -P usb -e -U flash:w:' + download_folder + 'openenergymonitor-open_evse-emonevse.bin'
+            cmd = 'avrdude -p atmega328p -c usbasp -P usb -e -U flash:w:' + download_folder + 'openenergymonitor-open_evse-emonevse.hex'
             print cmd
             subprocess.call(cmd, shell=True)
-            if raw_input("\nDone EmonEVSE controller upload. Press Enter to return to menu\n"):
-
+            raw_input("\nDone EmonEVSE controller upload. Press Enter to return to menu\n")
         os.system('clear') # clear terminal screen Linux specific
         
 
