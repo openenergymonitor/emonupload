@@ -16,7 +16,7 @@ from os.path import expanduser
 #--------------------------------------------------------------------------------------------------
 DEBUG             = 0
 UPDATE            = 1            # Update firmware releases at startup
-VERSION = 'V1.9.0'
+VERSION = 'V1.9.1'
 
 download_folder = 'latest/'
 repo_folder = 'repos/'
@@ -617,7 +617,7 @@ while(1):
         cmd = 'pip freeze --disable-pip-version-check | grep esptool'
         if subprocess.call(cmd, shell=True) != ' ':
             # If esptool is installed
-            cmd = 'avrdude -p atmega328p -c usbasp -P usb -e -U flash:w:' + download_folder + 'openenergymonitor-open_evse-emonevse.hex'
+            cmd = 'sudo avrdude -p atmega328p -c usbasp -P usb -e -U flash:w:' + download_folder + 'openenergymonitor-open_evse-emonevse.hex'
             print cmd
             subprocess.call(cmd, shell=True)
             raw_input("\nDone EmonEVSE controller upload. Press Enter to return to menu\n")
@@ -629,7 +629,7 @@ while(1):
         cmd = 'pip freeze --disable-pip-version-check | grep esptool'
         if subprocess.call(cmd, shell=True) != ' ':
             # If esptool is installed
-            cmd = 'avrdude -p atmega328p -c usbasp -P usb -e -U flash:w:' + download_folder + 'openenergymonitor-open_evse-openevse.hex'
+            cmd = 'sudo avrdude -p atmega328p -c usbasp -P usb -e -U flash:w:' + download_folder + 'openenergymonitor-open_evse-openevse.hex'
             print cmd
             subprocess.call(cmd, shell=True)
             raw_input("\nDone OpenEVSE controller upload. Press Enter to return to menu\n")
