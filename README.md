@@ -11,7 +11,7 @@ Download latest OpenEnergyMonitor firmware via GitHub releases; upload and test.
 - Dedicated serial monitor (auto baudrate)
 - If RFM69Pi / emonPi receiver is detected RF test will be performed (check RF received)
 - [Unit testing via PlatformIO](http://docs.platformio.org/en/stable/plus/unit-testing.html)
-- Expandable to include any other git repositories
+- Expandable to include any other Git repositories
 
 
 Configured by default to work with:
@@ -26,7 +26,7 @@ Configured by default to work with:
 # Install
 
 - requires Python 2.7.9+
-  -*use python virtual env if this version is not avaialble via your systems package maange*
+  -*use python virtual env if this version is not available via your system package manager*
 
 ```
 $ git clone https://github.com/openenergymonitor/emonupload
@@ -130,9 +130,9 @@ $ python --version
 Python 2.7.9
 ```
 
-After shell has been reloaded `pyenv` can just be called directly without it's full path `~/.pyenv/bin/pyenv` do to the lines addded to bashrc.
+After shell has been reloaded `pyenv` can just be called directly without it's full path `~/.pyenv/bin/pyenv` do to the lines added to bashrc.
 
-Local python version 2.79 will be used for `emonupload` this is defined by `.python-version` in root project folder
+Local python version 2.79 will be used for `emonupload`. This is defined by `.python-version` in the root project folder.
 
 For more info on pyenv python virtual enviroment: https://github.com/yyuu/pyenv
 
