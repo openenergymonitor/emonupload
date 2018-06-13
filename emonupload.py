@@ -16,14 +16,14 @@ from os.path import expanduser
 #--------------------------------------------------------------------------------------------------
 DEBUG             = 0
 UPDATE            = 1            # Update firmware releases at startup
-VERSION = 'V1.9.1'
+VERSION = 'V1.9.3'
 
 download_folder = 'latest/'
 repo_folder = 'repos/'
 uno_bootloader = 'bootloaders/optiboot_atmega328.hex'
 
 allowed_extensions = ['bin', 'hex']
-github_repo = ['openenergymonitor/emonth2', 'openenergymonitor/emonth', 'openenergymonitor/emonpi', 'openenergymonitor/emontx3', 'openenergymonitor/emontx-3phase', 'openenergymonitor/emonesp', 'boblemaire/IoTaWatt', 'OpenEVSE/ESP8266_WiFi_v2.x', 'mqtt-wifi-mqtt-single-channel-relay', 'openenergymonitor/open_evse' ]
+github_repo = ['openenergymonitor/emonth2', 'openenergymonitor/emonth', 'openenergymonitor/emonpi', 'openenergymonitor/emontx3', 'openenergymonitor/emontx-3phase', 'openenergymonitor/emonesp', 'boblemaire/IoTaWatt', 'OpenEVSE/ESP8266_WiFi_v2.x', 'openenergymonitor/mqtt-wifi-mqtt-single-channel-relay', 'openenergymonitor/open_evse' ]
 #--------------------------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------------------------
@@ -133,38 +133,38 @@ def update_emonupload(filename):
 #--------------------------------------------------------------------------------------------------
 # Clone / update github repos into repo folder
 #--------------------------------------------------------------------------------------------------
-def repo_clone_update(github_repo, repo_folder):
-    for i in range(len(github_repo)):
-        remote_url = 'https://github.com/' + github_repo[i] + '.git'
-        repo_dir_path=repo_folder + github_repo[i].split('/')[-2] + '-' + github_repo[i].split('/')[-1]    # e.g repos/openenergymonitor-emonth2
-        if os.path.isdir(repo_dir_path):
-            if (DEBUG): print '\nDEBUG: Repo ' + repo_dir_path + ' already exists checking for updates...'
-            if os.path.isfile(repo_dir_path + '/README.md'):
-                repo_dir_abs_path=os.path.dirname(os.path.realpath(repo_dir_path + '/README.md'))
-                if (DEBUG): print repo_dir_abs_path
-            if os.path.isfile(repo_dir_path + '/Readme.md'):
-                repo_dir_abs_path=os.path.dirname(os.path.realpath(repo_dir_path + '/Readme.md'))
-                if (DEBUG): print repo_dir_abs_path
-            if os.path.isfile(repo_dir_path + '/readme.md'):
-                repo_dir_abs_path=os.path.dirname(os.path.realpath(repo_dir_path + '/readme.md'))
-                if (DEBUG): print repo_dir_abs_path
-
-            # git pull origin master
-            repo = git.Repo(repo_dir_abs_path)
-            repo.git.checkout('master')
-            r = repo.git.pull(remote_url)
-            if r != 'Already up-to-date.':
-                print bcolors.WARNING + 'Updating repo: ' + repo_dir_path + bcolors.ENDC
-                print r
-            else: print bcolors.OKGREEN + r + ' ' + repo_dir_path + bcolors.ENDC
-        # If local repo does not exist then clone it
-        else:
-            print bcolors.OKGREEN + ' Cloning ' + remote_url + bcolors.ENDC
-            if (DEBUG): print '\nDEBUG: Cloning ' + github_repo[i] + '\nFrom: ' + remote_url + '\nInto: ' + repo_dir_path
-            cmd = 'git clone ' + remote_url + ' ' + repo_dir_path
-            subprocess.call(cmd, shell=True)
-    if (DEBUG): raw_input("\nPress Enter to continue...\n")
-    return
+# def repo_clone_update(github_repo, repo_folder):
+#     for i in range(len(github_repo)):
+#         remote_url = 'https://github.com/' + github_repo[i] + '.git'
+#         repo_dir_path=repo_folder + github_repo[i].split('/')[-2] + '-' + github_repo[i].split('/')[-1]    # e.g repos/openenergymonitor-emonth2
+#         if os.path.isdir(repo_dir_path):
+#             if (DEBUG): print '\nDEBUG: Repo ' + repo_dir_path + ' already exists checking for updates...'
+#             if os.path.isfile(repo_dir_path + '/README.md'):
+#                 repo_dir_abs_path=os.path.dirname(os.path.realpath(repo_dir_path + '/README.md'))
+#                 if (DEBUG): print repo_dir_abs_path
+#             if os.path.isfile(repo_dir_path + '/Readme.md'):
+#                 repo_dir_abs_path=os.path.dirname(os.path.realpath(repo_dir_path + '/Readme.md'))
+#                 if (DEBUG): print repo_dir_abs_path
+#             if os.path.isfile(repo_dir_path + '/readme.md'):
+#                 repo_dir_abs_path=os.path.dirname(os.path.realpath(repo_dir_path + '/readme.md'))
+#                 if (DEBUG): print repo_dir_abs_path
+#
+#             # git pull origin master
+#             repo = git.Repo(repo_dir_abs_path)
+#             repo.git.checkout('master')
+#             r = repo.git.pull(remote_url)
+#             if r != 'Already up-to-date.':
+#                 print bcolors.WARNING + 'Updating repo: ' + repo_dir_path + bcolors.ENDC
+#                 print r
+#             else: print bcolors.OKGREEN + r + ' ' + repo_dir_path + bcolors.ENDC
+#         # If local repo does not exist then clone it
+#         else:
+#             print bcolors.OKGREEN + ' Cloning ' + remote_url + bcolors.ENDC
+#             if (DEBUG): print '\nDEBUG: Cloning ' + github_repo[i] + '\nFrom: ' + remote_url + '\nInto: ' + repo_dir_path
+#             cmd = 'git clone ' + remote_url + ' ' + repo_dir_path
+#             subprocess.call(cmd, shell=True)
+#     if (DEBUG): raw_input("\nPress Enter to continue...\n")
+    # return
 
 
 
@@ -249,10 +249,15 @@ def rfm(rfm_port, rfm_baud, rfm_group, rfm_freq):
 # Burn Bootloader
 #--------------------------------------------------------------------------------------------------
 def burn_bootloader(bootloader_path):
-    print bcolors.OKGREEN + '\nBurning Bootloader\n' + bcolors.ENDC
+    print bcolors.OKGREEN + '\nBurning Bootloader..try avrispmkII\n' + bcolors.ENDC
     cmd = 'sudo avrdude -p atmega328p -c avrispmkII -P usb -e -U efuse:w:0x05:m -U hfuse:w:0xD6:m -U lfuse:w:0xFF:m -U flash:w:' + bootloader_path + ':i -Ulock:w:0x0f:m'
     print cmd
     subprocess.call(cmd, shell=True)
+    print bcolors.OKGREEN + '\nBurning Bootloader..try usbasp\n' + bcolors.ENDC
+    cmd = 'sudo avrdude -p atmega328p -c usbasp -P usb -e -U efuse:w:0x05:m -U hfuse:w:0xD6:m -U lfuse:w:0xFF:m -U flash:w:' + bootloader_path + ':i -Ulock:w:0x0f:m'
+    print cmd
+    subprocess.call(cmd, shell=True)
+
     return;
 #--------------------------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------------------------
@@ -430,16 +435,16 @@ if interent_connected('https://api.github.com'):
             current_repo = github_repo[i]
             resp = get_releases_info(current_repo)
             if 'assets' in resp:
-                
+
                 assets = resp['assets']
-                    
+
                 if len(assets) == 1:
                     download_url = assets[0]['browser_download_url']
                     extension = download_url.split('.')[-1]
                     if (DEBUG): print download_url
                     if extension in allowed_extensions and UPDATE==True:
                         file_download(download_url, current_repo, download_folder)
-                
+
                 # if multiple rekease files then download them with their file name appended e.g. openenergymonitor-emonesp-firmware.bin and openenergymonitor-emonesp-spiffs.bin
                 if len(assets) > 1:
                         for i in range(len(assets)):
@@ -609,7 +614,7 @@ while(1):
             if raw_input("\nERROR: esptool not installed. Press Enter to return to menu>\n"):
                 serial_monitor(openevse_baud)
         os.system('clear') # clear terminal screen Linux specific
-        
+
 
     # EmonEVSE controller
     elif nb=='z':
@@ -622,7 +627,7 @@ while(1):
             subprocess.call(cmd, shell=True)
             raw_input("\nDone EmonEVSE controller upload. Press Enter to return to menu\n")
         os.system('clear') # clear terminal screen Linux specific
-        
+
     # OpenEVSE controller
     elif nb=='p':
         print bcolors.OKGREEN + '\nOpenEVSE Controller Upload (via ISP)\n' + bcolors.ENDC
@@ -634,7 +639,7 @@ while(1):
             subprocess.call(cmd, shell=True)
             raw_input("\nDone OpenEVSE controller upload. Press Enter to return to menu\n")
         os.system('clear') # clear terminal screen Linux specific
-        
+
 
         # WIFI mqtt relay
     elif nb=='r':
