@@ -9,14 +9,14 @@
 # GNU GPL V3
 
 # $ pip install -r requirements.txt
-import serial, sys, string, commands, time, subprocess, os, urllib2, requests, urllib, json, git
+import serial, sys, string, commands, time, subprocess, os, urllib2, requests, urllib, json
 from subprocess import Popen, PIPE, STDOUT
 from os.path import expanduser
 
 #--------------------------------------------------------------------------------------------------
 DEBUG             = 0
 UPDATE            = 1            # Update firmware releases at startup
-VERSION = 'V1.9.3'
+VERSION = 'V1.9.4'
 
 download_folder = 'latest/'
 repo_folder = 'repos/'
@@ -94,80 +94,6 @@ def interent_connected(url):
         connected = True
     return connected
 #-------------------------------------------------------------------------------------------------
-
-#--------------------------------------------------------------------------------------------------
-# Update emonupload
-#--------------------------------------------------------------------------------------------------
-def update_emonupload(filename):
-    if (DEBUG): print 'Checking for emonUpload updates...'
-    dir_path=os.path.dirname(os.path.realpath(filename))
-    if (DEBUG): print 'git abs path' + dir_path
-    g = git.cmd.Git(dir_path)
-    r = g.pull()
-    if (DEBUG): print g
-    if r != 'Already up-to-date.':
-        print r
-        print bcolors.WARNING + 'UPDATE FOUND....emonUpload restart required\nEXITING...' + bcolors.ENDC
-        os.system("rm -rf " + download_folder)
-        os.system("rm -rf " + repo_folder)
-        if (DEBUG): raw_input("\nPress Enter to continue...\n")
-        quit()
-    else:
-        print bcolors.OKGREEN + 'Already up-to-date: emonUpload' + bcolors.ENDC
-        if (DEBUG): raw_input("\nPress Enter to continue...\n")
-    return r
-#--------------------------------------------------------------------------------------------------
-
-#--------------------------------------------------------------------------------------------------
-# Check Linux package is installed$ pip install -r requirements.txt -
-# not used requires python-apt
-#--------------------------------------------------------------------------------------------------
-# def check_package(package_name):
-#     cache = apt.Cache()
-#     if cache[package_name].is_installed:
-#         print bcolors.OKGREEN + package_name + " is installed" + bcolors.ENDC
-#     else:
-#         print bcolors.FAIL + 'FATAL ERROR: ' + package_name + " is NOT installed" + bcolors.ENDC
-#         quit()
-
-#--------------------------------------------------------------------------------------------------
-# Clone / update github repos into repo folder
-#--------------------------------------------------------------------------------------------------
-# def repo_clone_update(github_repo, repo_folder):
-#     for i in range(len(github_repo)):
-#         remote_url = 'https://github.com/' + github_repo[i] + '.git'
-#         repo_dir_path=repo_folder + github_repo[i].split('/')[-2] + '-' + github_repo[i].split('/')[-1]    # e.g repos/openenergymonitor-emonth2
-#         if os.path.isdir(repo_dir_path):
-#             if (DEBUG): print '\nDEBUG: Repo ' + repo_dir_path + ' already exists checking for updates...'
-#             if os.path.isfile(repo_dir_path + '/README.md'):
-#                 repo_dir_abs_path=os.path.dirname(os.path.realpath(repo_dir_path + '/README.md'))
-#                 if (DEBUG): print repo_dir_abs_path
-#             if os.path.isfile(repo_dir_path + '/Readme.md'):
-#                 repo_dir_abs_path=os.path.dirname(os.path.realpath(repo_dir_path + '/Readme.md'))
-#                 if (DEBUG): print repo_dir_abs_path
-#             if os.path.isfile(repo_dir_path + '/readme.md'):
-#                 repo_dir_abs_path=os.path.dirname(os.path.realpath(repo_dir_path + '/readme.md'))
-#                 if (DEBUG): print repo_dir_abs_path
-#
-#             # git pull origin master
-#             repo = git.Repo(repo_dir_abs_path)
-#             repo.git.checkout('master')
-#             r = repo.git.pull(remote_url)
-#             if r != 'Already up-to-date.':
-#                 print bcolors.WARNING + 'Updating repo: ' + repo_dir_path + bcolors.ENDC
-#                 print r
-#             else: print bcolors.OKGREEN + r + ' ' + repo_dir_path + bcolors.ENDC
-#         # If local repo does not exist then clone it
-#         else:
-#             print bcolors.OKGREEN + ' Cloning ' + remote_url + bcolors.ENDC
-#             if (DEBUG): print '\nDEBUG: Cloning ' + github_repo[i] + '\nFrom: ' + remote_url + '\nInto: ' + repo_dir_path
-#             cmd = 'git clone ' + remote_url + ' ' + repo_dir_path
-#             subprocess.call(cmd, shell=True)
-#     if (DEBUG): raw_input("\nPress Enter to continue...\n")
-    # return
-
-
-
 
 #--------------------------------------------------------------------------------------------------
 # Get latest GitHub release info using GitHub releases API
@@ -423,12 +349,6 @@ RFM = rfm(rfm_port, rfm_baud, rfm_group, rfm_freq)
 if interent_connected('https://api.github.com'):
 
     if (UPDATE):    # If startup update is requested
-
-        # Update emonUpload (git pull)
-        update_emonupload('upload_latest.py')
-        # Clone or (update if already cloned) repos defined in github_repo list
-        # repo_clone_update(github_repo, repo_folder)
-        print '\n'
 
         # Update firware releases for github releases
         for i in range(len(github_repo)):
