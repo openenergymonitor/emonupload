@@ -111,7 +111,9 @@ Enter lettercode for required function >
 
 ```
 sudo apt-get update
-sudo apt-get install git python-pip make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev -y
+sudo apt-get install -y make build-essential libssl-dev zlib1g-dev libbz2-dev \
+libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev \
+xz-utils tk-dev libffi-dev liblzma-dev
 sudo pip install virtualenvwrapper
 
 git clone https://github.com/yyuu/pyenv.git ~/.pyenv
@@ -132,7 +134,7 @@ Python 2.7.9
 
 After shell has been reloaded `pyenv` can just be called directly without it's full path `~/.pyenv/bin/pyenv` do to the lines added to bashrc.
 
-Local python version 2.79 will be used for `emonupload`. This is defined by `.python-version` in the root project folder.
+Local python version 2.7.9 will be used for `emonupload`. This is defined by `.python-version` in the root project folder.
 
 For more info on pyenv python virtual enviroment: https://github.com/yyuu/pyenv
 
