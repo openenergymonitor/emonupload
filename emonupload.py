@@ -176,11 +176,11 @@ def rfm(rfm_port, rfm_baud, rfm_group, rfm_freq):
 #--------------------------------------------------------------------------------------------------
 def burn_bootloader(bootloader_path):
     print bcolors.OKGREEN + '\nBurning Bootloader..try avrispmkII\n' + bcolors.ENDC
-    cmd = 'sudo avrdude -p atmega328p -c avrispmkII -P usb -e -U efuse:w:0x05:m -U hfuse:w:0xD6:m -U lfuse:w:0xFF:m -U flash:w:' + bootloader_path + ':i -Ulock:w:0x0f:m'
+    cmd = ' avrdude -p atmega328p -c avrispmkII -P usb -e -U efuse:w:0x05:m -U hfuse:w:0xD6:m -U lfuse:w:0xFF:m -U flash:w:' + bootloader_path + ':i -Ulock:w:0x0f:m'
     print cmd
     subprocess.call(cmd, shell=True)
     print bcolors.OKGREEN + '\nBurning Bootloader..try usbasp\n' + bcolors.ENDC
-    cmd = 'sudo avrdude -p atmega328p -c usbasp -P usb -e -U efuse:w:0x05:m -U hfuse:w:0xD6:m -U lfuse:w:0xFF:m -U flash:w:' + bootloader_path + ':i -Ulock:w:0x0f:m'
+    cmd = ' avrdude -p atmega328p -c usbasp -P usb -e -U efuse:w:0x05:m -U hfuse:w:0xD6:m -U lfuse:w:0xFF:m -U flash:w:' + bootloader_path + ':i -Ulock:w:0x0f:m'
     print cmd
     subprocess.call(cmd, shell=True)
 
@@ -294,7 +294,7 @@ def serial_monitor(baud):
     os.system('clear') # clear terminal screen Linux specific
     if os.path.isdir(expanduser('~/.platformio')):
         if DEBUG: print bcolors.OKGREEN + 'PlatformIO is installed' + bcolors.ENDC
-        cmd = 'sudo pio device monitor -b' + str(baud)
+        cmd = ' pio device monitor -b' + str(baud)
         subprocess.call(cmd, shell=True)
         return True
     else:
@@ -542,7 +542,7 @@ while(1):
         cmd = 'pip freeze --disable-pip-version-check | grep esptool'
         if subprocess.call(cmd, shell=True) != ' ':
             # If esptool is installed
-            cmd = 'sudo avrdude -p atmega328p -c usbasp -P usb -e -U flash:w:' + download_folder + 'openenergymonitor-open_evse-emonevse.hex'
+            cmd = ' avrdude -p atmega328p -c usbasp -P usb -e -U flash:w:' + download_folder + 'openenergymonitor-open_evse-emonevse.hex'
             print cmd
             subprocess.call(cmd, shell=True)
             raw_input("\nDone EmonEVSE controller upload. Press Enter to return to menu\n")
@@ -554,7 +554,7 @@ while(1):
         cmd = 'pip freeze --disable-pip-version-check | grep esptool'
         if subprocess.call(cmd, shell=True) != ' ':
             # If esptool is installed
-            cmd = 'sudo avrdude -p atmega328p -c usbasp -P usb -e -U flash:w:' + download_folder + 'openenergymonitor-open_evse-openevse.hex'
+            cmd = ' avrdude -p atmega328p -c usbasp -P usb -e -U flash:w:' + download_folder + 'openenergymonitor-open_evse-openevse.hex'
             print cmd
             subprocess.call(cmd, shell=True)
             raw_input("\nDone OpenEVSE controller upload. Press Enter to return to menu\n")
@@ -647,7 +647,7 @@ while(1):
     #     if shutdown_choice == 'y':
     #         print bcolors.FAIL + '\nSystem Shutdown....in 10s. [CTRL + C] to cancel' + bcolors.ENDC
     #         time.sleep(10)
-    #         cmd = 'sudo halt'
+    #         cmd = ' halt'
     #         subprocess.call(cmd, shell=True)
     #         sys.exit
     #     if shutdown_choice == 'n':
