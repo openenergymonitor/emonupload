@@ -29,6 +29,7 @@ github_repo = ['openenergymonitor/emonth2', 'openenergymonitor/emonth', 'openene
 #--------------------------------------------------------------------------------------------------
 # RFM settings
 #--------------------------------------------------------------------------------------------------
+RFM = False
 rfm_group = '210g'
 rfm_freq =    '4b'
 rfm_port =    '/dev/ttyAMA0'
@@ -352,7 +353,8 @@ def serial_menu():
 os.system('clear') # clear terminal screen Linux specific
 
 # Setup RFM
-RFM = rfm(rfm_port, rfm_baud, rfm_group, rfm_freq)
+if (RFM != False):
+    RFM = rfm(rfm_port, rfm_baud, rfm_group, rfm_freq)
 
 #--------------------------------------------------------------------------------------------------
 # Update Firmware - download latest releases
