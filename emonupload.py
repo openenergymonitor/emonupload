@@ -15,7 +15,7 @@ from os.path import expanduser
 
 #--------------------------------------------------------------------------------------------------
 DEBUG             = 0
-UPDATE            = 0            # Update firmware releases at startup
+UPDATE            = 1            # Update firmware releases at startup
 VERSION = 'V2.0.0'
 
 download_folder = 'latest/'
