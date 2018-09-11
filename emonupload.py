@@ -16,7 +16,7 @@ from os.path import expanduser
 #--------------------------------------------------------------------------------------------------
 DEBUG             = 0
 UPDATE            = 1            # Update firmware releases at startup
-VERSION = 'V1.9.4'
+VERSION = 'V2.0.0'
 
 download_folder = 'latest/'
 repo_folder = 'repos/'
@@ -55,8 +55,6 @@ iotawatt_baud            = 115200
 openevse_baud            = 115200
 wifi_relay_baud        = 115200
 #--------------------------------------------------------------------------------------------------
-
-
 # Terminal colours
 class bcolors:
     HEADER = '\033[95m'
@@ -67,6 +65,21 @@ class bcolors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+
+# Autodetect ttyUSB port 0 - 12 ttyUSB[x]
+serial_port = False
+for i in range(12):
+    try_port='/dev/ttyUSB' +str(i)
+    try:
+        ser = serial.Serial(port=try_port, timeout=1)
+        ser.read()
+        ser.close()
+        print bcolors.OKGREEN + "Found serial programmer on " + try_port + bcolors.ENDC
+        serial_port = try_port
+        break
+    except serial.serialutil.SerialException:
+        if (DEBUG): print 'ERROR: USB serial programmer NOT found on ' + try_port + bcolors.ENDC
+
 
 # Check download folder exists if not create
 if not os.path.isdir(download_folder):
@@ -288,18 +301,16 @@ def pio_unit_test(test_path, env):
 
 
 #--------------------------------------------------------------------------------------------------
-# PlatformIO Serial Monitor
+# Serial Monitor
 # --------------------------------------------------------------------------------------------------
-def serial_monitor(baud):
-    os.system('clear') # clear terminal screen Linux specific
-    if os.path.isdir(expanduser('~/.platformio')):
-        if DEBUG: print bcolors.OKGREEN + 'PlatformIO is installed' + bcolors.ENDC
-        cmd = ' pio device monitor -b' + str(baud)
-        subprocess.call(cmd, shell=True)
-        return True
-    else:
-        print bcolors.FAIL + 'Error PlatformIO avrdude is NOT installed' + bcolors.ENDC
-        return False
+def serial_monitor(baud,port):
+    # os.system('clear') # clear terminal screen Linux specific
+    # picocom exit after x ms
+    # excape chracter is [CTRL + c] then [CTRL + q] to quit
+    # picocom v3.2a
+    cmd = 'picocom -x 15000 -e c -b' + str(baud) + ' '+ str(port)
+    subprocess.call(cmd, shell=True)
+    return True
 # --------------------------------------------------------------------------------------------------
 
 def serial_menu():
@@ -315,16 +326,16 @@ def serial_menu():
         nb = raw_input('> ')
 
         if nb == 'x':
-            serial_monitor(emontx_baud)
+            serial_monitor(emontx_baud,serial_port)
             break
         elif nb == 'i':
-            serial_monitor(emonpi_baud)
+            serial_monitor(emonpi_baud,serial_port)
             break
         elif nb == 'h':
-            serial_monitor(emonth_baud)
+            serial_monitor(emonth_baud,serial_port)
             break
         elif nb == 'o':
-            serial_monitor(9600)
+            serial_monitor(9600,serial_port)
             break
         elif nb == 'm':
             break
@@ -436,7 +447,7 @@ while(1):
         else: print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
 
         if raw_input("\nDone emonTx upload. Press Enter to return to menu or (s) to view serial output>\n"):
-            serial_monitor(emontx_baud)
+            serial_monitor(emontx_baud,serial_port)
         os.system('clear') # clear terminal screen Linux specific
 
     # emonTx 3-phase
@@ -452,7 +463,7 @@ while(1):
         else: print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
 
         if raw_input("\nDone emonTx 3-phase upload. Press Enter to return to menu or (s) to view serial output>\n"):
-            serial_monitor(emontx_3phase_baud)
+            serial_monitor(emontx_3phase_baud,serial_port)
         os.system('clear') # clear terminal screen Linux specific
 
     # emonPi
@@ -468,7 +479,7 @@ while(1):
         else: print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
 
         if raw_input("\nDone emonPi Upload. Press Enter to return to menu or (s) to view serial output>\n"):
-            serial_monitor(emonpi_baud)
+            serial_monitor(emonpi_baud,serial_port)
         os.system('clear') # clear terminal screen Linux specific
 
 
@@ -485,7 +496,7 @@ while(1):
         else: print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
 
         if raw_input("\nDone emonTH V2 upload. Press Enter to return to menu or (s) to view serial output>\n"):
-            serial_monitor(emonth_baud)
+            serial_monitor(emonth_baud,serial_port)
         os.system('clear') # clear terminal screen Linux specific
 
     # emonESP
@@ -498,10 +509,10 @@ while(1):
             print cmd
             subprocess.call(cmd, shell=True)
             if raw_input("\nDone emonESP upload. Press Enter to return to menu or (s) to view serial output (reset required)>\n"):
-                            serial_monitor(emonesp_baud)
+                            serial_monitor(emonesp_baud,serial_port)
         else:
             if raw_input("\nERROR: esptool not installed. Press Enter to return to menu>\n"):
-                serial_monitor(emonesp_baud)
+                serial_monitor(emonesp_baud,serial_port)
 
 
     # IoTaWatt
@@ -514,10 +525,10 @@ while(1):
             print cmd
             subprocess.call(cmd, shell=True)
             if raw_input("\nDone IoTaWatt upload. Press Enter to return to menu or (s) to view serial output (reset required)>\n"):
-                            serial_monitor(emonesp_baud)
+                            serial_monitor(emonesp_baud,serial_port)
         else:
             if raw_input("\nERROR: esptool not installed. Press Enter to return to menu>\n"):
-                serial_monitor(iotawatt_baud)
+                serial_monitor(iotawatt_baud,serial_port)
 
         # OpenEVSE Wifi
     elif nb=='v':
@@ -529,10 +540,10 @@ while(1):
             print cmd
             subprocess.call(cmd, shell=True)
             if raw_input("\nDone OpenEVSE upload. Press Enter to return to menu or (s) to view serial output (reset required)>\n"):
-                            serial_monitor(emonesp_baud)
+                            serial_monitor(emonesp_baud,serial_port)
         else:
             if raw_input("\nERROR: esptool not installed. Press Enter to return to menu>\n"):
-                serial_monitor(openevse_baud)
+                serial_monitor(openevse_baud,serial_port)
         os.system('clear') # clear terminal screen Linux specific
 
 
@@ -571,10 +582,10 @@ while(1):
             print cmd
             subprocess.call(cmd, shell=True)
             if raw_input("\nDone MQTT relay upload. Press Enter to return to menu or (s) to view serial output (reset required)>\n"):
-                            serial_monitor(emonesp_baud)
+                            serial_monitor(emonesp_baud,serial_port)
         else:
             if raw_input("\nERROR: esptool not installed. Press Enter to return to menu>\n"):
-                serial_monitor(wifi_relay_baud)
+                serial_monitor(wifi_relay_baud,serial_port)
         os.system('clear') # clear terminal screen Linux specific
 
         # erase ESP8266 flash
@@ -587,10 +598,10 @@ while(1):
             print cmd
             subprocess.call(cmd, shell=True)
             if raw_input("\nDone erase ESP8266 flash, press enter to return to menu\n"):
-                            serial_monitor(emonesp_baud)
+                            serial_monitor(emonesp_baud,serial_port)
         else:
             if raw_input("\nERROR: esptool not installed. Press Enter to return to menu>\n"):
-                serial_monitor(wifi_relay_baud)
+                serial_monitor(wifi_relay_baud,serial_port)
         os.system('clear') # clear terminal screen Linux specific
 
         # emonTH V1
@@ -606,7 +617,7 @@ while(1):
         else: print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
 
         if raw_input("\nDone emonTH V1 upload. Press Enter to return to menu or (s) to view serial output>\n"):
-            serial_monitor(9600)
+            serial_monitor(9600,serial_port)
         os.system('clear') # clear terminal screen Linux specific
 
 

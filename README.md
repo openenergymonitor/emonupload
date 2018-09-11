@@ -20,6 +20,10 @@ Configured by default to work with:
 * emonTH V1
 * emonTH V2
 * emonTx V3
+* emonESP
+* OpenEVSE
+* EmonEVSE
+* WiFi Relay
 
 ***
 
@@ -31,11 +35,13 @@ Configured by default to work with:
 ```
 $ git clone https://github.com/openenergymonitor/emonupload
 $ sudo apt-get update
-$ sudo apt-get install python avrdude git-core -y
+$ sudo apt-get install python avrdude git-core picocom -y
 $ cd emonupload
 $ pip install -r requirements.txt
 ```
-- Tested with pip 8.1.2
+- Tested with pip 8.1.2, picocom V3.2
+
+Note: picocom may need to be compiled to obtain V3.x https://github.com/npat-efault/picocom
 
 # Run
 
