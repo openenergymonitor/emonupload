@@ -15,7 +15,7 @@ from os.path import expanduser
 
 #--------------------------------------------------------------------------------------------------
 DEBUG             = 0
-UPDATE            = 1            # Update firmware releases at startup
+UPDATE            = 0            # Update firmware releases at startup
 VERSION = 'V2.0.0'
 
 download_folder = 'latest/'
@@ -305,11 +305,11 @@ def pio_unit_test(test_path, env):
 # Serial Monitor
 # --------------------------------------------------------------------------------------------------
 def serial_monitor(baud,port):
-    # os.system('clear') # clear terminal screen Linux specific
+    os.system('clear') # clear terminal screen Linux specific
     # picocom exit after x ms
     # excape chracter is [CTRL + c] then [CTRL + q] to quit
     # picocom v3.2a
-    cmd = 'picocom -x 15000 -e c -b' + str(baud) + ' '+ str(port)
+    cmd = 'picocom -q -x 15000 -e c -b' + str(baud) + ' '+ str(port)
     subprocess.call(cmd, shell=True)
     return True
 # --------------------------------------------------------------------------------------------------
