@@ -523,7 +523,7 @@ while(1):
         cmd = 'pip freeze --disable-pip-version-check | grep esptool'
         if subprocess.call(cmd, shell=True) != ' ':
             # If esptool is installed
-            cmd = 'esptool.py write_flash 0x000000 ' + download_folder + 'boblemaire-IoTaWatt.bin'
+            cmd = 'esptool.py write_flash 0x000000 ' + download_folder + 'boblemaire-IoTaWatt-firmware.bin'
             print cmd
             subprocess.call(cmd, shell=True)
             if raw_input("\nDone IoTaWatt upload. Press Enter to return to menu or (s) to view serial output (reset required)>\n"):
