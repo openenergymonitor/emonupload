@@ -16,14 +16,14 @@ from os.path import expanduser
 #--------------------------------------------------------------------------------------------------
 DEBUG             = 0
 UPDATE            = 1            # Update firmware releases at startup
-VERSION = 'V2.0.0'
+VERSION = 'V2.1.0'
 
 download_folder = 'latest/'
 repo_folder = 'repos/'
 uno_bootloader = 'bootloaders/optiboot_atmega328.hex'
 
 allowed_extensions = ['bin', 'hex']
-github_repo = ['openenergymonitor/emonth2', 'openenergymonitor/emonth', 'openenergymonitor/emonpi', 'openenergymonitor/emontx3', 'openenergymonitor/emontx-3phase', 'openenergymonitor/emonesp', 'boblemaire/IoTaWatt', 'OpenEVSE/ESP8266_WiFi_v2.x', 'openenergymonitor/mqtt-wifi-mqtt-single-channel-relay', 'openenergymonitor/open_evse' ]
+github_repo = ['openenergymonitor/emonth2', 'openenergymonitor/emonpi', 'openenergymonitor/emontx3', 'openenergymonitor/emontx-3phase', 'openenergymonitor/emonesp', 'OpenEVSE/ESP8266_WiFi_v2.x', 'openenergymonitor/mqtt-wifi-mqtt-single-channel-relay', 'openenergymonitor/open_evse', 'openenergymonitor/EmonTxV3CM' ]
 #--------------------------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------------------------
@@ -39,7 +39,7 @@ rfm_baud =    '38400'
 #--------------------------------------------------------------------------------------------------
 # Expected RF nodeID's
 #--------------------------------------------------------------------------------------------------
-emontx_nodeid            = [8, 7]
+emontx_nodeid            = [8, 7, 15, 14]
 emontx_baud                = 115200
 
 emontx_3phase_nodeid    = [11]
@@ -52,7 +52,6 @@ emonpi_nodeid            = [5]
 emonpi_baud                = 38400
 
 emonesp_baud             = 115200
-iotawatt_baud            = 115200
 openevse_baud            = 115200
 wifi_relay_baud        = 115200
 #--------------------------------------------------------------------------------------------------
@@ -404,27 +403,19 @@ while(1):
     print ' '
     print bcolors.OKBLUE + 'OpenEnergyMonitor Firmware Upload ' + VERSION + bcolors.ENDC
     print '\nUpload >\n'
-    print bcolors.OKGREEN + '(x) emonTx V3\n' + bcolors.ENDC
-    print bcolors.OKGREEN + '(i) emonPi\n' + bcolors.ENDC
-    print bcolors.OKGREEN + '(h) emonTH V2\n' + bcolors.ENDC
-    print '\n'
-    print bcolors.OKGREEN + '(w) IoTaWatt' + bcolors.ENDC
-    print bcolors.OKGREEN + '(e) emonESP' + bcolors.ENDC
-    print bcolors.OKGREEN + '(3) 3-phase emonTx' + bcolors.ENDC
-    print bcolors.OKGREEN + '(r) MQTT WiFi Relay' + bcolors.ENDC
-
-
-    print '\n'
-    # print '\n'
-    print bcolors.OKGREEN + '(z) Controller EmonEVSE (ISP)' + bcolors.ENDC
-    print bcolors.OKGREEN + '(v) WiFi ESP OpenEVSE/EmonEVSE' + bcolors.ENDC
-    print bcolors.OKGREEN + '(p) Controller OpenEVSE (ISP)' + bcolors.ENDC
-
+    print bcolors.OKGREEN + '(1) emonTx V3 discrete sampling (DS)\n' + bcolors.ENDC
+    print bcolors.OKGREEN + '(2) emonTx V3 continuous monitoring (CM)\n' + bcolors.ENDC
+    print bcolors.OKGREEN + '(3) 3-phase emonTx\n' + bcolors.ENDC
+    print bcolors.OKGREEN + '(4) emonPi\n' + bcolors.ENDC
+    print bcolors.OKGREEN + '(5) emonTH V2\n' + bcolors.ENDC
+    print bcolors.OKGREEN + '(6) emonESP\n' + bcolors.ENDC
+    print bcolors.OKGREEN + '(7) Controller EmonEVSE (ISP)\n' + bcolors.ENDC
+    print bcolors.OKGREEN + '(8) WiFi ESP OpenEVSE/EmonEVSE\n' + bcolors.ENDC
+    print bcolors.OKGREEN + '(9) Controller OpenEVSE (ISP)\n' + bcolors.ENDC
+    print bcolors.OKGREEN + '(10) MQTT WiFi Relay' + bcolors.ENDC
     print '\n'
     #print bcolors.OKGREEN + '(r) for RFM69Pi' + bcolors.ENDC
     print bcolors.OKBLUE + '(c) to clear (erase) ESP8266 flash' + bcolors.ENDC
-    print bcolors.OKBLUE + '(o) old emonTH V1 upload' + bcolors.ENDC
-    print bcolors.OKBLUE + '(t) emonTH V2 sensor test' + bcolors.ENDC
     print bcolors.HEADER + '(s) view Serial Debug' + bcolors.ENDC
     print bcolors.HEADER + '(u) update firmware (web connection required)' + bcolors.ENDC
     # print bcolors.HEADER + '(d) to enable DEBUG' + bcolors.ENDC
@@ -433,14 +424,30 @@ while(1):
     # print bcolors.HEADER + '[CTRL + c] to exit' + bcolors.ENDC
     print '\n'
 
-    nb = raw_input('Enter lettercode for required function > ')
+    nb = raw_input('Enter code for required function > ')
     os.system('clear') # clear terminal screen Linux specific
 
-    # emonTx
-    if nb=='x':
-        print bcolors.OKGREEN + '\nemonTx Upload\n' + bcolors.ENDC
+    # emonTx V3 DS
+    if nb=='1':
+        print bcolors.OKGREEN + '\nemonTx DS Upload\n' + bcolors.ENDC
         burn_bootloader(uno_bootloader)
         serial_port = serial_upload(download_folder + 'openenergymonitor-emontx3.hex:i')
+        if (RFM):
+            if test_receive_rf(emontx_nodeid, rfm_port, rfm_baud) == False:
+                rfm(rfm_port, rfm_baud , rfm_group, rfm_freq) # 'poke RFM'
+                reset(serial_port) # reset and try again if serial is not detected
+                test_receive_rf(emontx_nodeid, rfm_port, rfm_baud)
+        else: print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
+
+        if raw_input("\nDone emonTx upload. Press Enter to return to menu or (s) to view serial output>\n"):
+            serial_monitor(emontx_baud,serial_port)
+        os.system('clear') # clear terminal screen Linux specific
+        
+    # emonTx V3 CM
+    if nb=='2':
+        print bcolors.OKGREEN + '\nemonTx CM Upload\n' + bcolors.ENDC
+        burn_bootloader(uno_bootloader)
+        serial_port = serial_upload(download_folder + 'openenergymonitor-EmonTxV3CM.hex:i')
         if (RFM):
             if test_receive_rf(emontx_nodeid, rfm_port, rfm_baud) == False:
                 rfm(rfm_port, rfm_baud , rfm_group, rfm_freq) # 'poke RFM'
@@ -469,7 +476,7 @@ while(1):
         os.system('clear') # clear terminal screen Linux specific
 
     # emonPi
-    elif nb=='i':
+    elif nb=='4':
         print bcolors.OKGREEN + '\nemonPi Upload\n' + bcolors.ENDC
         burn_bootloader(uno_bootloader)
         serial_port = serial_upload(download_folder + 'openenergymonitor-emonpi.hex:i')
@@ -486,7 +493,7 @@ while(1):
 
 
     # emonTH V2
-    elif nb=='h':
+    elif nb=='5':
         print bcolors.OKGREEN + '\nemonTH V2 Upload\n' + bcolors.ENDC
         burn_bootloader(uno_bootloader)
         serial_port = serial_upload(download_folder + 'openenergymonitor-emonth2.hex:i')
@@ -502,7 +509,7 @@ while(1):
         os.system('clear') # clear terminal screen Linux specific
 
     # emonESP
-    elif nb=='e':
+    elif nb=='6':
         print bcolors.OKGREEN + '\nemonESP Upload\n' + bcolors.ENDC
         cmd = 'pip freeze --disable-pip-version-check | grep esptool'
         if subprocess.call(cmd, shell=True) != ' ':
@@ -516,24 +523,8 @@ while(1):
             if raw_input("\nERROR: esptool not installed. Press Enter to return to menu>\n"):
                 serial_monitor(emonesp_baud,serial_port)
 
-
-    # IoTaWatt
-    elif nb=='w':
-        print bcolors.OKGREEN + '\nIoTaWatt Upload\n' + bcolors.ENDC
-        cmd = 'pip freeze --disable-pip-version-check | grep esptool'
-        if subprocess.call(cmd, shell=True) != ' ':
-            # If esptool is installed
-            cmd = 'esptool.py write_flash 0x000000 ' + download_folder + 'boblemaire-IoTaWatt-firmware.bin'
-            print cmd
-            subprocess.call(cmd, shell=True)
-            if raw_input("\nDone IoTaWatt upload. Press Enter to return to menu or (s) to view serial output (reset required)>\n"):
-                            serial_monitor(emonesp_baud,serial_port)
-        else:
-            if raw_input("\nERROR: esptool not installed. Press Enter to return to menu>\n"):
-                serial_monitor(iotawatt_baud,serial_port)
-
-        # OpenEVSE Wifi
-    elif nb=='v':
+    # OpenEVSE Wifi
+    elif nb=='8':
         print bcolors.OKGREEN + '\nOpenEVSE WiFi Upload\n' + bcolors.ENDC
         cmd = 'pip freeze --disable-pip-version-check | grep esptool'
         if subprocess.call(cmd, shell=True) != ' ':
@@ -550,7 +541,7 @@ while(1):
 
 
     # EmonEVSE controller
-    elif nb=='z':
+    elif nb=='7':
         print bcolors.OKGREEN + '\nEmonEVSE Controller Upload (via ISP)\n' + bcolors.ENDC
         cmd = 'pip freeze --disable-pip-version-check | grep esptool'
         if subprocess.call(cmd, shell=True) != ' ':
@@ -562,7 +553,7 @@ while(1):
         os.system('clear') # clear terminal screen Linux specific
 
     # OpenEVSE controller
-    elif nb=='p':
+    elif nb=='9':
         print bcolors.OKGREEN + '\nOpenEVSE Controller Upload (via ISP)\n' + bcolors.ENDC
         cmd = 'pip freeze --disable-pip-version-check | grep esptool'
         if subprocess.call(cmd, shell=True) != ' ':
@@ -575,7 +566,7 @@ while(1):
 
 
         # WIFI mqtt relay
-    elif nb=='r':
+    elif nb=='8':
         print bcolors.OKGREEN + '\nWiFi MQTT relay Upload\n' + bcolors.ENDC
         cmd = 'pip freeze --disable-pip-version-check | grep esptool'
         if subprocess.call(cmd, shell=True) != ' ':
@@ -604,31 +595,6 @@ while(1):
         else:
             if raw_input("\nERROR: esptool not installed. Press Enter to return to menu>\n"):
                 serial_monitor(wifi_relay_baud,serial_port)
-        os.system('clear') # clear terminal screen Linux specific
-
-        # emonTH V1
-    elif nb=='o':
-        print bcolors.OKGREEN + '\nemonTH V1 Upload\n' + bcolors.ENDC
-        burn_bootloader(uno_bootloader)
-        serial_port = serial_upload(download_folder + 'openenergymonitor-emonth.hex:i')
-        if (RFM):
-            if test_receive_rf(emonth_nodeid, rfm_port, rfm_baud) == False:
-                rfm(rfm_port, rfm_baud , rfm_group, rfm_freq) # 'poke RFM'
-                reset(serial_port) # reset and try again if serial is not detected
-                test_receive_rf(emonth_nodeid, rfm_port, rfm_baud)
-        else: print bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC
-
-        if raw_input("\nDone emonTH V1 upload. Press Enter to return to menu or (s) to view serial output>\n"):
-            serial_monitor(9600,serial_port)
-        os.system('clear') # clear terminal screen Linux specific
-
-
-
-
-    # emonTH V2 Unit Sensor test
-    elif nb=='t':
-        pio_unit_test(repo_folder + 'openenergymonitor-emonth2/firmware', 'emonth2')
-        raw_input("\nDone. Press Enter to return to menu >\n")
         os.system('clear') # clear terminal screen Linux specific
 
     elif nb=='u':
