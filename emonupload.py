@@ -403,7 +403,7 @@ while(1):
     print ' '
     print bcolors.OKBLUE + 'OpenEnergyMonitor Firmware Upload ' + VERSION + bcolors.ENDC
     print '\nUpload >\n'
-    print bcolors.OKGREEN + '(1) emonTx V3 discrete sampling (DS)\n' + bcolors.ENDC
+    print bcolors.OKGREEN + '(1) emonTx V3 discrete sampling (DS) [WITH battery holder]\n' + bcolors.ENDC
     print bcolors.OKGREEN + '(2) emonTx V3 continuous monitoring (CM)\n' + bcolors.ENDC
     print bcolors.OKGREEN + '(3) 3-phase emonTx\n' + bcolors.ENDC
     print bcolors.OKGREEN + '(4) emonPi\n' + bcolors.ENDC
