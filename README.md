@@ -35,7 +35,7 @@ Configured by default to work with:
 ```
 $ git clone https://github.com/openenergymonitor/emonupload
 $ sudo apt-get update
-$ sudo apt-get install python avrdude git-core picocom -y
+$ sudo apt-get install python python-pip avrdude git-core picocom -y
 $ cd emonupload
 $ pip install -r requirements.txt
 ```
