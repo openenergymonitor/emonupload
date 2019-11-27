@@ -15,8 +15,8 @@ from os.path import expanduser
 
 #--------------------------------------------------------------------------------------------------
 DEBUG             = 0
-UPDATE            = 1            # Update firmware releases at startup
-VERSION = 'V2.1.0'
+UPDATE            = 0            # Update firmware releases at startup
+VERSION = 'V2.1.1'
 
 download_folder = 'latest/'
 repo_folder = 'repos/'
@@ -308,7 +308,7 @@ def serial_monitor(baud,port):
     # picocom exit after x ms
     # excape chracter is [CTRL + c] then [CTRL + q] to quit
     # picocom v3.2a
-    cmd = 'picocom -q -x 15000 -e c -b' + str(baud) + ' '+ str(port)
+    cmd = 'picocom -q -x 15000 -e c --omap crcrlf -b' + str(baud) + ' '+ str(port)
     subprocess.call(cmd, shell=True)
     return True
 # --------------------------------------------------------------------------------------------------
