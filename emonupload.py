@@ -412,7 +412,7 @@ while(1):
     print bcolors.OKGREEN + '(7) Controller EmonEVSE (ISP)\n' + bcolors.ENDC
     print bcolors.OKGREEN + '(8) WiFi ESP8266 OpenEVSE/EmonEVSE\n' + bcolors.ENDC
     print bcolors.OKGREEN + '(9) Controller OpenEVSE (ISP)\n' + bcolors.ENDC
-    print bcolors.OKGREEN + '(10) MQTT WiFi Relay' + bcolors.ENDC
+    print bcolors.OKGREEN + '(10) MQTT WiFi Relay\n' + bcolors.ENDC
     print bcolors.OKGREEN + '(11) WiFi ESP32 OpenEVSE/EmonEVSE' + bcolors.ENDC
     print '\n'
     #print bcolors.OKGREEN + '(r) for RFM69Pi' + bcolors.ENDC
