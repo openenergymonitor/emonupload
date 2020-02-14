@@ -588,7 +588,7 @@ while(1):
         cmd = 'pip freeze --disable-pip-version-check | grep esptool'
         if subprocess.call(cmd, shell=True) != ' ':
             # If esptool is installed
-            cmd = 'esptool.py write_flash 0x000000 ' + download_folder + 'OpenEVSE-ESP32_WiFi_v3.x.bin'
+            cmd = 'esptool.py write_flash 0x000000 ' + download_folder + 'OpenEVSE-ESP32_WiFi_V3.x.bin'
             print cmd
             subprocess.call(cmd, shell=True)
             if raw_input("\nDone OpenEVSE ESP32 upload. Press Enter to return to menu or (s) to view serial output (reset required)>\n"):
