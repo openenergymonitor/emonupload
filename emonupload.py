@@ -14,7 +14,7 @@ from subprocess import Popen, PIPE, STDOUT
 from os.path import expanduser
 
 #--------------------------------------------------------------------------------------------------
-DEBUG             = 1
+DEBUG             = 0
 UPDATE            = 1            # Update firmware releases at startup
 VERSION = 'V2.2.0'
 
