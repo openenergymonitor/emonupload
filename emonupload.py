@@ -14,16 +14,16 @@ from subprocess import Popen, PIPE, STDOUT
 from os.path import expanduser
 
 #--------------------------------------------------------------------------------------------------
-DEBUG             = 0
+DEBUG             = 1
 UPDATE            = 1            # Update firmware releases at startup
-VERSION = 'V2.1.2'
+VERSION = 'V2.2.0'
 
 download_folder = 'latest/'
 repo_folder = 'repos/'
 uno_bootloader = 'bootloaders/optiboot_atmega328.hex'
 
 allowed_extensions = ['bin', 'hex']
-github_repo = ['openenergymonitor/emonth2', 'openenergymonitor/emonpi', 'openenergymonitor/emontx3', 'openenergymonitor/emontx-3phase', 'openenergymonitor/emonesp', 'OpenEVSE/ESP8266_WiFi_v2.x', 'openenergymonitor/mqtt-wifi-mqtt-single-channel-relay', 'openenergymonitor/open_evse', 'openenergymonitor/EmonTxV3CM' ]
+github_repo = ['openenergymonitor/emonth2', 'openenergymonitor/emonpi', 'openenergymonitor/emontx3', 'openenergymonitor/emontx-3phase', 'openenergymonitor/emonesp', 'OpenEVSE/ESP8266_WiFi_v2.x', 'openenergymonitor/mqtt-wifi-mqtt-single-channel-relay', 'openenergymonitor/open_evse', 'openenergymonitor/EmonTxV3CM', 'OpenEVSE/ESP32_WiFi_V3.x'  ]
 #--------------------------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------------------------
@@ -410,9 +410,10 @@ while(1):
     print bcolors.OKGREEN + '(5) emonTH V2\n' + bcolors.ENDC
     print bcolors.OKGREEN + '(6) emonESP\n' + bcolors.ENDC
     print bcolors.OKGREEN + '(7) Controller EmonEVSE (ISP)\n' + bcolors.ENDC
-    print bcolors.OKGREEN + '(8) WiFi ESP OpenEVSE/EmonEVSE\n' + bcolors.ENDC
+    print bcolors.OKGREEN + '(8) WiFi ESP8266 OpenEVSE/EmonEVSE\n' + bcolors.ENDC
     print bcolors.OKGREEN + '(9) Controller OpenEVSE (ISP)\n' + bcolors.ENDC
     print bcolors.OKGREEN + '(10) MQTT WiFi Relay' + bcolors.ENDC
+    print bcolors.OKGREEN + '(11) WiFi ESP32 OpenEVSE/EmonEVSE' + bcolors.ENDC
     print '\n'
     #print bcolors.OKGREEN + '(r) for RFM69Pi' + bcolors.ENDC
     print bcolors.OKBLUE + '(c) to clear (erase) ESP8266 flash' + bcolors.ENDC
@@ -523,7 +524,7 @@ while(1):
             if raw_input("\nERROR: esptool not installed. Press Enter to return to menu>\n"):
                 serial_monitor(emonesp_baud,serial_port)
 
-    # OpenEVSE Wifi
+    # OpenEVSE ES8266 Wifi
     elif nb=='8':
         print bcolors.OKGREEN + '\nOpenEVSE WiFi Upload\n' + bcolors.ENDC
         cmd = 'pip freeze --disable-pip-version-check | grep esptool'
@@ -579,6 +580,22 @@ while(1):
         else:
             if raw_input("\nERROR: esptool not installed. Press Enter to return to menu>\n"):
                 serial_monitor(wifi_relay_baud,serial_port)
+        os.system('clear') # clear terminal screen Linux specific
+    
+        # OpenEVSE ESP32 Wifi
+    elif nb=='11':
+        print bcolors.OKGREEN + '\nOpenEVSE ESP32 WiFi Upload\n' + bcolors.ENDC
+        cmd = 'pip freeze --disable-pip-version-check | grep esptool'
+        if subprocess.call(cmd, shell=True) != ' ':
+            # If esptool is installed
+            cmd = 'esptool.py write_flash 0x000000 ' + download_folder + 'OpenEVSE-ESP32_WiFi_v3.x.bin'
+            print cmd
+            subprocess.call(cmd, shell=True)
+            if raw_input("\nDone OpenEVSE ESP32 upload. Press Enter to return to menu or (s) to view serial output (reset required)>\n"):
+                            serial_monitor(emonesp_baud,serial_port)
+        else:
+            if raw_input("\nERROR: esptool not installed. Press Enter to return to menu>\n"):
+                serial_monitor(openevse_baud,serial_port)
         os.system('clear') # clear terminal screen Linux specific
 
         # erase ESP8266 flash
