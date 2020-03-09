@@ -16,7 +16,7 @@ from os.path import expanduser
 #--------------------------------------------------------------------------------------------------
 DEBUG             = 0
 UPDATE            = 1            # Update firmware releases at startup
-VERSION = 'V2.2.1'
+VERSION = 'V2.2.2'
 
 download_folder = 'latest/'
 repo_folder = 'repos/'
@@ -588,7 +588,7 @@ while(1):
         cmd = 'pip freeze --disable-pip-version-check | grep esptool'
         if subprocess.call(cmd, shell=True) != ' ':
             # If esptool is installed
-            cmd = 'esptool.py write_flash 0x10000 ' + download_folder + 'OpenEVSE-ESP32_WiFi_V3.x.bin'
+            cmd = 'esptool.py --baud 921600 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size detect 0x1000  ' + download_folder + 'OpenEVSE-ESP32_WiFi_V3.x-bootloader.bin 0x8000  ' + download_folder + 'OpenEVSE-ESP32_WiFi_V3.x-partitions.bin 0x10000  ' + download_folder + 'OpenEVSE-ESP32_WiFi_V3.x-firmware.bin'
             print cmd
             subprocess.call(cmd, shell=True)
             if raw_input("\nDone OpenEVSE ESP32 upload. Press Enter to return to menu or (s) to view serial output (reset required)>\n"):
