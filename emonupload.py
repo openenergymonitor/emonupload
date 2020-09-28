@@ -16,7 +16,7 @@ from os.path import expanduser
 #--------------------------------------------------------------------------------------------------
 DEBUG             = 0
 UPDATE            = 1            # Update firmware releases at startup
-VERSION = 'V2.2.2'
+VERSION = 'V2.2.1'
 
 download_folder = 'latest/'
 repo_folder = 'repos/'
@@ -567,7 +567,7 @@ while(1):
 
 
         # WIFI mqtt relay
-    elif nb=='8':
+    elif nb=='10':
         print bcolors.OKGREEN + '\nWiFi MQTT relay Upload\n' + bcolors.ENDC
         cmd = 'pip freeze --disable-pip-version-check | grep esptool'
         if subprocess.call(cmd, shell=True) != ' ':
