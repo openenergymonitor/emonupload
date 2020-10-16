@@ -16,7 +16,7 @@ from os.path import expanduser
 #--------------------------------------------------------------------------------------------------
 DEBUG             = 0
 UPDATE            = 1            # Update firmware releases at startup
-VERSION = 'V2.2.1'
+VERSION = 'V2.2.2'
 
 download_folder = 'latest/'
 repo_folder = 'repos/'
@@ -515,7 +515,7 @@ while(1):
         cmd = 'pip freeze --disable-pip-version-check | grep esptool'
         if subprocess.call(cmd, shell=True) != ' ':
             # If esptool is installed
-            cmd = 'esptool.py write_flash 0x000000 ' + download_folder + 'openenergymonitor-emonesp-firmware.bin' + ' 0x7B000 ' +    download_folder + 'openenergymonitor-emonesp-spiffs.bin'
+            cmd = 'esptool.py write_flash 0x000000 ' + download_folder + 'openenergymonitor-emonesp-firmware.bin'
             print cmd
             subprocess.call(cmd, shell=True)
             if raw_input("\nDone emonESP upload. Press Enter to return to menu or (s) to view serial output (reset required)>\n"):
