@@ -43,7 +43,7 @@ emontx_nodeid            = [8, 7, 15, 14]
 emontx_baud                = 115200
 
 emontx_3phase_nodeid    = [11]
-emontx_3phase_baud        = 115200
+emontx_3phase_baud        = 9600
 
 emonth_nodeid            = [23, 24, 25, 26]
 emonth_baud                = 115200
