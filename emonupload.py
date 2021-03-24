@@ -546,7 +546,7 @@ while(1):
         print bcolors.OKGREEN + '\nEmonEVSE Controller Upload (via ISP)\n' + bcolors.ENDC
         cmd = 'pip freeze --disable-pip-version-check | grep esptool'
         if subprocess.call(cmd, shell=True) != ' ':
-            cmd = avrdude -c USBasp -p m328p -U lfuse:w:0xFF:m -U hfuse:w:0xDF:m -U efuse:w:0xFD:m -B6
+            cmd = 'avrdude -c USBasp -p m328p -U lfuse:w:0xFF:m -U hfuse:w:0xDF:m -U efuse:w:0xFD:m -B6'
             print cmd
             subprocess.call(cmd, shell=True)
             cmd = ' avrdude -p atmega328p -c usbasp -B6 -P usb -e -U flash:w:' + download_folder + 'openenergymonitor-open_evse-emonevse.hex' 
@@ -560,7 +560,7 @@ while(1):
         print bcolors.OKGREEN + '\nOpenEVSE Controller Upload (via ISP)\n' + bcolors.ENDC
         cmd = 'pip freeze --disable-pip-version-check | grep esptool'
         if subprocess.call(cmd, shell=True) != ' ':
-            cmd = avrdude -c USBasp -p m328p -U lfuse:w:0xFF:m -U hfuse:w:0xDF:m -U efuse:w:0xFD:m -B6
+            cmd = 'avrdude -c USBasp -p m328p -U lfuse:w:0xFF:m -U hfuse:w:0xDF:m -U efuse:w:0xFD:m -B6'
             print cmd
             subprocess.call(cmd, shell=True)
             cmd = ' avrdude -p atmega328p -c usbasp -B6 -P usb -e -U flash:w:' + download_folder + 'openenergymonitor-open_evse-openevse.hex'
