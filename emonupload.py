@@ -14,7 +14,7 @@ from subprocess import Popen, PIPE, STDOUT
 from os.path import expanduser
 
 #--------------------------------------------------------------------------------------------------
-DEBUG             = 0
+DEBUG             = 1
 UPDATE            = 1            # Update firmware releases at startup
 VERSION = 'V2.4.0'
 
@@ -22,7 +22,7 @@ download_folder = 'latest/'
 repo_folder = 'repos/'
 uno_bootloader = 'bootloaders/optiboot_atmega328.hex'
 
-allowed_extensions = ['bin', 'hex']
+allowed_extensions = ['bin', 'hex' ,'zip']
 github_repo = ['openenergymonitor/emonth2', 'openenergymonitor/emonpi', 'openenergymonitor/emontx3', 'openenergymonitor/emontx-3phase', 'openenergymonitor/emonesp', 'OpenEVSE/ESP8266_WiFi_v2.x', 'openenergymonitor/mqtt-wifi-mqtt-single-channel-relay', 'openenergymonitor/open_evse', 'openenergymonitor/EmonTxV3CM', 'OpenEVSE/ESP32_WiFi_V4.x'  ]
 #--------------------------------------------------------------------------------------------------
 
@@ -380,11 +380,10 @@ if interent_connected('https://api.github.com'):
                 # if multiple rekease files then download them with their file name appended e.g. openenergymonitor-emonesp-firmware.bin and openenergymonitor-emonesp-spiffs.bin
                 if len(assets) > 1:
                         for i in range(len(assets)):
-                            if (DEBUG): print "Downloading multiple release" + str(i) + " with name "+ assets[i]['name']
+                            if (DEBUG): print "Downloading multiple release " + str(i) + " with name "+ assets[i]['name']
                             extension = download_url.split('.')[-1]
                             download_url = assets[i]['browser_download_url']
                             if (DEBUG): print download_url
-                            if (DEBUG): print current_repo
                             if extension in allowed_extensions and UPDATE==True:
                                 file_download(download_url, current_repo + "-" + assets[i]['name'].split('.')[-0], download_folder)
 
@@ -444,7 +443,7 @@ while(1):
         if raw_input("\nDone emonTx upload. Press Enter to return to menu or (s) to view serial output>\n"):
             serial_monitor(emontx_baud,serial_port)
         os.system('clear') # clear terminal screen Linux specific
-        
+
     # emonTx V3 CM
     if nb=='2':
         print bcolors.OKGREEN + '\nemonTx CM Upload\n' + bcolors.ENDC
@@ -551,13 +550,13 @@ while(1):
             cmd = ' avrdude -c USBasp -p m328p -U lfuse:w:0xFF:m -U hfuse:w:0xDF:m -U efuse:w:0xFD:m -B6'
             print cmd
             subprocess.call(cmd, shell=True)
-            
+
             raw_input("\nController fuses set press Enter to read back\n")
             cmd = ' avrdude -p atmega328p -c usbasp -P usb -e -U lfuse:r:-:i -v'
             subprocess.call(cmd, shell=True)
 
             raw_input("\nPress Enter to flash EmonEVSE Controller FW\n")
-            cmd = ' avrdude -p atmega328p -c usbasp -B5 -P usb -e -U flash:w:' + download_folder + 'openenergymonitor-open_evse-emonevse.hex' 
+            cmd = ' avrdude -p atmega328p -c usbasp -B5 -P usb -e -U flash:w:' + download_folder + 'openenergymonitor-open_evse-emonevse.hex'
             print cmd
             subprocess.call(cmd, shell=True)
             raw_input("\nDone EmonEVSE controller upload. Press Enter to return to menu\n")
@@ -572,7 +571,7 @@ while(1):
             cmd = ' avrdude -c USBasp -p m328p -U lfuse:w:0xFF:m -U hfuse:w:0xDF:m -U efuse:w:0xFD:m -B6'
             print cmd
             subprocess.call(cmd, shell=True)
-            
+
             raw_input("\nController fuses set press Enter to read back\n")
             cmd = ' avrdude -p atmega328p -c usbasp -P usb -e -U lfuse:r:-:i -v'
             subprocess.call(cmd, shell=True)
@@ -600,7 +599,7 @@ while(1):
             if raw_input("\nERROR: esptool not installed. Press Enter to return to menu>\n"):
                 serial_monitor(wifi_relay_baud,serial_port)
         os.system('clear') # clear terminal screen Linux specific
-    
+
     # OpenEVSE ESP32 Wifi
     elif nb=='11':
         print bcolors.OKGREEN + '\nOpenEVSE ESP32 WiFi Upload\n' + bcolors.ENDC
@@ -622,7 +621,7 @@ while(1):
         print bcolors.OKGREEN + '\nOpenEVSE ESP32 Etherent Gateway Upload\n' + bcolors.ENDC
         cmd = 'pip freeze --disable-pip-version-check | grep esptool'
         if subprocess.call(cmd, shell=True) != ' ':
-            cmd = 'esptool.py --before default_reset --after hard_reset write_flash 0x1000 ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-bootloader.bin 0x8000 ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-partitions.bin 0x10000 ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-esp32-gateway-e.bin' 
+            cmd = 'esptool.py --before default_reset --after hard_reset write_flash 0x1000 ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-bootloader.bin 0x8000 ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-partitions.bin 0x10000 ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-esp32-gateway-e.bin'
             print cmd
             subprocess.call(cmd, shell=True)
             if raw_input("\nDone OpenEVSE ESP32 Etherent Gateway Upload. Press Enter to return to menu or (s) to view serial output (reset required)>\n"):
