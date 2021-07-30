@@ -9,14 +9,14 @@
 # GNU GPL V3
 
 # $ pip install -r requirements.txt
-import serial, sys, string, commands, time, subprocess, os, urllib2, requests, urllib, json
+import serial, sys, string, commands, time, subprocess, os, urllib2, requests, urllib, json, zipfile
 from subprocess import Popen, PIPE, STDOUT
 from os.path import expanduser
 
 #--------------------------------------------------------------------------------------------------
-DEBUG             = 1
+DEBUG             = 0
 UPDATE            = 1            # Update firmware releases at startup
-VERSION = 'V2.4.0'
+VERSION = 'V2.5.0'
 
 download_folder = 'latest/'
 repo_folder = 'repos/'
@@ -133,6 +133,7 @@ def get_releases_info(current_repo):
 #--------------------------------------------------------------------------------------------------
 def file_download(download_url, current_repo, download_folder):
     save_file_name = download_folder + current_repo.split('/')[-2] + '-' + current_repo.split('/')[-1] + '.' + download_url.split('.')[-1]
+    extension = download_url.split('.')[-1]
     # Check download folder exists if not create
     if not os.path.isdir(download_folder):
         os.mkdir(download_folder)
@@ -156,6 +157,16 @@ def file_download(download_url, current_repo, download_folder):
             print status,
     f.close()
     print '\n'
+    # extract github actions artifacts
+    if extension=="zip":
+        print 'Unzipping ' + save_file_name
+        with zipfile.ZipFile(save_file_name,"r") as zip_ref:
+            zip_ref.extractall(download_folder)
+        # github action zip files contain a single firmware.bin, we need to rename this to fit the schema
+        os.rename(download_folder + '/firmware.bin' , download_folder + current_repo.split('/')[-2] + '-' + current_repo.split('/')[-1] + '.' + 'bin')
+        # remove zip archive
+        os.remove(save_file_name)
+
     return;
     #--------------------------------------------------------------------------------------------------
 
@@ -377,7 +388,7 @@ if interent_connected('https://api.github.com'):
                     if extension in allowed_extensions and UPDATE==True:
                         file_download(download_url, current_repo, download_folder)
 
-                # if multiple rekease files then download them with their file name appended e.g. openenergymonitor-emonesp-firmware.bin and openenergymonitor-emonesp-spiffs.bin
+                # if multiple release files then download them with their file name appended e.g. openenergymonitor-emonesp-firmware.bin and openenergymonitor-emonesp-spiffs.bin
                 if len(assets) > 1:
                         for i in range(len(assets)):
                             if (DEBUG): print "Downloading multiple release " + str(i) + " with name "+ assets[i]['name']
@@ -606,7 +617,7 @@ while(1):
         cmd = 'pip freeze --disable-pip-version-check | grep esptool'
         if subprocess.call(cmd, shell=True) != ' ':
             # If esptool is installed
-            cmd = 'esptool.py --baud 921600 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size detect 0x1000  ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-bootloader.bin 0x8000  ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-partitions.bin 0x10000  ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-firmware.bin'
+            cmd = 'esptool.py --baud 921600 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size detect 0x1000  ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-bootloader.bin 0x8000  ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-partitions.bin 0x10000  ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-openevse_wifi_v1.bin'
             print cmd
             subprocess.call(cmd, shell=True)
             if raw_input("\nDone OpenEVSE ESP32 upload. Press Enter to return to menu or (s) to view serial output (reset required)>\n"):
