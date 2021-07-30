@@ -16,7 +16,7 @@ from os.path import expanduser
 #--------------------------------------------------------------------------------------------------
 DEBUG             = 0
 UPDATE            = 1            # Update firmware releases at startup
-VERSION = 'V2.5.0'
+VERSION = 'V2.5.1'
 
 download_folder = 'latest/'
 repo_folder = 'repos/'
@@ -425,6 +425,7 @@ while(1):
     print bcolors.OKGREEN + '(10) MQTT WiFi Relay\n' + bcolors.ENDC
     print bcolors.OKGREEN + '(11) WiFi ESP32 OpenEVSE/EmonEVSE\n' + bcolors.ENDC
     print bcolors.OKGREEN + '(12) Etherent ESP32 OpenEVSE/EmonEVSE' + bcolors.ENDC
+    print bcolors.OKGREEN + '(13) 3-phase EmonEVSE (ISP)' + bcolors.ENDC
     print '\n'
     #print bcolors.OKGREEN + '(r) for RFM69Pi' + bcolors.ENDC
     print bcolors.OKBLUE + '(c) to clear (erase) ESP8266 flash' + bcolors.ENDC
@@ -441,7 +442,7 @@ while(1):
 
     # emonTx V3 DS
     if nb=='1':
-        print bcolors.OKGREEN + '\nemonTx DS Upload\n' + bcolors.ENDC
+        print bcolors.OKGREEN + '\nemonTx DS\n' + bcolors.ENDC
         burn_bootloader(uno_bootloader)
         serial_port = serial_upload(download_folder + 'openenergymonitor-emontx3.hex:i')
         if (RFM):
@@ -457,7 +458,7 @@ while(1):
 
     # emonTx V3 CM
     if nb=='2':
-        print bcolors.OKGREEN + '\nemonTx CM Upload\n' + bcolors.ENDC
+        print bcolors.OKGREEN + '\nemonTx CM\n' + bcolors.ENDC
         burn_bootloader(uno_bootloader)
         serial_port = serial_upload(download_folder + 'openenergymonitor-EmonTxV3CM.hex:i')
         if (RFM):
@@ -473,7 +474,7 @@ while(1):
 
     # emonTx 3-phase
     if nb=='3':
-        print bcolors.OKGREEN + '\nemonTx 3-phase Upload\n' + bcolors.ENDC
+        print bcolors.OKGREEN + '\nemonTx 3-phase\n' + bcolors.ENDC
         burn_bootloader(uno_bootloader)
         serial_port = serial_upload(download_folder + 'openenergymonitor-emontx-3phase.hex:i')
         if (RFM):
@@ -489,7 +490,7 @@ while(1):
 
     # emonPi
     elif nb=='4':
-        print bcolors.OKGREEN + '\nemonPi Upload\n' + bcolors.ENDC
+        print bcolors.OKGREEN + '\nemonPi\n' + bcolors.ENDC
         burn_bootloader(uno_bootloader)
         serial_port = serial_upload(download_folder + 'openenergymonitor-emonpi.hex:i')
         if (RFM):
@@ -506,7 +507,7 @@ while(1):
 
     # emonTH V2
     elif nb=='5':
-        print bcolors.OKGREEN + '\nemonTH V2 Upload\n' + bcolors.ENDC
+        print bcolors.OKGREEN + '\nemonTH V2\n' + bcolors.ENDC
         burn_bootloader(uno_bootloader)
         serial_port = serial_upload(download_folder + 'openenergymonitor-emonth2.hex:i')
         if (RFM):
@@ -522,7 +523,7 @@ while(1):
 
     # emonESP
     elif nb=='6':
-        print bcolors.OKGREEN + '\nemonESP Upload\n' + bcolors.ENDC
+        print bcolors.OKGREEN + '\nemonESP\n' + bcolors.ENDC
         cmd = 'pip freeze --disable-pip-version-check | grep esptool'
         if subprocess.call(cmd, shell=True) != ' ':
             # If esptool is installed
@@ -537,7 +538,7 @@ while(1):
 
     # OpenEVSE ES8266 Wifi
     elif nb=='8':
-        print bcolors.OKGREEN + '\nOpenEVSE WiFi Upload\n' + bcolors.ENDC
+        print bcolors.OKGREEN + '\nOpenEVSE WiFi\n' + bcolors.ENDC
         cmd = 'pip freeze --disable-pip-version-check | grep esptool'
         if subprocess.call(cmd, shell=True) != ' ':
             # If esptool is installed
@@ -554,7 +555,7 @@ while(1):
 
     # EmonEVSE controller
     elif nb=='7':
-        print bcolors.OKGREEN + '\nEmonEVSE Controller Upload (via ISP)\n' + bcolors.ENDC
+        print bcolors.OKGREEN + '\nEmonEVSE Controller ( SP)\n' + bcolors.ENDC
         cmd = 'pip freeze --disable-pip-version-check | grep esptool'
         if subprocess.call(cmd, shell=True) != ' ':
             print 'setting fuses'
@@ -575,7 +576,7 @@ while(1):
 
     # OpenEVSE controller
     elif nb=='9':
-        print bcolors.OKGREEN + '\nOpenEVSE Controller Upload (via ISP)\n' + bcolors.ENDC
+        print bcolors.OKGREEN + '\nOpenEVSE Controller (ISP)\n' + bcolors.ENDC
         cmd = 'pip freeze --disable-pip-version-check | grep esptool'
         if subprocess.call(cmd, shell=True) != ' ':
             print 'setting fuses'
@@ -597,7 +598,7 @@ while(1):
 
         # WIFI mqtt relay
     elif nb=='10':
-        print bcolors.OKGREEN + '\nWiFi MQTT relay Upload\n' + bcolors.ENDC
+        print bcolors.OKGREEN + '\nWiFi MQTT relay\n' + bcolors.ENDC
         cmd = 'pip freeze --disable-pip-version-check | grep esptool'
         if subprocess.call(cmd, shell=True) != ' ':
             # If esptool is installed
@@ -613,7 +614,7 @@ while(1):
 
     # OpenEVSE ESP32 Wifi
     elif nb=='11':
-        print bcolors.OKGREEN + '\nOpenEVSE ESP32 WiFi Upload\n' + bcolors.ENDC
+        print bcolors.OKGREEN + '\nOpenEVSE ESP32 WiFi\n' + bcolors.ENDC
         cmd = 'pip freeze --disable-pip-version-check | grep esptool'
         if subprocess.call(cmd, shell=True) != ' ':
             # If esptool is installed
@@ -629,7 +630,7 @@ while(1):
 
     # OpenEVSE ESP32 Etherent Gateway G
     elif nb=='12':
-        print bcolors.OKGREEN + '\nOpenEVSE ESP32 Etherent Gateway Upload\n' + bcolors.ENDC
+        print bcolors.OKGREEN + '\nOpenEVSE ESP32 Etherent Gateway\n' + bcolors.ENDC
         cmd = 'pip freeze --disable-pip-version-check | grep esptool'
         if subprocess.call(cmd, shell=True) != ' ':
             cmd = 'esptool.py --before default_reset --after hard_reset write_flash 0x1000 ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-bootloader.bin 0x8000 ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-partitions.bin 0x10000 ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-esp32-gateway-e.bin'
@@ -643,6 +644,26 @@ while(1):
         os.system('clear') # clear terminal screen Linux specific
 
 
+    # EmonEVSE - 3phase controller
+    elif nb=='13':
+        print bcolors.OKGREEN + '\n3-phase EmonEVSE Controller (ISP)\n' + bcolors.ENDC
+        cmd = 'pip freeze --disable-pip-version-check | grep esptool'
+        if subprocess.call(cmd, shell=True) != ' ':
+            print 'setting fuses'
+            cmd = ' avrdude -c USBasp -p m328p -U lfuse:w:0xFF:m -U hfuse:w:0xDF:m -U efuse:w:0xFD:m -B6'
+            print cmd
+            subprocess.call(cmd, shell=True)
+
+            raw_input("\nController fuses set press Enter to read back\n")
+            cmd = ' avrdude -p atmega328p -c usbasp -P usb -e -U lfuse:r:-:i -v'
+            subprocess.call(cmd, shell=True)
+
+            raw_input("\nPress Enter to flash EmonEVSE Controller FW\n")
+            cmd = ' avrdude -p atmega328p -c usbasp -B5 -P usb -e -U flash:w:' + download_folder + 'openenergymonitor-open_evse-emonevse-3ph'
+            print cmd
+            subprocess.call(cmd, shell=True)
+            raw_input("\nDone EmonEVSE 3p controller upload. Press Enter to return to menu\n")
+        os.system('clear') # clear terminal screen Linux specific
 
 
 
