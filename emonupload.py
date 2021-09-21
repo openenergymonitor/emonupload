@@ -14,7 +14,7 @@ from subprocess import Popen, PIPE, STDOUT
 from os.path import expanduser
 
 #--------------------------------------------------------------------------------------------------
-DEBUG             = 0
+DEBUG             = 1
 UPDATE            = 1            # Update firmware releases at startup
 VERSION = 'V2.5.1'
 
@@ -384,7 +384,7 @@ if interent_connected('https://api.github.com'):
                 if len(assets) == 1:
                     download_url = assets[0]['browser_download_url']
                     extension = download_url.split('.')[-1]
-                    if (DEBUG): print download_url
+                    if (DEBUG): print "download_url " + download_url
                     if extension in allowed_extensions and UPDATE==True:
                         file_download(download_url, current_repo, download_folder)
 
@@ -392,9 +392,9 @@ if interent_connected('https://api.github.com'):
                 if len(assets) > 1:
                         for i in range(len(assets)):
                             if (DEBUG): print "Downloading multiple release " + str(i) + " with name "+ assets[i]['name']
-                            extension = download_url.split('.')[-1]
                             download_url = assets[i]['browser_download_url']
-                            if (DEBUG): print download_url
+                            extension = download_url.split('.')[-1]
+                            if (DEBUG): print "download_url " + download_url
                             if extension in allowed_extensions and UPDATE==True:
                                 file_download(download_url, current_repo + "-" + assets[i]['name'].split('.')[-0], download_folder)
 
@@ -633,7 +633,7 @@ while(1):
         print bcolors.OKGREEN + '\nOpenEVSE ESP32 Etherent Gateway\n' + bcolors.ENDC
         cmd = 'pip freeze --disable-pip-version-check | grep esptool'
         if subprocess.call(cmd, shell=True) != ' ':
-            cmd = 'esptool.py --before default_reset --after hard_reset write_flash 0x1000 ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-bootloader.bin 0x8000 ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-partitions.bin 0x10000 ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-esp32-gateway-e.bin'
+            cmd = 'esptool.py --before default_reset --after hard_reset write_flash 0x1000 ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-bootloader.bin 0x8000 ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-partitions.bin 0x10000 ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-openevse_esp32-gateway-e.bin'
             print cmd
             subprocess.call(cmd, shell=True)
             if raw_input("\nDone OpenEVSE ESP32 Etherent Gateway Upload. Press Enter to return to menu or (s) to view serial output (reset required)>\n"):
