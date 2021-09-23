@@ -14,7 +14,7 @@ from subprocess import Popen, PIPE, STDOUT
 from os.path import expanduser
 
 #--------------------------------------------------------------------------------------------------
-DEBUG             = 1
+DEBUG             = 0
 UPDATE            = 1            # Update firmware releases at startup
 VERSION = 'V2.5.1'
 
@@ -659,7 +659,7 @@ while(1):
             subprocess.call(cmd, shell=True)
 
             raw_input("\nPress Enter to flash EmonEVSE Controller FW\n")
-            cmd = ' avrdude -p atmega328p -c usbasp -B5 -P usb -e -U flash:w:' + download_folder + 'openenergymonitor-open_evse-emonevse-3ph'
+            cmd = ' avrdude -p atmega328p -c usbasp -B5 -P usb -e -U flash:w:' + download_folder + 'openenergymonitor-open_evse-emonevse-3ph.hex'
             print cmd
             subprocess.call(cmd, shell=True)
             raw_input("\nDone EmonEVSE 3p controller upload. Press Enter to return to menu\n")
