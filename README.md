@@ -29,25 +29,30 @@ Configured by default to work with:
 
 # Install
 
-- requires Python 2.7.9+
-  -*use python virtual env if this version is not available via your system package manager*
+- requires Python 3
 
+``` 
+$ sudo apt-get install avrdude piccom python3 python3-pip esptool
+& pip install requirements.txt
 ```
-$ git clone https://github.com/openenergymonitor/emonupload
-$ sudo apt-get update
-$ sudo apt-get install python python-pip avrdude git-core picocom -y
-$ cd emonupload
-$ pip install -r requirements.txt
-```
-- Tested with pip 8.1.2, picocom V3.2
 
-Note: picocom may need to be compiled to obtain V3.x https://github.com/npat-efault/picocom
+Allow non root acces to serail ports and install platformIO udev rules:
+
+`sudo usermod -a -G dialout $USER`
+
+`curl -fsSL https://raw.githubusercontent.com/platformio/platformio-core/master/scripts/99-platformio-udev.rules | sudo tee /etc/udev/rules.d/99-platformio-udev.rules`
+
+More info: https://docs.platformio.org/en/latest/faq.html#platformio-udev-rules
+
+*Logout then log back in and un-plug re-plug your USB programmer for the change to take effect*
+
+Tested on Ubuntu 20.04
+
 
 # Run
 
 `./emonupload.py`
 
-*`emon` can be installed in `/user/bin` to enable launching via `emon` command*
 
 ## Example
 
@@ -111,48 +116,12 @@ Enter lettercode for required function >
 ```
 
 
-### Setup Python virtual env
-
-*Only needed if your system only has support for python =< 2.6 e.g. Ubuntu 14.04 :-(*
-
-```
-sudo apt-get update
-sudo apt-get install -y make build-essential libssl-dev zlib1g-dev libbz2-dev \
-libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev \
-xz-utils tk-dev libffi-dev liblzma-dev
-sudo pip install virtualenvwrapper
-
-git clone https://github.com/yyuu/pyenv.git ~/.pyenv
-git clone https://github.com/yyuu/pyenv-virtualenvwrapper.git ~/.pyenv/plugins/pyenv-virtualenvwrapper
-
-echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
-echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
-echo 'eval "$(pyenv init -)"' >> ~/.bashrc
-echo 'pyenv virtualenvwrapper' >> ~/.bashrc
-```
-
-```
-$ ~/.pyenv/bin/pyenv install 2.7.9
-$ cd emonupload
-$ python --version
-Python 2.7.9
-```
-
-After shell has been reloaded `pyenv` can just be called directly without it's full path `~/.pyenv/bin/pyenv` do to the lines added to bashrc.
-
-Local python version 2.7.9 will be used for `emonupload`. This is defined by `.python-version` in the root project folder.
-
-For more info on pyenv python virtual enviroment: https://github.com/yyuu/pyenv
-
-
 
 ## Install PlatformIO
 
 *Not essential for upload: Required for unit testing and serial monitor view*
 
-### Install PlatformIO using Linux / Mac install script:
-
-`$ sudo python -c "$(curl -fsSL https://raw.githubusercontent.com/platformio/platformio/master/scripts/get-platformio.py)"`
+### Install PlatformIO 
 
 See [PlatformIO website](http://docs.platformio.org/en/stable/installation.html) for Windows install guide.
 
