@@ -320,9 +320,7 @@ def serial_monitor(baud,port):
     # excape chracter is [CTRL + c] then [CTRL + q] to quit
     # picocom v3.2a
     cmd = 'picocom -q -x 15000 -e c --omap crcrlf -b' + str(baud) + ' '+ str(port)
-    # subprocess.call(cmd, shell=True)
-    process = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE)
-    output, error = process.communicate()
+    subprocess.call(cmd, shell=True)
     return True
 # --------------------------------------------------------------------------------------------------
 
