@@ -23,7 +23,7 @@ repo_folder = 'repos/'
 uno_bootloader = 'bootloaders/optiboot_atmega328.hex'
 
 allowed_extensions = ['bin', 'hex' ,'zip']
-github_repo = ['openenergymonitor/emonth2', 'openenergymonitor/emonpi', 'openenergymonitor/emontx3', 'openenergymonitor/emontx-3phase', 'openenergymonitor/emonesp', 'OpenEVSE/ESP8266_WiFi_v2.x', 'openenergymonitor/mqtt-wifi-mqtt-single-channel-relay', 'openenergymonitor/open_evse', 'openenergymonitor/EmonTxV3CM', 'OpenEVSE/ESP32_WiFi_V4.x'  ]
+github_repo = ['openenergymonitor/emonth2', 'openenergymonitor/emonpi', 'openenergymonitor/emontx3', 'openenergymonitor/emontx-3phase', 'openenergymonitor/emonesp', 'OpenEVSE/ESP8266_WiFi_v2.x', 'openenergymonitor/mqtt-wifi-mqtt-single-channel-relay', 'OpenEVSE/open_evse', 'openenergymonitor/EmonTxV3CM', 'OpenEVSE/ESP32_WiFi_V4.x'  ]
 #--------------------------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------------------------
