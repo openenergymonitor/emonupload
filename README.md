@@ -32,7 +32,7 @@ Configured by default to work with:
 - requires Python 3
 
 ``` 
-$ sudo apt-get install avrdude piccom python3 python3-pip esptool
+$ sudo apt-get install avrdude picocom python3 python3-pip esptool
 & pip install requirements.txt
 ```
 
