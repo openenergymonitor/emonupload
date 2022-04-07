@@ -568,7 +568,7 @@ while(1):
             subprocess.call(cmd, shell=True)
 
             input("\nPress Enter to flash EmonEVSE Controller FW\n")
-            cmd = ' avrdude -p atmega328p -c usbasp -B5 -P usb -e -U flash:w:' + download_folder + 'openenergymonitor-open_evse-emonevse.hex'
+            cmd = ' avrdude -p atmega328p -c usbasp -B5 -P usb -e -U flash:w:' + download_folder + 'OpenEVSE-open_evse-emonevse.hex'
             print(cmd)
             subprocess.call(cmd, shell=True)
             input("\nDone EmonEVSE controller upload. Press Enter to return to menu\n")
@@ -589,7 +589,7 @@ while(1):
             subprocess.call(cmd, shell=True)
 
             input("\nPress Enter to flash EmonEVSE Controller FW\n")
-            cmd = ' avrdude -p atmega328p -c usbasp -B5 -P usb -e -U flash:w:' + download_folder + 'openenergymonitor-open_evse-openevse.hex'
+            cmd = ' avrdude -p atmega328p -c usbasp -B5 -P usb -e -U flash:w:' + download_folder + 'OpenEVSE-open_evse-openevse_eu.hex'
             print(cmd)
             subprocess.call(cmd, shell=True)
             input("\nDone OpenEVSE controller upload. Press Enter to return to menu\n")
@@ -659,7 +659,7 @@ while(1):
             subprocess.call(cmd, shell=True)
 
             input("\nPress Enter to flash EmonEVSE Controller FW\n")
-            cmd = ' avrdude -p atmega328p -c usbasp -B5 -P usb -e -U flash:w:' + download_folder + 'openenergymonitor-open_evse-emonevse-3ph.hex'
+            cmd = ' avrdude -p atmega328p -c usbasp -B5 -P usb -e -U flash:w:' + download_folder + 'OpenEVSE-open_evse-emonevse_3ph.hex'
             print(cmd)
             subprocess.call(cmd, shell=True)
             input("\nDone EmonEVSE 3p controller upload. Press Enter to return to menu\n")
