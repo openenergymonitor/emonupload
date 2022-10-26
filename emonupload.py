@@ -629,12 +629,12 @@ while(1):
                 serial_monitor(openevse_baud,serial_port)
         os.system('clear') # clear terminal screen Linux specific
 
-    # OpenEVSE ESP32 Etherent Gateway G
+    # OpenEVSE ESP32 Etherent Gateway F & G
     elif nb=='12':
         print(bcolors.OKGREEN + '\nOpenEVSE ESP32 Etherent Gateway\n' + bcolors.ENDC)
         cmd = 'pip freeze --disable-pip-version-check | grep esptool'
         if subprocess.call(cmd, shell=True) != ' ':
-            cmd = 'esptool --before default_reset --after hard_reset write_flash 0x1000 ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-bootloader.bin 0x8000 ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-partitions.bin 0x10000 ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-openevse_esp32-gateway-e.bin'
+            cmd = 'esptool --before default_reset --after hard_reset write_flash 0x1000 ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-bootloader.bin 0x8000 ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-partitions.bin 0x10000 ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-openevse_esp32-gateway-f.bin'
             print(cmd)
             subprocess.call(cmd, shell=True)
             if input("\nDone OpenEVSE ESP32 Etherent Gateway Upload. Press Enter to return to menu or (s) to view serial output (reset required)>\n"):
