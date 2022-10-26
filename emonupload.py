@@ -16,14 +16,14 @@ from os.path import expanduser
 #--------------------------------------------------------------------------------------------------
 DEBUG             = 0
 UPDATE            = 1           # Update firmware releases at startup
-VERSION = 'V2.6.0'
+VERSION = 'V2.6.1'
 
 download_folder = 'latest/'
 repo_folder = 'repos/'
 uno_bootloader = 'bootloaders/optiboot_atmega328.hex'
 
 allowed_extensions = ['bin', 'hex' ,'zip']
-github_repo = ['openenergymonitor/emonth2', 'openenergymonitor/emonpi', 'openenergymonitor/emontx3', 'openenergymonitor/emontx-3phase', 'openenergymonitor/emonesp', 'OpenEVSE/ESP8266_WiFi_v2.x', 'openenergymonitor/mqtt-wifi-mqtt-single-channel-relay', 'OpenEVSE/open_evse', 'openenergymonitor/EmonTxV3CM', 'OpenEVSE/ESP32_WiFi_V4.x'  ]
+github_repo = ['openenergymonitor/emonth2', 'openenergymonitor/emonpi', 'openenergymonitor/emontx3', 'openenergymonitor/emontx-3phase', 'openenergymonitor/emonesp', 'OpenEVSE/ESP8266_WiFi_v2.x', 'openenergymonitor/mqtt-wifi-mqtt-single-channel-relay', 'OpenEVSE/open_evse', 'openenergymonitor/EmonTxV3CM', 'OpenEVSE/ESP32_WiFi_V4.x', 'openenergymonitor/emontx4'  ]
 #--------------------------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------------------------
@@ -424,8 +424,9 @@ while(1):
     print(bcolors.OKGREEN + '(9) Controller OpenEVSE (ISP)\n' + bcolors.ENDC)
     print(bcolors.OKGREEN + '(10) MQTT WiFi Relay\n' + bcolors.ENDC)
     print(bcolors.OKGREEN + '(11) WiFi ESP32 OpenEVSE/EmonEVSE\n' + bcolors.ENDC)
-    print(bcolors.OKGREEN + '(12) Etherent ESP32 OpenEVSE/EmonEVSE' + bcolors.ENDC)
-    print(bcolors.OKGREEN + '(13) 3-phase EmonEVSE (ISP)' + bcolors.ENDC)
+    print(bcolors.OKGREEN + '(12) Etherent ESP32 OpenEVSE/EmonEVSE\n' + bcolors.ENDC)
+    print(bcolors.OKGREEN + '(13) 3-phase EmonEVSE (ISP)\n' + bcolors.ENDC)
+    print(bcolors.OKGREEN + '(14) emonTx V4' + bcolors.ENDC)
     print('\n')
     #print bcolors.OKGREEN + '(r) for RFM69Pi' + bcolors.ENDC
     print(bcolors.OKBLUE + '(c) to clear (erase) ESP8266 flash' + bcolors.ENDC)
@@ -452,7 +453,7 @@ while(1):
                 test_receive_rf(emontx_nodeid, rfm_port, rfm_baud)
         else: print(bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC)
 
-        if input("\nDone emonTx upload. Press Enter to return to menu or (s) to view serial output>\n"):
+        if input("\nDone emonTx V4 upload. Press Enter to return to menu or (s) to view serial output ([CTRL + c] then [CTRL + q] to quit)>\n"):
             serial_monitor(emontx_baud,serial_port)
         os.system('clear') # clear terminal screen Linux specific
 
@@ -468,7 +469,7 @@ while(1):
                 test_receive_rf(emontx_nodeid, rfm_port, rfm_baud)
         else: print(bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC)
 
-        if input("\nDone emonTx upload. Press Enter to return to menu or (s) to view serial output>\n"):
+        if input("\nDone emonTx V4 upload. Press Enter to return to menu or (s) to view serial output ([CTRL + c] then [CTRL + q] to quit)>\n"):
             serial_monitor(emontx_baud,serial_port)
         os.system('clear') # clear terminal screen Linux specific
 
@@ -484,7 +485,7 @@ while(1):
                 test_receive_rf(emontx_3phase_nodeid, rfm_port, rfm_baud)
         else: print(bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC)
 
-        if input("\nDone emonTx 3-phase upload. Press Enter to return to menu or (s) to view serial output>\n"):
+        if input("\nDone emonTx V4 upload. Press Enter to return to menu or (s) to view serial output ([CTRL + c] then [CTRL + q] to quit)>\n"):
             serial_monitor(emontx_3phase_baud,serial_port)
         os.system('clear') # clear terminal screen Linux specific
 
@@ -500,7 +501,7 @@ while(1):
                 test_receive_rf(emonpi_nodeid, rfm_port, rfm_baud)
         else: print(bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC)
 
-        if input("\nDone emonPi Upload. Press Enter to return to menu or (s) to view serial output>\n"):
+        if input("\nDone emonTx V4 upload. Press Enter to return to menu or (s) to view serial output ([CTRL + c] then [CTRL + q] to quit)>\n"):
             serial_monitor(emonpi_baud,serial_port)
         os.system('clear') # clear terminal screen Linux specific
 
@@ -517,7 +518,7 @@ while(1):
                 test_receive_rf(emonth_nodeid, rfm_port, rfm_baud)
         else: print(bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC)
 
-        if input("\nDone emonTH V2 upload. Press Enter to return to menu or (s) to view serial output>\n"):
+        if input("\nDone emonTx V4 upload. Press Enter to return to menu or (s) to view serial output ([CTRL + c] then [CTRL + q] to quit)>\n"):
             serial_monitor(emonth_baud,serial_port)
         os.system('clear') # clear terminal screen Linux specific
 
@@ -664,7 +665,16 @@ while(1):
             subprocess.call(cmd, shell=True)
             input("\nDone EmonEVSE 3p controller upload. Press Enter to return to menu\n")
         os.system('clear') # clear terminal screen Linux specific
-
+        
+    # emonTx V4
+    elif nb=='14':
+        print(bcolors.OKGREEN + '\nemonTx V4)\n' + bcolors.ENDC)
+        cmd = ' avrdude -Cavrdude.conf -v -pavr128db48 -carduino -D -P' + serial_port + ' -b115200 -Uflash:w:' + download_folder + 'openenergymonitor-emontx4.hex'
+        print(cmd)
+        subprocess.call(cmd, shell=True)
+        if input("\nDone emonTx V4 upload. Press Enter to return to menu or (s) to view serial output ([CTRL + c] then [CTRL + q] to quit)>\n"):
+            serial_monitor(115200,serial_port)
+        os.system('clear') # clear terminal screen Linux specific
 
 
     elif nb=='c':

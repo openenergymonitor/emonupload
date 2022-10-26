@@ -13,18 +13,6 @@ Download latest OpenEnergyMonitor firmware via GitHub releases; upload and test.
 - [Unit testing via PlatformIO](http://docs.platformio.org/en/stable/plus/unit-testing.html)
 - Expandable to include any other Git repositories
 
-
-Configured by default to work with:
-
-* emonTx
-* emonTH V1
-* emonTH V2
-* emonTx V3
-* emonESP
-* OpenEVSE
-* EmonEVSE
-* WiFi Relay
-
 ***
 
 # Install
