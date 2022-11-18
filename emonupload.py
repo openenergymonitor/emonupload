@@ -426,7 +426,8 @@ while(1):
     print(bcolors.OKGREEN + '(11) WiFi ESP32 OpenEVSE/EmonEVSE\n' + bcolors.ENDC)
     print(bcolors.OKGREEN + '(12) Etherent ESP32 OpenEVSE/EmonEVSE\n' + bcolors.ENDC)
     print(bcolors.OKGREEN + '(13) 3-phase EmonEVSE (ISP)\n' + bcolors.ENDC)
-    print(bcolors.OKGREEN + '(14) emonTx V4' + bcolors.ENDC)
+    print(bcolors.OKGREEN + '(14) emonTx V4 LowPowerLabs (Main)' + bcolors.ENDC)
+    print(bcolors.OKGREEN + '(15) emonTx V4 JeeLib Classic' + bcolors.ENDC)
     print('\n')
     #print bcolors.OKGREEN + '(r) for RFM69Pi' + bcolors.ENDC
     print(bcolors.OKBLUE + '(c) to clear (erase) ESP8266 flash' + bcolors.ENDC)
@@ -669,7 +670,17 @@ while(1):
     # emonTx V4
     elif nb=='14':
         print(bcolors.OKGREEN + '\nemonTx V4)\n' + bcolors.ENDC)
-        cmd = ' avrdude -Cavrdude.conf -v -pavr128db48 -carduino -D -P' + serial_port + ' -b115200 -Uflash:w:' + download_folder + 'openenergymonitor-emontx4.hex'
+        cmd = ' avrdude -Cavrdude.conf -v -pavr128db48 -carduino -D -P' + serial_port + ' -b115200 -Uflash:w:' + download_folder + 'openenergymonitor-emontx4-EmonTxV4_LPL.hex'
+        print(cmd)
+        subprocess.call(cmd, shell=True)
+        if input("\nDone emonTx V4 upload. Press Enter to return to menu or (s) to view serial output ([CTRL + c] then [CTRL + q] to quit)>\n"):
+            serial_monitor(115200,serial_port)
+        os.system('clear') # clear terminal screen Linux specific
+
+    # emonTx V4
+    elif nb=='15':
+        print(bcolors.OKGREEN + '\nemonTx V4)\n' + bcolors.ENDC)
+        cmd = ' avrdude -Cavrdude.conf -v -pavr128db48 -carduino -D -P' + serial_port + ' -b115200 -Uflash:w:' + download_folder + 'openenergymonitor-emontx4-EmonTxV4_JeeLib_Classic.hex'
         print(cmd)
         subprocess.call(cmd, shell=True)
         if input("\nDone emonTx V4 upload. Press Enter to return to menu or (s) to view serial output ([CTRL + c] then [CTRL + q] to quit)>\n"):
