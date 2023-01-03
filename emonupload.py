@@ -66,21 +66,6 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
-# Autodetect ttyUSB port 0 - 12 ttyUSB[x]
-serial_port = False
-for i in range(12):
-    try_port='/dev/ttyUSB' +str(i)
-    try:
-        ser = serial.Serial(port=try_port, timeout=1)
-        ser.read()
-        ser.close()
-        print(bcolors.OKGREEN + "Found serial programmer on " + try_port + bcolors.ENDC)
-        serial_port = try_port
-        break
-    except serial.serialutil.SerialException:
-        if (DEBUG): print('ERROR: USB serial programmer NOT found on ' + try_port + bcolors.ENDC)
-
-
 # Check download folder exists if not create
 if not os.path.isdir(download_folder):
     os.mkdir(download_folder)
@@ -217,6 +202,17 @@ def serial_upload(firmware_path):
     print(bcolors.OKGREEN + '\nSerial upload ' + firmware_path + '\n' + bcolors.ENDC)
 
     # Autodetect ttyUSB port 0 - 12 ttyUSB[x]
+    serial_port = get_serial_port()
+
+    if (serial_port!=False):
+        cmd = 'avrdude    -uV -c arduino -p ATMEGA328P -P' + str(serial_port) + ' -b 115200 -U flash:w:' + firmware_path
+        print(cmd)
+        subprocess.call(cmd, shell=True)
+    else: print(bcolors.FAIL + 'ERROR: USB serial programmer NOT found' + bcolors.ENDC)
+
+    return serial_port
+    
+def get_serial_port():
     serial_port = False
     for i in range(12):
         try_port='/dev/ttyUSB' +str(i)
@@ -229,13 +225,7 @@ def serial_upload(firmware_path):
             break
         except serial.serialutil.SerialException:
             if (DEBUG): print('ERROR: USB serial programmer NOT found on ' + try_port + bcolors.ENDC)
-
-    if (serial_port!=False):
-        cmd = 'avrdude    -uV -c arduino -p ATMEGA328P -P' + serial_port + ' -b 115200 -U flash:w:' + firmware_path
-        print(cmd)
-        subprocess.call(cmd, shell=True)
-    else: print(bcolors.FAIL + 'ERROR: USB serial programmer NOT found' + bcolors.ENDC)
-
+            
     return serial_port
 #--------------------------------------------------------------------------------------------------
 
@@ -355,7 +345,7 @@ def serial_menu():
         return
 
 
-
+serial_port = get_serial_port()
 
 #--------------------------------------------------------------------------------------------------
 # BEGIN
@@ -370,7 +360,7 @@ if (RFM != False):
 # Update Firmware - download latest releases
 #--------------------------------------------------------------------------------------------------
 if interent_connected('https://api.github.com'):
-
+    print("Internet connected")
     if (UPDATE):    # If startup update is requested
 
         # Update firware releases for github releases
@@ -402,14 +392,17 @@ if interent_connected('https://api.github.com'):
         time.sleep(5)
 
     else: print('Startup update disabled')
-
+else: print("Internet not connected, or rate limit exceeded")
 # Check required packages are installed
 # check_package('avrdude')
 
+first_run = True
 
 while(1):
     print('\n-------------------------------------------------------------------------------')
-    os.system('clear') # clear terminal screen Linux specific
+    if not first_run:
+        os.system('clear') # clear terminal screen Linux specific
+        first_run = False
     print(' ')
     print(bcolors.OKBLUE + 'OpenEnergyMonitor Firmware Upload ' + VERSION + bcolors.ENDC)
     print('\nUpload >\n')
@@ -670,24 +663,33 @@ while(1):
     # emonTx V4
     elif nb=='14':
         print(bcolors.OKGREEN + '\nemonTx V4)\n' + bcolors.ENDC)
-        cmd = ' avrdude -Cavrdude.conf -v -pavr128db48 -carduino -D -P' + serial_port + ' -b115200 -Uflash:w:' + download_folder + 'openenergymonitor-emontx4-EmonTxV4_LPL.hex'
-        print(cmd)
-        subprocess.call(cmd, shell=True)
-        if input("\nDone emonTx V4 upload. Press Enter to return to menu or (s) to view serial output ([CTRL + c] then [CTRL + q] to quit)>\n"):
-            serial_monitor(115200,serial_port)
-        os.system('clear') # clear terminal screen Linux specific
+        serial_port = get_serial_port()
+        if serial_port:
+            cmd = ' avrdude -Cavrdude.conf -v -pavr128db48 -carduino -D -P' + str(serial_port) + ' -b115200 -Uflash:w:' + download_folder + 'openenergymonitor-emontx4-EmonTxV4_LPL.hex'
+            print(cmd)
+            subprocess.call(cmd, shell=True)
+            if input("\nDone emonTx V4 upload. Press Enter to return to menu or (s) to view serial output ([CTRL + c] then [CTRL + q] to quit)>\n"):
+                serial_monitor(115200,serial_port)
+            os.system('clear') # clear terminal screen Linux specific
+        else:
+            print("Serial port not detected")
+            time.sleep(1.0)
 
     # emonTx V4
     elif nb=='15':
         print(bcolors.OKGREEN + '\nemonTx V4)\n' + bcolors.ENDC)
-        cmd = ' avrdude -Cavrdude.conf -v -pavr128db48 -carduino -D -P' + serial_port + ' -b115200 -Uflash:w:' + download_folder + 'openenergymonitor-emontx4-EmonTxV4_JeeLib_Classic.hex'
-        print(cmd)
-        subprocess.call(cmd, shell=True)
-        if input("\nDone emonTx V4 upload. Press Enter to return to menu or (s) to view serial output ([CTRL + c] then [CTRL + q] to quit)>\n"):
-            serial_monitor(115200,serial_port)
-        os.system('clear') # clear terminal screen Linux specific
-
-
+        serial_port = get_serial_port() 
+        if serial_port:
+            cmd = ' avrdude -Cavrdude.conf -v -pavr128db48 -carduino -D -P' + str(serial_port) + ' -b115200 -Uflash:w:' + download_folder + 'openenergymonitor-emontx4-EmonTxV4_JeeLib_Classic.hex'
+            print(cmd)
+            subprocess.call(cmd, shell=True)
+            if input("\nDone emonTx V4 upload. Press Enter to return to menu or (s) to view serial output ([CTRL + c] then [CTRL + q] to quit)>\n"):
+                serial_monitor(115200,serial_port)
+            os.system('clear') # clear terminal screen Linux specific
+        else:
+            print("Serial port not detected")
+            time.sleep(1.0)
+            
     elif nb=='c':
         print(bcolors.OKGREEN + '\nErase ESP8266 flash\n' + bcolors.ENDC)
         cmd = 'pip freeze --disable-pip-version-check | grep esptool'
