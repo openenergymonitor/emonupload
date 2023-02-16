@@ -23,7 +23,7 @@ repo_folder = 'repos/'
 uno_bootloader = 'bootloaders/optiboot_atmega328.hex'
 
 allowed_extensions = ['bin', 'hex' ,'zip']
-github_repo = ['openenergymonitor/emonth2', 'openenergymonitor/emonpi', 'openenergymonitor/emontx3', 'openenergymonitor/emontx-3phase', 'openenergymonitor/emonesp', 'OpenEVSE/ESP8266_WiFi_v2.x', 'openenergymonitor/mqtt-wifi-mqtt-single-channel-relay', 'OpenEVSE/open_evse', 'openenergymonitor/EmonTxV3CM', 'OpenEVSE/ESP32_WiFi_V4.x', 'openenergymonitor/emontx4'  ]
+github_repo = ['openenergymonitor/emonth2', 'openenergymonitor/emonpi', 'openenergymonitor/emontx3', 'openenergymonitor/emonesp', 'OpenEVSE/ESP8266_WiFi_v2.x', 'openenergymonitor/mqtt-wifi-mqtt-single-channel-relay', 'OpenEVSE/open_evse', 'OpenEVSE/ESP32_WiFi_V4.x', 'openenergymonitor/emontx4'  ]
 #--------------------------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------------------------
@@ -439,7 +439,7 @@ while(1):
     if nb=='1':
         print(bcolors.OKGREEN + '\nemonTx DS\n' + bcolors.ENDC)
         burn_bootloader(uno_bootloader)
-        serial_port = serial_upload(download_folder + 'openenergymonitor-emontx3.hex:i')
+        serial_port = serial_upload(download_folder + 'openenergymonitor-emontx3-emonTx34_DS_jeelib_classic_3_4.hex:i')
         if (RFM):
             if test_receive_rf(emontx_nodeid, rfm_port, rfm_baud) == False:
                 rfm(rfm_port, rfm_baud , rfm_group, rfm_freq) # 'poke RFM'
@@ -453,9 +453,9 @@ while(1):
 
     # emonTx V3 CM
     if nb=='2':
-        print(bcolors.OKGREEN + '\nemonTx CM\n' + bcolors.ENDC)
+        print(bcolors.OKGREEN + '\nemonTx3 CM jeelib classic\n' + bcolors.ENDC)
         burn_bootloader(uno_bootloader)
-        serial_port = serial_upload(download_folder + 'openenergymonitor-EmonTxV3CM.hex:i')
+        serial_port = serial_upload(download_folder + 'openenergymonitor-emontx3-emonTx34_CM_jeelib_classic_2_4.hex:i')
         if (RFM):
             if test_receive_rf(emontx_nodeid, rfm_port, rfm_baud) == False:
                 rfm(rfm_port, rfm_baud , rfm_group, rfm_freq) # 'poke RFM'
@@ -469,9 +469,9 @@ while(1):
 
     # emonTx 3-phase
     if nb=='3':
-        print(bcolors.OKGREEN + '\nemonTx 3-phase\n' + bcolors.ENDC)
+        print(bcolors.OKGREEN + '\nemonTx3 3-phase jeelib classic\n' + bcolors.ENDC)
         burn_bootloader(uno_bootloader)
-        serial_port = serial_upload(download_folder + 'openenergymonitor-emontx-3phase.hex:i')
+        serial_port = serial_upload(download_folder + 'openenergymonitor-emontx3-emonTx_3Phase_PLL_jeelib_classic_2_1.hex:i')
         if (RFM):
             if test_receive_rf(emontx_3phase_nodeid, rfm_port, rfm_baud) == False:
                 rfm(rfm_port, rfm_baud , rfm_group, rfm_freq) # 'poke RFM'
