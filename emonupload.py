@@ -487,7 +487,7 @@ while(1):
     elif nb=='4':
         print(bcolors.OKGREEN + '\nemonPi\n' + bcolors.ENDC)
         burn_bootloader(uno_bootloader)
-        serial_port = serial_upload(download_folder + 'openenergymonitor-emonpi.hex:i')
+        serial_port = serial_upload(download_folder + 'openenergymonitor-emonpi-emonPi_DS_jeelib_classic_2_9_3.hex:i')
         if (RFM):
             if test_receive_rf(emonpi_nodeid, rfm_port, rfm_baud) == False:
                 rfm(rfm_port, rfm_baud , rfm_group, rfm_freq) # 'poke RFM'
@@ -504,7 +504,7 @@ while(1):
     elif nb=='5':
         print(bcolors.OKGREEN + '\nemonTH V2\n' + bcolors.ENDC)
         burn_bootloader(uno_bootloader)
-        serial_port = serial_upload(download_folder + 'openenergymonitor-emonth2.hex:i')
+        serial_port = serial_upload(download_folder + 'openenergymonitor-emonth2-emonth2_jeelib_classic_4_1.hex .hex:i')
         if (RFM):
             if test_receive_rf(emonth_nodeid, rfm_port, rfm_baud) == False:
                 rfm(rfm_port, rfm_baud , rfm_group, rfm_freq) # 'poke RFM'
