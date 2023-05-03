@@ -639,26 +639,6 @@ while(1):
         os.system('clear') # clear terminal screen Linux specific
 
 
-    # EmonEVSE - 3phase controller
-    elif nb=='13':
-        print(bcolors.OKGREEN + '\n3-phase EmonEVSE Controller (ISP)\n' + bcolors.ENDC)
-        cmd = 'pip freeze --disable-pip-version-check | grep esptool'
-        if subprocess.call(cmd, shell=True) != ' ':
-            print('setting fuses')
-            cmd = ' avrdude -c USBasp -p m328p -U lfuse:w:0xFF:m -U hfuse:w:0xDF:m -U efuse:w:0xFD:m -B6'
-            print(cmd)
-            subprocess.call(cmd, shell=True)
-
-            input("\nController fuses set press Enter to read back\n")
-            cmd = ' avrdude -p atmega328p -c usbasp -P usb -e -U lfuse:r:-:i -v'
-            subprocess.call(cmd, shell=True)
-
-            input("\nPress Enter to flash EmonEVSE Controller FW\n")
-            cmd = ' avrdude -p atmega328p -c usbasp -B5 -P usb -e -U flash:w:' + download_folder + 'OpenEVSE-open_evse-emonevse_3ph.hex'
-            print(cmd)
-            subprocess.call(cmd, shell=True)
-            input("\nDone EmonEVSE 3p controller upload. Press Enter to return to menu\n")
-        os.system('clear') # clear terminal screen Linux specific
         
     # emonTx V4
     elif nb=='14':
