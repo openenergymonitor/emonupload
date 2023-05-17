@@ -23,7 +23,7 @@ repo_folder = 'repos/'
 uno_bootloader = 'bootloaders/optiboot_atmega328.hex'
 
 allowed_extensions = ['bin', 'hex' ,'zip']
-github_repo = ['openenergymonitor/emonth2', 'openenergymonitor/emonpi', 'openenergymonitor/emontx3', 'openenergymonitor/emonesp', 'OpenEVSE/ESP8266_WiFi_v2.x', 'openenergymonitor/mqtt-wifi-mqtt-single-channel-relay', 'OpenEVSE/open_evse', 'OpenEVSE/ESP32_WiFi_V4.x', 'openenergymonitor/emontx4'  ]
+github_repo = ['openenergymonitor/emonesp', 'OpenEVSE/ESP8266_WiFi_v2.x', 'openenergymonitor/mqtt-wifi-mqtt-single-channel-relay', 'OpenEVSE/open_evse', 'OpenEVSE/ESP32_WiFi_V4.x']
 #--------------------------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------------------------
@@ -406,11 +406,6 @@ while(1):
     print(' ')
     print(bcolors.OKBLUE + 'OpenEnergyMonitor Firmware Upload ' + VERSION + bcolors.ENDC)
     print('\nUpload >\n')
-    print(bcolors.OKGREEN + '(1) emonTx V3 discrete sampling (DS) [WITH battery holder]\n' + bcolors.ENDC)
-    print(bcolors.OKGREEN + '(2) emonTx V3 continuous monitoring (CM)\n' + bcolors.ENDC)
-    print(bcolors.OKGREEN + '(3) 3-phase emonTx\n' + bcolors.ENDC)
-    print(bcolors.OKGREEN + '(4) emonPi\n' + bcolors.ENDC)
-    print(bcolors.OKGREEN + '(5) emonTH V2\n' + bcolors.ENDC)
     print(bcolors.OKGREEN + '(6) emonESP\n' + bcolors.ENDC)
     print(bcolors.OKGREEN + '(7) Controller EmonEVSE (ISP)\n' + bcolors.ENDC)
     print(bcolors.OKGREEN + '(8) WiFi ESP8266 OpenEVSE/EmonEVSE\n' + bcolors.ENDC)
@@ -419,8 +414,6 @@ while(1):
     print(bcolors.OKGREEN + '(11) WiFi ESP32 OpenEVSE/EmonEVSE\n' + bcolors.ENDC)
     print(bcolors.OKGREEN + '(12) Etherent ESP32 OpenEVSE/EmonEVSE\n' + bcolors.ENDC)
     print(bcolors.OKGREEN + '(13) 3-phase EmonEVSE (ISP)\n' + bcolors.ENDC)
-    print(bcolors.OKGREEN + '(14) emonTx V4 LowPowerLabs (Main)' + bcolors.ENDC)
-    print(bcolors.OKGREEN + '(15) emonTx V4 JeeLib Classic' + bcolors.ENDC)
     print('\n')
     #print bcolors.OKGREEN + '(r) for RFM69Pi' + bcolors.ENDC
     print(bcolors.OKBLUE + '(c) to clear (erase) ESP8266 flash' + bcolors.ENDC)
@@ -435,89 +428,8 @@ while(1):
     nb = input('Enter code for required function > ')
     os.system('clear') # clear terminal screen Linux specific
 
-    # emonTx V3 DS
-    if nb=='1':
-        print(bcolors.OKGREEN + '\nemonTx DS\n' + bcolors.ENDC)
-        burn_bootloader(uno_bootloader)
-        serial_port = serial_upload(download_folder + 'openenergymonitor-emontx3-emonTx34_DS_jeelib_classic_3_4.hex:i')
-        if (RFM):
-            if test_receive_rf(emontx_nodeid, rfm_port, rfm_baud) == False:
-                rfm(rfm_port, rfm_baud , rfm_group, rfm_freq) # 'poke RFM'
-                reset(serial_port) # reset and try again if serial is not detected
-                test_receive_rf(emontx_nodeid, rfm_port, rfm_baud)
-        else: print(bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC)
-
-        if input("\nDone emonTx V4 upload. Press Enter to return to menu or (s) to view serial output ([CTRL + c] then [CTRL + q] to quit)>\n"):
-            serial_monitor(emontx_baud,serial_port)
-        os.system('clear') # clear terminal screen Linux specific
-
-    # emonTx V3 CM
-    if nb=='2':
-        print(bcolors.OKGREEN + '\nemonTx3 CM jeelib classic\n' + bcolors.ENDC)
-        burn_bootloader(uno_bootloader)
-        serial_port = serial_upload(download_folder + 'openenergymonitor-emontx3-emonTx34_CM_jeelib_classic_2_4.hex:i')
-        if (RFM):
-            if test_receive_rf(emontx_nodeid, rfm_port, rfm_baud) == False:
-                rfm(rfm_port, rfm_baud , rfm_group, rfm_freq) # 'poke RFM'
-                reset(serial_port) # reset and try again if serial is not detected
-                test_receive_rf(emontx_nodeid, rfm_port, rfm_baud)
-        else: print(bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC)
-
-        if input("\nDone emonTx V4 upload. Press Enter to return to menu or (s) to view serial output ([CTRL + c] then [CTRL + q] to quit)>\n"):
-            serial_monitor(emontx_baud,serial_port)
-        os.system('clear') # clear terminal screen Linux specific
-
-    # emonTx 3-phase
-    if nb=='3':
-        print(bcolors.OKGREEN + '\nemonTx3 3-phase jeelib classic\n' + bcolors.ENDC)
-        burn_bootloader(uno_bootloader)
-        serial_port = serial_upload(download_folder + 'openenergymonitor-emontx3-emonTx_3Phase_PLL_jeelib_classic_2_1.hex:i')
-        if (RFM):
-            if test_receive_rf(emontx_3phase_nodeid, rfm_port, rfm_baud) == False:
-                rfm(rfm_port, rfm_baud , rfm_group, rfm_freq) # 'poke RFM'
-                reset(serial_port) # reset and try again if serial is not detected
-                test_receive_rf(emontx_3phase_nodeid, rfm_port, rfm_baud)
-        else: print(bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC)
-
-        if input("\nDone emonTx V4 upload. Press Enter to return to menu or (s) to view serial output ([CTRL + c] then [CTRL + q] to quit)>\n"):
-            serial_monitor(emontx_3phase_baud,serial_port)
-        os.system('clear') # clear terminal screen Linux specific
-
-    # emonPi
-    elif nb=='4':
-        print(bcolors.OKGREEN + '\nemonPi\n' + bcolors.ENDC)
-        burn_bootloader(uno_bootloader)
-        serial_port = serial_upload(download_folder + 'openenergymonitor-emonpi-emonPi_DS_jeelib_classic_2_9_3.hex:i')
-        if (RFM):
-            if test_receive_rf(emonpi_nodeid, rfm_port, rfm_baud) == False:
-                rfm(rfm_port, rfm_baud , rfm_group, rfm_freq) # 'poke RFM'
-                reset(serial_port) # reset and try again if serial is not detected
-                test_receive_rf(emonpi_nodeid, rfm_port, rfm_baud)
-        else: print(bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC)
-
-        if input("\nDone emonTx V4 upload. Press Enter to return to menu or (s) to view serial output ([CTRL + c] then [CTRL + q] to quit)>\n"):
-            serial_monitor(emonpi_baud,serial_port)
-        os.system('clear') # clear terminal screen Linux specific
-
-
-    # emonTH V2
-    elif nb=='5':
-        print(bcolors.OKGREEN + '\nemonTH V2\n' + bcolors.ENDC)
-        burn_bootloader(uno_bootloader)
-        serial_port = serial_upload(download_folder + 'openenergymonitor-emonth2-emonth2_jeelib_classic_4_1.hex .hex:i')
-        if (RFM):
-            if test_receive_rf(emonth_nodeid, rfm_port, rfm_baud) == False:
-                rfm(rfm_port, rfm_baud , rfm_group, rfm_freq) # 'poke RFM'
-                reset(serial_port) # reset and try again if serial is not detected
-                test_receive_rf(emonth_nodeid, rfm_port, rfm_baud)
-        else: print(bcolors.WARNING + '\nError: Cannot connect to RFM69Pi receiver. Upload only...NO RF TEST' + bcolors.ENDC)
-
-        if input("\nDone emonTx V4 upload. Press Enter to return to menu or (s) to view serial output ([CTRL + c] then [CTRL + q] to quit)>\n"):
-            serial_monitor(emonth_baud,serial_port)
-        os.system('clear') # clear terminal screen Linux specific
-
     # emonESP
-    elif nb=='6':
+    if nb=='6':
         print(bcolors.OKGREEN + '\nemonESP\n' + bcolors.ENDC)
         cmd = 'pip freeze --disable-pip-version-check | grep esptool'
         if subprocess.call(cmd, shell=True) != ' ':
@@ -659,36 +571,6 @@ while(1):
             subprocess.call(cmd, shell=True)
             input("\nDone EmonEVSE 3p controller upload. Press Enter to return to menu\n")
         os.system('clear') # clear terminal screen Linux specific
-        
-    # emonTx V4
-    elif nb=='14':
-        print(bcolors.OKGREEN + '\nemonTx V4)\n' + bcolors.ENDC)
-        serial_port = get_serial_port()
-        if serial_port:
-            cmd = ' avrdude -Cavrdude.conf -v -pavr128db48 -carduino -D -P' + str(serial_port) + ' -b115200 -Uflash:w:' + download_folder + 'openenergymonitor-emontx4-EmonTxV4_LPL.hex'
-            print(cmd)
-            subprocess.call(cmd, shell=True)
-            if input("\nDone emonTx V4 upload. Press Enter to return to menu or (s) to view serial output ([CTRL + c] then [CTRL + q] to quit)>\n"):
-                serial_monitor(115200,serial_port)
-            os.system('clear') # clear terminal screen Linux specific
-        else:
-            print("Serial port not detected")
-            time.sleep(1.0)
-
-    # emonTx V4
-    elif nb=='15':
-        print(bcolors.OKGREEN + '\nemonTx V4)\n' + bcolors.ENDC)
-        serial_port = get_serial_port() 
-        if serial_port:
-            cmd = ' avrdude -Cavrdude.conf -v -pavr128db48 -carduino -D -P' + str(serial_port) + ' -b115200 -Uflash:w:' + download_folder + 'openenergymonitor-emontx4-EmonTxV4_JeeLib_Classic.hex'
-            print(cmd)
-            subprocess.call(cmd, shell=True)
-            if input("\nDone emonTx V4 upload. Press Enter to return to menu or (s) to view serial output ([CTRL + c] then [CTRL + q] to quit)>\n"):
-                serial_monitor(115200,serial_port)
-            os.system('clear') # clear terminal screen Linux specific
-        else:
-            print("Serial port not detected")
-            time.sleep(1.0)
             
     elif nb=='c':
         print(bcolors.OKGREEN + '\nErase ESP8266 flash\n' + bcolors.ENDC)
