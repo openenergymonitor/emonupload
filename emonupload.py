@@ -413,7 +413,6 @@ while(1):
     print(bcolors.OKGREEN + '(10) MQTT WiFi Relay\n' + bcolors.ENDC)
     print(bcolors.OKGREEN + '(11) WiFi ESP32 OpenEVSE/EmonEVSE\n' + bcolors.ENDC)
     print(bcolors.OKGREEN + '(12) Etherent ESP32 OpenEVSE/EmonEVSE\n' + bcolors.ENDC)
-    print(bcolors.OKGREEN + '(13) 3-phase EmonEVSE (ISP)\n' + bcolors.ENDC)
     print('\n')
     #print bcolors.OKGREEN + '(r) for RFM69Pi' + bcolors.ENDC
     print(bcolors.OKBLUE + '(c) to clear (erase) ESP8266 flash' + bcolors.ENDC)
@@ -525,7 +524,7 @@ while(1):
         cmd = 'pip freeze --disable-pip-version-check | grep esptool'
         if subprocess.call(cmd, shell=True) != ' ':
             # If esptool is installed
-            cmd = 'esptool --baud 921600 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size detect 0x1000  ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-bootloader.bin 0x8000  ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-partitions.bin 0x10000  ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-openevse_wifi_v1_openevse_wifi_gui.bin'
+            cmd = 'esptool --baud 921600 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size detect 0x1000  ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-bootloader.bin 0x8000  ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-partitions.bin 0x10000  ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-openevse_wifi_v1_gui-v2.bin'
             print(cmd)
             subprocess.call(cmd, shell=True)
             if input("\nDone OpenEVSE ESP32 upload. Press Enter to return to menu or (s) to view serial output (reset required)>\n"):
@@ -540,7 +539,7 @@ while(1):
         print(bcolors.OKGREEN + '\nOpenEVSE ESP32 Etherent Gateway\n' + bcolors.ENDC)
         cmd = 'pip freeze --disable-pip-version-check | grep esptool'
         if subprocess.call(cmd, shell=True) != ' ':
-            cmd = 'esptool.py --before default_reset --after hard_reset write_flash 0x1000 ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-bootloader.bin 0x8000 ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-partitions.bin 0x10000 ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-openevse_esp32-gateway-f.bin'
+            cmd = 'esptool --before default_reset --after hard_reset write_flash 0x1000 ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-bootloader.bin 0x8000 ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-partitions.bin 0x10000 ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-openevse_esp32-gateway-f_gui-v2.bin'
             print(cmd)
             subprocess.call(cmd, shell=True)
             if input("\nDone OpenEVSE ESP32 Etherent Gateway Upload. Press Enter to return to menu or (s) to view serial output (reset required)>\n"):
@@ -548,28 +547,6 @@ while(1):
         else:
             if input("\nERROR: esptool not installed. Press Enter to return to menu>\n"):
                 serial_monitor(openevse_baud,serial_port)
-        os.system('clear') # clear terminal screen Linux specific
-
-
-    # EmonEVSE - 3phase controller
-    elif nb=='13':
-        print(bcolors.OKGREEN + '\n3-phase EmonEVSE Controller (ISP)\n' + bcolors.ENDC)
-        cmd = 'pip freeze --disable-pip-version-check | grep esptool'
-        if subprocess.call(cmd, shell=True) != ' ':
-            print('setting fuses')
-            cmd = ' avrdude -c USBasp -p m328p -U lfuse:w:0xFF:m -U hfuse:w:0xDF:m -U efuse:w:0xFD:m -B6'
-            print(cmd)
-            subprocess.call(cmd, shell=True)
-
-            input("\nController fuses set press Enter to read back\n")
-            cmd = ' avrdude -p atmega328p -c usbasp -P usb -e -U lfuse:r:-:i -v'
-            subprocess.call(cmd, shell=True)
-
-            input("\nPress Enter to flash EmonEVSE Controller FW\n")
-            cmd = ' avrdude -p atmega328p -c usbasp -B5 -P usb -e -U flash:w:' + download_folder + 'OpenEVSE-open_evse-emonevse_3ph.hex'
-            print(cmd)
-            subprocess.call(cmd, shell=True)
-            input("\nDone EmonEVSE 3p controller upload. Press Enter to return to menu\n")
         os.system('clear') # clear terminal screen Linux specific
             
     elif nb=='c':
