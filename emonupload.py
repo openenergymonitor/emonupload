@@ -16,14 +16,14 @@ from os.path import expanduser
 #--------------------------------------------------------------------------------------------------
 DEBUG             = 0
 UPDATE            = 1           # Update firmware releases at startup
-VERSION = 'V2.6.1'
+VERSION = 'V2.6.2'
 
 download_folder = 'latest/'
 repo_folder = 'repos/'
 uno_bootloader = 'bootloaders/optiboot_atmega328.hex'
 
 allowed_extensions = ['bin', 'hex' ,'zip']
-github_repo = ['openenergymonitor/emonesp', 'OpenEVSE/ESP8266_WiFi_v2.x', 'openenergymonitor/mqtt-wifi-mqtt-single-channel-relay', 'OpenEVSE/open_evse', 'OpenEVSE/ESP32_WiFi_V4.x']
+github_repo = ['openenergymonitor/emonesp', 'OpenEVSE/open_evse', 'OpenEVSE/openevse_esp32_firmware']
 #--------------------------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------------------------
@@ -281,25 +281,6 @@ def reset(serial_port):
     return
 #--------------------------------------------------------------------------------------------------
 
-#--------------------------------------------------------------------------------------------------
-# PlatformIO unit test
-# --------------------------------------------------------------------------------------------------
-def pio_unit_test(test_path, env):
-    if os.path.isdir(expanduser('~/.platformio')) and os.path.isdir(test_path):
-        if DEBUG: print(bcolors.OKGREEN + 'PlatformIO is installed' + bcolors.ENDC)
-        print(bcolors.OKGREEN + '\nUnit Test: \n' + bcolors.ENDC)
-        cmd = 'pio test -d' + test_path + ' -e' + env
-        print(cmd)
-        subprocess.call(cmd, shell=True)
-        input("\nDone. Press Enter to return to menu >\n")
-        os.system('clear') # clear terminal screen Linux specific
-        return True
-    else:
-        print(bcolors.FAIL + 'Error PlatformIO NOT installed' + bcolors.ENDC)
-        print('Or test path cannot be found: ' + test_path)
-        return False
-# --------------------------------------------------------------------------------------------------
-
 
 #--------------------------------------------------------------------------------------------------
 # Serial Monitor
@@ -408,18 +389,13 @@ while(1):
     print('\nUpload >\n')
     print(bcolors.OKGREEN + '(6) emonESP\n' + bcolors.ENDC)
     print(bcolors.OKGREEN + '(7) Controller EmonEVSE (ISP)\n' + bcolors.ENDC)
-    print(bcolors.OKGREEN + '(8) WiFi ESP8266 OpenEVSE/EmonEVSE\n' + bcolors.ENDC)
     print(bcolors.OKGREEN + '(9) Controller OpenEVSE (ISP)\n' + bcolors.ENDC)
-    print(bcolors.OKGREEN + '(10) MQTT WiFi Relay\n' + bcolors.ENDC)
     print(bcolors.OKGREEN + '(11) WiFi ESP32 OpenEVSE/EmonEVSE\n' + bcolors.ENDC)
-    print(bcolors.OKGREEN + '(12) Etherent ESP32 OpenEVSE/EmonEVSE\n' + bcolors.ENDC)
+    print(bcolors.OKGREEN + '(12) Etherent ESP32 rev F OpenEVSE/EmonEVSE\n' + bcolors.ENDC)
     print('\n')
     #print bcolors.OKGREEN + '(r) for RFM69Pi' + bcolors.ENDC
     print(bcolors.OKBLUE + '(c) to clear (erase) ESP8266 flash' + bcolors.ENDC)
     print(bcolors.HEADER + '(s) view Serial Debug' + bcolors.ENDC)
-    print(bcolors.HEADER + '(u) update firmware (web connection required)' + bcolors.ENDC)
-    # print bcolors.HEADER + '(d) to enable DEBUG' + bcolors.ENDC
-    # print bcolors.HEADER + '(e) to EXIT' + bcolors.ENDC
     # print '\n'
     # print bcolors.HEADER + '[CTRL + c] to exit' + bcolors.ENDC
     print('\n')
@@ -501,30 +477,13 @@ while(1):
             input("\nDone OpenEVSE controller upload. Press Enter to return to menu\n")
         os.system('clear') # clear terminal screen Linux specific
 
-
-        # WIFI mqtt relay
-    elif nb=='10':
-        print(bcolors.OKGREEN + '\nWiFi MQTT relay\n' + bcolors.ENDC)
-        cmd = 'pip freeze --disable-pip-version-check | grep esptool'
-        if subprocess.call(cmd, shell=True) != ' ':
-            # If esptool is installed
-            cmd = 'esptool --baud 460800 write_flash --flash_freq 80m --flash_mode qio --flash_size 16m-c1 0x1000 ' + download_folder + 'openenergymonitor-mqtt-wifi-mqtt-single-channel-relay.bin'
-            print(cmd)
-            subprocess.call(cmd, shell=True)
-            if input("\nDone MQTT relay upload. Press Enter to return to menu or (s) to view serial output (reset required)>\n"):
-                            serial_monitor(emonesp_baud,serial_port)
-        else:
-            if input("\nERROR: esptool not installed. Press Enter to return to menu>\n"):
-                serial_monitor(wifi_relay_baud,serial_port)
-        os.system('clear') # clear terminal screen Linux specific
-
     # OpenEVSE ESP32 Wifi
     elif nb=='11':
         print(bcolors.OKGREEN + '\nOpenEVSE ESP32 WiFi\n' + bcolors.ENDC)
         cmd = 'pip freeze --disable-pip-version-check | grep esptool'
         if subprocess.call(cmd, shell=True) != ' ':
             # If esptool is installed
-            cmd = 'esptool --baud 921600 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size detect 0x1000  ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-bootloader.bin 0x8000  ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-partitions.bin 0x10000  ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-openevse_wifi_v1_gui-v2.bin'
+            cmd = 'esptool --baud 921600 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size detect 0x1000  ' + download_folder + 'OpenEVSE-openevse_esp32_firmware-bootloader.bin 0x8000  ' + download_folder + 'OpenEVSE-openevse_esp32_firmware-partitions.bin 0x10000  ' + download_folder + 'OpenEVSE-openevse_esp32_firmware-openevse_wifi_v1.bin'
             print(cmd)
             subprocess.call(cmd, shell=True)
             if input("\nDone OpenEVSE ESP32 upload. Press Enter to return to menu or (s) to view serial output (reset required)>\n"):
@@ -539,7 +498,7 @@ while(1):
         print(bcolors.OKGREEN + '\nOpenEVSE ESP32 Etherent Gateway\n' + bcolors.ENDC)
         cmd = 'pip freeze --disable-pip-version-check | grep esptool'
         if subprocess.call(cmd, shell=True) != ' ':
-            cmd = 'esptool --before default_reset --after hard_reset write_flash 0x1000 ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-bootloader.bin 0x8000 ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-partitions.bin 0x10000 ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-openevse_esp32-gateway-f_gui-v2.bin'
+            cmd = 'esptool --before default_reset --after hard_reset write_flash 0x1000 ' + download_folder + 'OpenEVSE-openevse_esp32_firmware-bootloader.bin 0x8000 ' + download_folder + 'OpenEVSE-Eopenevse_esp32_firmware-partitions.bin 0x10000 ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-openevse_esp32-olimex_esp32-gateway-f.bin'
             print(cmd)
             subprocess.call(cmd, shell=True)
             if input("\nDone OpenEVSE ESP32 Etherent Gateway Upload. Press Enter to return to menu or (s) to view serial output (reset required)>\n"):
@@ -549,39 +508,6 @@ while(1):
                 serial_monitor(openevse_baud,serial_port)
         os.system('clear') # clear terminal screen Linux specific
             
-    elif nb=='c':
-        print(bcolors.OKGREEN + '\nErase ESP8266 flash\n' + bcolors.ENDC)
-        cmd = 'pip freeze --disable-pip-version-check | grep esptool'
-        if subprocess.call(cmd, shell=True) != ' ':
-            # If esptool is installed
-            cmd = 'esptool erase_flash'
-            print(cmd)
-            subprocess.call(cmd, shell=True)
-            if input("\nDone erase ESP8266 flash, press enter to return to menu\n"):
-                            serial_monitor(emonesp_baud,serial_port)
-        else:
-            if input("\nERROR: esptool not installed. Press Enter to return to menu>\n"):
-                serial_monitor(wifi_relay_baud,serial_port)
-        os.system('clear') # clear terminal screen Linux specific
-
-    elif nb=='u':
-        print(bcolors.OKGREEN + 'Checking for updates.. ' + bcolors.ENDC)
-        # Update emonUpload (git pull)
-        update_emonupload('emonupload.py')
-        # Clone or (update if already cloned) repos defined in github_repo list
-        repo_clone_update(github_repo, repo_folder)
-        print('\n')
-        # Update firware releases for github releases
-        for i in range(len(github_repo)):
-            current_repo = github_repo[i]
-            resp = get_releases_info(current_repo)
-            if 'assets' in resp:
-                assets = resp['assets']
-                download_url = assets[0]['browser_download_url']
-                extension = download_url.split('.')[-1]
-                if (DEBUG): print(download_url)
-                if extension in allowed_extensions and UPDATE==True:
-                    file_download(download_url, current_repo, download_folder)
 
 
     # Serial Optons
