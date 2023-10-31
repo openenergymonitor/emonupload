@@ -498,7 +498,7 @@ while(1):
         print(bcolors.OKGREEN + '\nOpenEVSE ESP32 Etherent Gateway\n' + bcolors.ENDC)
         cmd = 'pip freeze --disable-pip-version-check | grep esptool'
         if subprocess.call(cmd, shell=True) != ' ':
-            cmd = 'esptool --before default_reset --after hard_reset write_flash 0x1000 ' + download_folder + 'OpenEVSE-openevse_esp32_firmware-bootloader.bin 0x8000 ' + download_folder + 'OpenEVSE-Eopenevse_esp32_firmware-partitions.bin 0x10000 ' + download_folder + 'OpenEVSE-ESP32_WiFi_V4.x-openevse_esp32-olimex_esp32-gateway-f.bin'
+            cmd = 'esptool --before default_reset --after hard_reset write_flash 0x1000 ' + download_folder + 'OpenEVSE-openevse_esp32_firmware-bootloader.bin 0x8000 ' + download_folder + 'OpenEVSE-openevse_esp32_firmware-partitions.bin 0x10000 ' + download_folder + 'OpenEVSE-openevse_esp32_firmware-olimex_esp32-gateway-f.bin'
             print(cmd)
             subprocess.call(cmd, shell=True)
             if input("\nDone OpenEVSE ESP32 Etherent Gateway Upload. Press Enter to return to menu or (s) to view serial output (reset required)>\n"):
