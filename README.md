@@ -20,11 +20,13 @@ Download latest OpenEnergyMonitor firmware via GitHub releases; upload and test.
 - requires Python 3
 
 ``` 
-$ sudo apt-get install avrdude picocom python3 python3-pip esptool
-& pip install requirements.txt
+$ sudo apt-get install avrdude picocom python3 python3-pip python3-venv
+$ python3 -m venv .
+$ source bin/activate
+$ pip install -r requirements.txt
 ```
 
-Allow non root acces to serail ports and install platformIO udev rules:
+Allow non root acces to serial ports and install platformIO udev rules:
 
 `sudo usermod -a -G dialout $USER`
 
@@ -34,7 +36,7 @@ More info: https://docs.platformio.org/en/latest/faq.html#platformio-udev-rules
 
 *Logout then log back in and un-plug re-plug your USB programmer for the change to take effect*
 
-Tested on Ubuntu 20.04
+Tested on Ubuntu 20.04, Debian 12
 
 
 # Run
