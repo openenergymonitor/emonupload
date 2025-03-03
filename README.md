@@ -30,7 +30,7 @@ Allow non root acces to serial ports and install platformIO udev rules:
 
 `sudo usermod -a -G dialout $USER`
 
-`curl -fsSL https://raw.githubusercontent.com/platformio/platformio-core/master/scripts/99-platformio-udev.rules | sudo tee /etc/udev/rules.d/99-platformio-udev.rules`
+`curl -fsSL https://raw.githubusercontent.com/platformio/platformio-core/refs/heads/master/platformio/assets/system/99-platformio-udev.rules | sudo tee /etc/udev/rules.d/99-platformio-udev.rules`
 
 More info: https://docs.platformio.org/en/latest/faq.html#platformio-udev-rules
 
